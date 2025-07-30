@@ -1,0 +1,4 @@
+# netlify.toml (This file is now located at the root of your Muzoscent-funnel repository)
+[build]
+  publish = "muzoscents-funnel old" # Now publish from the 'muzoscents-funnel old' folder relative to the repo root
+  functions = "muzoscents-funnel old/netlify/functions" # Now functions are here, relative to the repo root
