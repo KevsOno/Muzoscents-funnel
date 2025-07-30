@@ -17,17 +17,30 @@ exports.handler = async function (event, context) {
     };
   }
 
+  // *** ADD THIS DEBUGGING LINE HERE ***
+  const brevoApiKey = process.env.BREVO_API_KEY;
+  console.log("DEBUG: Brevo API Key status:", brevoApiKey ? "******** (key detected)" : "undefined/missing");
+  // **********************************
+
+  // Add a check for the key's presence before proceeding with the API call
+  if (!brevoApiKey) {
+    return {
+        statusCode: 500,
+        body: JSON.stringify({ message: "Server configuration error: Brevo API key is missing from environment variables." })
+    };
+  }
+
   try {
     const response = await fetch('https://api.brevo.com/v3/contacts', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'api-key': process.env.BREVO_API_KEY, // 👈 stored in Netlify env variables
+        'api-key': brevoApiKey, // Use the variable here
       },
       body: JSON.stringify({
         email: email,
         attributes: { FIRSTNAME: name },
-        listIds: [Number(process.env.BREVO_LIST_ID)], // 👈 also stored securely
+        listIds: [Number(process.env.BREVO_LIST_ID)], // This conversion is correct
         updateEnabled: true,
       }),
     });
