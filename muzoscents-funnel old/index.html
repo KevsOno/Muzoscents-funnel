@@ -1,0 +1,261 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google Tag Manager -->
+  <script>
+    (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-PKS7PPJK');
+  </script>
+  <!-- End Google Tag Manager -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MuzoScents | Discover Your Mood Scent</title>
+  <style>
+    body {
+      font-family: 'Verdana', sans-serif;
+      background: #f5f1eb;
+      color: #2c3e50;
+      text-align: center;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 {
+      font-family: 'Georgia', serif;
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    p {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+    }
+    a.button {
+      background: #6b4b9a;
+      color: #fff;
+      padding: 1rem 2rem;
+      border-radius: 12px;
+      text-decoration: none;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    a.button:hover {
+      background: #593b85;
+    }
+    /* Popup Styles */
+    .popup {
+      display: none;
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      z-index: 9999;
+      max-width: 300px;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    .popup.visible {
+      display: block;
+      opacity: 1;
+    }
+    .popup-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .popup-title {
+      font-weight: bold;
+      font-size: 1.1rem;
+      color: #2c3e50;
+    }
+    .close-wrapper {
+      float: right;
+    }
+    .close-btn {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      font-size: 0.9rem;
+      padding: 6px;
+      cursor: pointer;
+      border-radius: 6px;
+      width: 28px;
+      height: 28px;
+      text-align: center;
+      line-height: 1;
+    }
+    form input,
+    form button {
+      width: 100%;
+      margin: 8px 0;
+      padding: 10px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    form button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .success {
+      color: green;
+      font-size: 0.9rem;
+    }
+    .error {
+      color: red;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript>
+    <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PKS7PPJK"
+      height="0" width="0" style="display:none;visibility:hidden"></iframe>
+  </noscript>
+  <!-- End Google Tag Manager (noscript) -->
+     <h1>Welcome To Muzoscents <em><br>( Demo-Kevs Digital)</em></h1>
+    <p>Discover a scent that matches your mood. Take our quick quiz and unlock your perfect fragrance.</p>
+    <a href="quiz-result.html" class="button">Start Quiz</a>
+  </div>
+  <section style="padding: 3rem; max-width: 800px; margin: 0 auto;">
+    <h2 style="font-size: 2rem; margin-bottom: 1rem;">Understanding the Power of Content-Driven Growth</h2>
+    <p style="font-size: 1.2rem; line-height: 1.8;">
+      For small e-commerce brands like MuzoScents, scaling with limited resources means finding smart, cost-effective ways to drive traffic. That’s where SEO, Email Marketing (Lead Generation), and scroll-based engagement strategies come in.
+    </p>
+    <p style="font-size: 1.2rem; line-height: 1.8; margin-top: 1rem;">
+      By targeting mood-based fragrance searches - such as “scents for relaxation” or “uplifting perfumes” — you can reach highly specific audiences with low competition. These blog posts can guide visitors toward your catalog in a non-intrusive, value-first way while gently nudging them to subscribe to your mailing list.
+    </p>
+    <h3 style="font-size: 1.5rem; margin-top: 2rem;">How Scroll Depth Helps</h3>
+    <p style="font-size: 1.2rem; line-height: 1.8;">
+      Scroll events are powerful for understanding engagement. If users scroll past a point, it means the content holds their attention. You can use that insight to:
+    </p>
+    <ul style="font-size: 1.2rem; margin-top: 1rem; line-height: 1.8;">
+      <li>- Adjust CTAs to appear at high engagement points (Lead generation in this case)</li>
+      <li>- Trigger remarketing tags only for engaged users (efficient ads budget implementation)</li>
+      <li>- Track which blog types generate meaningful scrolls</li>
+    </ul>
+    <p style="font-size: 1.2rem; line-height: 1.8; margin-top: 1.5rem;">
+      It’s not just about views — it’s about who stays, who scrolls, and who takes action. Scroll tracking helps refine that visibility.
+    </p>
+    <h3 style="font-size: 1.5rem; margin-top: 2rem;">Next Steps</h3>
+    <p style="font-size: 1.2rem; line-height: 1.8;">
+      Once the scroll event fires and appears in GA4, you can segment your audience further. Build reports in Looker Studio to monitor:
+    </p>
+    <ul style="font-size: 1.2rem; margin-top: 1rem; line-height: 1.8;">
+      <li>- Scroll engagement vs. outbound clicks</li>
+      <li>- Scroll depth for different blog types</li>
+      <li>- Scroll-triggered conversions (thank_you_page)</li>
+      <li>- Scroll-depth vs conversion </li>
+    </ul>
+    <p style="font-size: 1.2rem; line-height: 1.8; margin-top: 1.5rem;">
+      While you were scrolling past a particular point, an email registration form should pop-up! If set up right in GTM, GA4 should register the scroll depth, you should have seen an Email form pop-up - which acts as a lead capture, also Looker Studio can visualize the journey clearly.
+    </p>
+  </section>
+  <div id="popup" class="popup">
+    <div class="popup-header">
+      <span class="popup-title">Let’s Work Together</span>
+      <div class="close-wrapper">
+        <button class="close-btn" onclick="hidePopupAndSetSession()">✖</button>
+      </div>
+    </div>
+    <form id="leadForm">
+      <input type="text" id="name" placeholder="Your Name" required />
+      <input type="email" id="email" placeholder="Your Email" required />
+      <button type="submit">Subscribe</button>
+      <p id="message"></p>
+    </form>
+  </div>
+  <script>
+    const popup = document.getElementById('popup');
+    const leadForm = document.getElementById('leadForm');
+    const message = document.getElementById('message');
+    const closeBtn = document.querySelector('.close-btn');
+
+    // Function to show the popup and set session flag
+    function showPopupAndSetSession() {
+      popup.classList.add('visible');
+      sessionStorage.setItem('popupShownThisSession', 'true');
+    }
+
+    // Function to hide the popup and set session flag
+    function hidePopupAndSetSession() {
+      popup.classList.remove('visible');
+      sessionStorage.setItem('popupShownThisSession', 'true'); // Ensure flag is set even if closed manually
+    }
+
+    // Scroll event listener
+    window.addEventListener('scroll', () => {
+      // Only proceed if the popup hasn't been shown yet in this session
+      if (sessionStorage.getItem('popupShownThisSession') !== 'true') {
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const scrollDepth = scrollTop / docHeight;
+        
+        // Trigger at 50% scroll depth
+        if (scrollDepth > 0.5) {
+          showPopupAndSetSession();
+        }
+      }
+    });
+
+    // Form submission handler
+    leadForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      
+      message.textContent = '';
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        message.textContent = 'Please enter a valid email address.';
+        message.className = 'error';
+        return;
+      }
+      try {
+        // Simulate API call to Netlify function
+        // In a real scenario, this would send data to your backend/email service
+        const response = await fetch('/.netlify/functions/subscribe', { 
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email })
+        });
+
+        if (response.ok) {
+          message.textContent = '🎉 Subscribed successfully!';
+          message.className = 'success';
+          leadForm.reset();
+          hidePopupAndSetSession(); // Hide and ensure session flag is set on success
+        } else {
+  let errorText = 'Something went wrong.';
+  try {
+    const errorData = await response.json();
+    errorText = errorData.message || errorText;
+  } catch (e) {
+    errorText = '⚠️ No response from server or not valid JSON.';
+  }
+  message.textContent = '❌ Error: ' + errorText;
+  message.className = 'error';
+}
+      } catch (error) {
+        message.textContent = '⚠️ Network error: ' + error.message;
+        message.className = 'error';
+      }
+    });
+    
+   
+    if (sessionStorage.getItem('popupShownThisSession') === 'true') {
+       
+    }
+  </script>
+</body>
+</html>
