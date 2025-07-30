@@ -1,2 +1,4 @@
-[functions]
-directory = "netlify/functions"
+# netlify.toml
+[build]
+  publish = "." # Your static files (index.html, CSS, etc.) are in the root of your repo
+  functions = "netlify/functions" # This tells Netlify where to look for your functions
