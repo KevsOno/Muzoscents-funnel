@@ -3,6 +3,7 @@ title: "My First Blog Post"
 date: 2025-09-13
 author: "Michael Onoriode"
 excerpt: "A short description of this post for SEO and previews."
+categories: ["SEO", "Technical Marketing"]
 ---
 # Welcome to My Blog
 
