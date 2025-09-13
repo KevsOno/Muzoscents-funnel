@@ -220,10 +220,64 @@
       nav {
         display: block;
       }
-      .hamburger {
-        display: none;
-      }
-    }
+      /* Hide nav and sidebar by default */
+.main-nav {
+  display: none; /* Hidden until toggled by hamburger */
+}
+.main-nav.open {
+  display: block; /* Show on toggle */
+}
+
+/* Sidebar styling */
+#sidebar {
+  position: fixed;
+  top: 0;
+  right: -300px;
+  width: 300px;
+  height: 100vh;
+  background: #f4f4f4;
+  transition: right 0.3s ease;
+  z-index: 1000;
+  padding: 20px;
+  box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+}
+#sidebar.open {
+  right: 0;
+}
+#sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+#sidebar li {
+  margin-bottom: 10px;
+}
+#sidebar a {
+  text-decoration: none;
+  color: #333;
+}
+
+/* Overlay to close sidebar */
+#overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: rgba(0,0,0,0.5);
+  z-index: 999;
+  display: none;
+}
+#overlay.open {
+  display: block;
+}
+
+/* Hamburger styling (adjust if existing) */
+.hamburger {
+  cursor: pointer;
+  font-size: 24px;
+}
+      
+    
     .container {
             width: 100%;
             max-width: 600px;
