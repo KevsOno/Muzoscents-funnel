@@ -4,11 +4,28 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Blog</title>
-  <link rel="stylesheet" href="../style.css"> <!-- Adjust if your CSS is elsewhere -->
+  <link rel="stylesheet" href="../style.css">
 </head>
 <body>
   <h1>Blog Posts</h1>
-  <a href="/blog">Visit My Blog</a>
-  <p>Check back for more updates!</p>
+  <ul id="post-list"></ul>
+
+  <script>
+    // Simple script to list HTML files in the Blog folder
+    const posts = [
+      { title: "My First Blog Post", url: "first-post.html" },
+      // Add more posts here as you create them
+    ];
+
+    const list = document.getElementById("post-list");
+    posts.forEach(post => {
+      const li = document.createElement("li");
+      const a = document.createElement("a");
+      a.href = post.url;
+      a.textContent = post.title;
+      li.appendChild(a);
+      list.appendChild(li);
+    });
+  </script>
 </body>
 </html>
