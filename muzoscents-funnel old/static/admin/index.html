@@ -7,6 +7,30 @@
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
 </head>
 <body>
-  <script src="config.yml"></script>
+  <script>
+    window.CMS_CONFIG = {
+      backend: {
+        name: "git-gateway",
+        branch: "main"
+      },
+      media_folder: "static/img",
+      public_folder: "/img",
+      collections: [{
+        name: "blog",
+        label: "Blog Posts",
+        folder: "blog",
+        create: true,
+        slug: "{{year}}-{{month}}-{{day}}-{{slug}}",
+        fields: [
+          {label: "Title", name: "title", widget: "string"},
+          {label: "Date", name: "date", widget: "datetime"},
+          {label: "Author", name: "author", widget: "string"},
+          {label: "Excerpt", name: "excerpt", widget: "string"},
+          {label: "Categories", name: "categories", widget: "list"},
+          {label: "Body", name: "body", widget: "markdown"}
+        ]
+      }]
+    };
+  </script>
 </body>
 </html>
