@@ -852,5 +852,67 @@
       }
     });
   </script>
+  <script>
+  // Automated post list
+  const posts = [
+    { title: "My First Blog Post", slug: "first-post", excerpt: "A short description for SEO.", categories: ["SEO", "Technical Marketing"], image: "path/to/image.jpg" },
+    // Add more posts as needed
+  ];
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const hamburger = document.querySelector('.hamburger');
+    const nav = document.getElementById('main-nav');
+    const blogMenu = document.getElementById('blog-menu');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    const closeBtn = document.getElementById('close-sidebar');
+
+    // Toggle main nav on hamburger click
+    if (hamburger && nav) {
+      hamburger.addEventListener('click', function() {
+        nav.classList.toggle('open');
+      });
+    }
+
+    // Toggle sidebar on Blog click
+    if (blogMenu && sidebar) {
+      blogMenu.addEventListener('click', function(e) {
+        e.preventDefault();
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('open');
+      });
+    }
+
+    // Close sidebar
+    if (overlay) {
+      overlay.addEventListener('click', function() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('open');
+      });
+    }
+    if (closeBtn) {
+      closeBtn.addEventListener('click', function() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('open');
+      });
+    }
+
+    // Generate post links in sidebar
+    const postList = document.getElementById('post-list');
+    if (postList) {
+      posts.forEach(post => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <a href="/Blog/${post.slug}.html">
+            <h3>${post.title}</h3>
+            <p>${post.excerpt}</p>
+            <small>Categories: ${post.categories.join(', ')}</small>
+          </a>
+        `;
+        postList.appendChild(li);
+      });
+    }
+  });
+    </script>
 </body>
 </html>
