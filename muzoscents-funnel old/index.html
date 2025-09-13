@@ -76,7 +76,9 @@
   }
   </script>
   
-  <style>
+  
+      
+     <style>
     :root {
       --ash: #b2b2b2;
       --primary: var(--ash);
@@ -107,6 +109,7 @@
       top: 0;
       z-index: 1000;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      height: 60px; /* Defined height for nav positioning */
     }
     .logo {
       font-size: 1.5rem;
@@ -123,8 +126,32 @@
       text-decoration: none;
       font-size: 0.9rem;
     }
-    nav {
+    .main-nav { /* Updated to use .main-nav class */
       display: none;
+    }
+    .main-nav.open {
+      display: block;
+      position: absolute;
+      top: 60px; /* Below header height */
+      left: 2rem; /* Align with header padding */
+      width: 200px;
+      background: var(--bg-light);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      z-index: 1001; /* Above header */
+      list-style: none;
+      padding: 0;
+    }
+    .main-nav ul {
+      list-style: none;
+      padding: 0;
+    }
+    .main-nav li {
+      padding: 10px;
+    }
+    .main-nav a {
+      text-decoration: none;
+      color: var(--text-dark);
+      display: block;
     }
     .hamburger {
       font-size: 1.4rem;
@@ -201,14 +228,6 @@
     .card:hover {
       transform: translateY(-5px);
     }
-    .animate-card {
-        transition: transform 0.3s ease, opacity 0.5s ease;
-        opacity: 0;
-    }
-    .animate-card.visible {
-        transform: translateY(0);
-        opacity: 1;
-    }
     footer {
       background: var(--accent);
       color: white;
@@ -217,132 +236,121 @@
       font-size: 0.9rem;
     }
     @media (min-width: 768px) {
-      nav {
+      /* Display navigation on desktop */
+      .main-nav { /* Updated to .main-nav */
         display: block;
+        position: static; /* Reset to normal flow on desktop */
+        width: auto;
+        background: transparent;
+        box-shadow: none;
+        z-index: auto;
       }
-      /* Hide nav and sidebar by default */
-.main-nav {
-  display: none; /* Hidden until toggled by hamburger */
-}
-.main-nav.open {
-  display: block; /* Show on toggle */
-}
-
-/* Sidebar styling */
-#sidebar {
-  position: fixed;
-  top: 0;
-  right: -300px;
-  width: 300px;
-  height: 100vh;
-  background: #f4f4f4;
-  transition: right 0.3s ease;
-  z-index: 1000;
-  padding: 20px;
-  box-shadow: -2px 0 5px rgba(0,0,0,0.2);
-}
-#sidebar.open {
-  right: 0;
-}
-#sidebar ul {
-  list-style: none;
-  padding: 0;
-}
-#sidebar li {
-  margin-bottom: 10px;
-}
-#sidebar a {
-  text-decoration: none;
-  color: #333;
-}
-
-/* Overlay to close sidebar */
-#overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
-  background: rgba(0,0,0,0.5);
-  z-index: 999;
-  display: none;
-}
-#overlay.open {
-  display: block;
-}
-
-/* Hamburger styling (adjust if existing) */
-.hamburger {
-  cursor: pointer;
-  font-size: 24px;
-}
-      
-    
+      .main-nav ul {
+        display: flex;
+        gap: 1rem;
+      }
+      .main-nav li {
+        padding: 0;
+      }
+      .hamburger {
+        display: none;
+      }
+    }
+    /* Sidebar and overlay for mobile */
+    #sidebar {
+      position: fixed;
+      top: 0;
+      right: -300px;
+      width: 300px;
+      height: 100vh;
+      background: var(--bg-light); /* Match body background */
+      transition: right 0.3s ease;
+      z-index: 1002; /* Above header (1000) and nav (1001) */
+      padding: 20px;
+      box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+    }
+    #sidebar.open {
+      right: 0;
+    }
+    #sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+    #sidebar li {
+      margin-bottom: 10px;
+    }
+    #sidebar a {
+      text-decoration: none;
+      color: var(--text-dark);
+    }
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+      display: none;
+    }
+    #overlay.open {
+      display: block;
+    }
     .container {
-            width: 100%;
-            max-width: 600px;
-            padding: 20px;
-            margin: auto;
-        }
-        .chart {
-            margin-bottom: 20px;
-        }
-        
-        .bar-container {
-            background-color: #e0e0e0;
-            border-radius: 20px;
-            height: 25px;
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .progress-bar {
-            height: 100%;
-            width: 0;
-            transition: width 2s ease-out;
-            background-color: var(--secondary-color);
-        }
-
-        .bar-label {
-          display: flex;
-          justify-content: space-between;
-          font-weight: bold;
-          margin-bottom: 5px;
-        }
-
-        .bar-label-text {
-            color: var(--text-dark);
-        }
-        
-        .bar-label-value {
-          color: var(--text-dark);
-        }
-        
+      width: 100%;
+      max-width: 600px;
+      padding: 20px;
+      margin: auto;
+    }
+    .chart {
+      margin-bottom: 20px;
+    }
+    .bar-container {
+      background-color: #e0e0e0;
+      border-radius: 20px;
+      height: 25px;
+      overflow: hidden;
+      position: relative;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      transition: width 2s ease-out;
+      background-color: var(--secondary-color);
+    }
+    .bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .bar-label-text {
+      color: var(--text-dark);
+    }
+    .bar-label-value {
+      color: var(--text-dark);
+    }
     .button {
-      display:inline-block; 
-      margin-top:1rem; 
-      background:var(--brand-purple); 
-      padding:1rem 2rem; 
-      border-radius:12px; 
-      color:#fff; 
-      text-decoration:none;
+      display: inline-block;
+      margin-top: 1rem;
+      background: var(--brand-purple);
+      padding: 1rem 2rem;
+      border-radius: 12px;
+      color: #fff;
+      text-decoration: none;
     }
-
     #contact .button {
-        animation: pulse 2s infinite ease-in-out;
-        transition: transform 0.2s ease-in-out;
+      animation: pulse 2s infinite ease-in-out;
+      transition: transform 0.2s ease-in-out;
     }
-
     #contact .button:hover {
-        transform: scale(1.05);
+      transform: scale(1.05);
     }
-
     @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.02); }
-        100% { transform: scale(1); }
+      0% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+      100% { transform: scale(1); }
     }
-
     .popup {
       display: none;
       position: fixed;
@@ -411,73 +419,74 @@
       color: red;
       font-size: 0.9rem;
     }
-    
     .tabs-container {
-    background: #fff;
-    padding: 2rem;
-    border-radius: 16px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-  }
-  .tabs {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    border-bottom: 2px solid #e0e0e0;
-    margin-bottom: 2rem;
-  }
-  .tab-button {
-    background: transparent;
-    border: none;
-    padding: 1rem 1.5rem;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border-bottom: 2px solid transparent;
-    color: var(--secondary-color);
-  }
-  .tab-button:hover {
-    color: var(--brand-purple);
-  }
-  .tab-button.active {
-    color: var(--brand-purple);
-    border-bottom: 2px solid var(--brand-purple);
-  }
-  .tab-content {
-    display: none;
-    text-align: center;
-  }
-  .tab-content.active {
-    display: block;
-  }
-  .tab-content img {
-    max-width: 100%;
-    border-radius: 8px;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  }
-  .tab-content .content-text h3 {
-    font-size: 1.5rem;
-    color: var(--brand-purple);
-    margin-bottom: 0.5rem;
-  }
-  .tab-content .content-text p {
-    font-size: 1rem;
-    max-width: 800px;
-    margin: 0 auto;
-  }
-  /* Responsive styles for mobile */
-  @media (max-width: 768px) {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+    }
     .tabs {
-      flex-wrap: wrap; /* Allows tabs to wrap to a new line */
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      border-bottom: 2px solid #e0e0e0;
+      margin-bottom: 2rem;
     }
     .tab-button {
-      flex: 1 1 45%; /* Makes two tabs fit per row with some spacing */
-      margin: 0.5rem 0; /* Adds vertical spacing between rows */
+      background: transparent;
+      border: none;
+      padding: 1rem 1.5rem;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border-bottom: 2px solid transparent;
+      color: var(--secondary-color);
     }
-  }
+    .tab-button:hover {
+      color: var(--brand-purple);
+    }
+    .tab-button.active {
+      color: var(--brand-purple);
+      border-bottom: 2px solid var(--brand-purple);
+    }
+    .tab-content {
+      display: none;
+      text-align: center;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .tab-content img {
+      max-width: 100%;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .tab-content .content-text h3 {
+      font-size: 1.5rem;
+      color: var(--brand-purple);
+      margin-bottom: 0.5rem;
+    }
+    .tab-content .content-text p {
+      font-size: 1rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    @media (max-width: 768px) {
+      .tabs {
+        flex-wrap: wrap;
+      }
+      .tab-button {
+        flex: 1 1 45%;
+        margin: 0.5rem 0;
+      }
+    }
+     </style> 
+      
+
+
   
-  </style>
 </head>
 
 <body>
@@ -723,196 +732,7 @@
     &copy; 2025 Onoriode Oghenekevbe. All rights reserved.
   </footer>
   
-  <script>
-      
-      const tabsContainer = document.querySelector('.tabs-container');
-  if (tabsContainer) {
-    tabsContainer.addEventListener('click', (event) => {
-      if (event.target.classList.contains('tab-button')) {
-        // Remove active class from all buttons and content
-        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-        
-        // Add active class to clicked button and its content
-        event.target.classList.add('active');
-        const targetTab = event.target.dataset.tab;
-        document.getElementById(targetTab).classList.add('active');
-      }
-    });
-  }
-    function animateProgressBar(barId, labelId, targetValue) {
-      const bar = document.getElementById(barId);
-      const label = document.getElementById(labelId);
-      bar.style.width = `${targetValue}%`;
-      let currentValue = 0;
-      const step = targetValue / 200;
-      const interval = setInterval(() => {
-        if (currentValue >= targetValue) {
-          clearInterval(interval);
-          currentValue = targetValue;
-        }
-        label.textContent = `${Math.round(currentValue)}%`;
-        currentValue += step;
-      }, 10);
-    }
-    
-    // Animate cards on scroll with a more reliable event listener
-    const cards = document.querySelectorAll('.animate-card');
-    
-    const animateCards = () => {
-      cards.forEach(card => {
-        const cardTop = card.getBoundingClientRect().top;
-        const cardBottom = card.getBoundingClientRect().bottom;
-        const windowHeight = window.innerHeight;
-        
-        // Trigger animation when card is in view
-        if (cardTop < windowHeight - 50 && cardBottom > 0) {
-          card.classList.add('visible');
-        }
-      });
-    };
-    
-    document.addEventListener('DOMContentLoaded', () => {
-      // Animate progress bars
-      animateProgressBar('trackingBar', 'trackingValue', 90);
-      animateProgressBar('problemSolvingBar', 'problemSolvingValue', 95);
-      animateProgressBar('emailMarketingBar', 'emailMarketingValue', 83);
-      animateProgressBar('webDesignBar', 'webDesignValue', 85);
-      animateProgressBar('contentCreationBar', 'contentCreationValue', 90);
-      animateProgressBar('smmBar', 'smmValue', 75);
-      animateProgressBar('adsBar', 'adsValue', 80);
-      animateProgressBar('semBar', 'semValue', 78);
-
-      // Animate cards on initial page load
-      animateCards();
-    });
-
-    // Listen for scroll events to trigger card animations
-    window.addEventListener('scroll', () => {
-      animateCards();
-      
-      // Popup logic
-      if (sessionStorage.getItem('popupShownThisSession') !== 'true') {
-        const scrollTop = window.scrollY || document.documentElement.scrollTop;
-        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-        const scrollDepth = scrollTop / docHeight;
-        if (scrollDepth > 0.5) {
-          showPopupAndSetSession();
-        }
-      }
-    });
-    
-    const popup = document.getElementById('popup');
-    const leadForm = document.getElementById('leadForm');
-    const message = document.getElementById('message');
-    
-    function showPopupAndSetSession() {
-      popup.classList.add('visible');
-      sessionStorage.setItem('popupShownThisSession', 'true');
-    }
-    
-    function hidePopupAndSetSession() {
-      popup.classList.remove('visible');
-      sessionStorage.setItem('popupShownThisSession', 'true');
-    }
-    
-    leadForm.addEventListener('submit', async function (e) {
-      e.preventDefault();
-      const name = document.getElementById('name').value.trim();
-      const email = document.getElementById('email').value.trim();
-      
-      message.textContent = '';
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        message.textContent = 'Please enter a valid email address.';
-        message.className = 'error';
-        return;
-      }
-      
-      try {
-        const response = await fetch('/.netlify/functions/subscribe', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, email })
-        });
-        
-        if (response.ok) {
-          message.textContent = '🎉 Subscribed successfully!';
-          message.className = 'success';
-          leadForm.reset();
-          hidePopupAndSetSession();
-        } else {
-          message.textContent = '❌ Error: something went wrong.';
-          message.className = 'error';
-        }
-      } catch (error) {
-        message.textContent = '⚠️ Network error: ' + error.message;
-        message.className = 'error';
-        console.error('Network error:', error);
-      }
-    });
-  </script>
-  <script>
-  // Automated post list
-  const posts = [
-    { title: "My First Blog Post", slug: "first-post", excerpt: "A short description for SEO.", categories: ["SEO", "Technical Marketing"], image: "path/to/image.jpg" },
-    // Add more posts as needed
-  ];
-
-  document.addEventListener('DOMContentLoaded', function() {
-    const hamburger = document.querySelector('.hamburger');
-    const nav = document.getElementById('main-nav');
-    const blogMenu = document.getElementById('blog-menu');
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('overlay');
-    const closeBtn = document.getElementById('close-sidebar');
-
-    // Toggle main nav on hamburger click
-    if (hamburger && nav) {
-      hamburger.addEventListener('click', function() {
-        nav.classList.toggle('open');
-      });
-    }
-
-    // Toggle sidebar on Blog click
-    if (blogMenu && sidebar) {
-      blogMenu.addEventListener('click', function(e) {
-        e.preventDefault();
-        sidebar.classList.toggle('open');
-        overlay.classList.toggle('open');
-      });
-    }
-
-    // Close sidebar
-    if (overlay) {
-      overlay.addEventListener('click', function() {
-        sidebar.classList.remove('open');
-        overlay.classList.remove('open');
-      });
-    }
-    if (closeBtn) {
-      closeBtn.addEventListener('click', function() {
-        sidebar.classList.remove('open');
-        overlay.classList.remove('open');
-      });
-    }
-
-    // Generate post links in sidebar
-    const postList = document.getElementById('post-list');
-    if (postList) {
-      posts.forEach(post => {
-        const li = document.createElement('li');
-        li.innerHTML = `
-          <a href="/Blog/${post.slug}.html">
-            <h3>${post.title}</h3>
-            <p>${post.excerpt}</p>
-            <small>Categories: ${post.categories.join(', ')}</small>
-          </a>
-        `;
-        postList.appendChild(li);
-      });
-    }
-  });
-    </script>
+          
+  
 </body>
 </html>
