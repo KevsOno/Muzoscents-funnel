@@ -1,4 +1,4 @@
-<script>
+
       
       const tabsContainer = document.querySelector('.tabs-container');
   if (tabsContainer) {
@@ -126,8 +126,8 @@ showPopupAndSetSession();
         console.error('Network error:', error);
       }
     });
-  </script>
-  <script>
+  
+
   // Automated post list
   const posts = [
     { title: "My First Blog Post", slug: "first-post", excerpt: "A short description for SEO.", categories: ["SEO", "Technical Marketing"], image: "path/to/image.jpg" },
@@ -189,5 +189,5 @@ showPopupAndSetSession();
       });
     }
   });
-  </script>
+
   
