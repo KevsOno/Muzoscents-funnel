@@ -1,4 +1,4 @@
-# netlify.toml (This file is located at the root of your Muzoscent-funnel repository)
 [build]
-  publish = "." # This means "publish from the current working directory" which is already 'muzoscents-funnel old'
-  functions = "netlify/functions" # This means "functions are in 'netlify/functions' relative to the current working directory"
+  command = "npm install && cd netlify/functions && npm install"
+  publish = "."
+  functions = "netlify/functions"
