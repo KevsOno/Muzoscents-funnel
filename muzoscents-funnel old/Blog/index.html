@@ -3,47 +3,68 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Blog</title>
+  <title>Blogs</title>
   <link rel="stylesheet" href="/style.css"> 
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    
+    <link href="dist/output.css" rel="stylesheet"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
 </head>
-<body>
-  <header>
-  <div class="logo">Kevs Ono</div>
-  <div class="header-buttons">
-    
-    <a href="https://mzfunnel/quiz-result.html" class="button">Start Demo Quiz</a>
-  </div>
-  <i class="fas fa-bars hamburger" aria-label="Toggle Navigation" role="button"></i>
-  <nav class="main-nav" id="main-nav">
-    <ul>
-      <li><a href="/mzfunnel/">Home</a></li>
-      <li><a href="/#case-study">Case Study</a></li> <!-- Link to internal section -->
-      <li><a href="#" id="blog-menu">Blog</a></li> <!-- Blog menu item -->
-    </ul>
-  </nav>
-  </header>
-  <h1>Blog Posts</h1>
-  <ul id="post-list"></ul>
+<body class="antialiased bg-stone-100 text-gray-800">
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center relative">
+            <a href="index.html">
+                <img alt="KD Logo" src="images/header_logo.webp" style="max-width: 160px; height: auto;"/>
+            </a>
+            <button aria-label="Open main menu" class="lg:hidden p-2 rounded-md text-gray-900 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange-500" id="mobile-menu-button">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                    <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                </svg>
+            </button>
+            <ul class="hidden lg:flex gap-4 text-gray-700 text-sm">
+                <li><a class="hover:text-orange-700" href="index.html#about">About</a></li>
+                <li><a class="hover:text-orange-700" href="index.html#skills">Skills</a></li>
+                <li><a class="hover:text-orange-700" href="index.html#experience">Experience</a></li>
+                <li><a class="hover:text-orange-700" href="index.html#portfolio">Portfolio</a></li>
+                <li><a class="hover:text-orange-700" href="services.html">Services</a></li>
+                <li><a class="hover:text-orange-700" href="blog/index.html">Blog</a></li>
+                <li><a class="hover:text-orange-700" href="index.html#contact">Contact</a></li>
+                
+            </ul>
+            <ul class="mobile-menu lg:hidden" id="mobile-menu">
+                <li><a class="hover:text-orange-700" href="#about">About</a></li>
+                <li><a class="hover:text-orange-700" href="#skills">Skills</a></li>
+                <li><a class="hover:text-orange-700" href="#experience">Experience</a></li>
+                <li><a class="hover:text-orange-700" href="#portfolio">Portfolio</a></li>
+                <li><a class="hover-text-orange-700" href="#services">Services</a></li>
+                <li><a class="hover:text-orange-700" href="blog/index.html">Blog</a></li>
+                <li><a class="hover-text-orange-700" href="#contact">Contact</a></li>
+                
+            </ul>
+        </nav>
+    </header>
 
-  <script>
-    // Simple script to list HTML files in the Blog folder
-    const posts = [
-      { title: "My First Blog Post", url: "first-post.html" },
-      // Add more posts here as you create them
-    ];
+    <main class="max-w-7xl mx-auto px-4 py-8">
+      <ul id="post-list" class="space-y-4"></ul>
+    </main>
 
-    const list = document.getElementById("post-list");
-    posts.forEach(post => {
-      const li = document.createElement("li");
-      const a = document.createElement("a");
-      a.href = post.url;
-      a.textContent = post.title;
-      li.appendChild(a);
-      list.appendChild(li);
-    });
-  </script>
-  <script src="script.js"></script>  
+    <script>
+        // Simple script to list HTML files in the Blog folder
+        const posts = [
+          { title: "Top 5 SEO Strategies for Small Businesses", url: "first-post.html" },
+          // Add more posts here as you create them
+        ];
+
+        const list = document.getElementById("post-list");
+        posts.forEach(post => {
+          const li = document.createElement("li");
+          const a = document.createElement("a");
+          a.href = post.url;
+          a.textContent = post.title;
+          li.appendChild(a);
+          list.appendChild(li);
+        });
+    </script>
+    <script src="script.js"></script>  
 </body>
-</html>
+  </html>
