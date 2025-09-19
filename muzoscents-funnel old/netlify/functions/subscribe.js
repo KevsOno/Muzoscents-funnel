@@ -54,8 +54,7 @@ exports.handler = async function (event, context) {
 
     // ACTION 2: Send an email notification to your inbox
     const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-    const apiKey = apiInstance.authentications['apiKey'];
-    apiKey.apiKey = brevoApiKey;
+    apiInstance.setApiKey(SibApiV3Sdk.ApiClient.instance.authentications['apiKey'], brevoApiKey);
 
     const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
     sendSmtpEmail.subject = 'New Lead from Your Website';
