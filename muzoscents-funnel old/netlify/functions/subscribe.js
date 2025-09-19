@@ -9,7 +9,6 @@ exports.handler = async function (event, context) {
     };
   }
 
-  // The 'message' variable will be 'undefined' if the form doesn't contain it.
   const { name, email, message } = JSON.parse(event.body);
   
   if (!email || !name) {
@@ -55,7 +54,8 @@ exports.handler = async function (event, context) {
 
     // ACTION 2: Send an email notification to your inbox
     const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-    SibApiV3Sdk.ApiClient.instance.authentications['apiKey'].apiKey = brevoApiKey;
+    const defaultClient = SibApiV3Sdk.ApiClient.instance;
+    defaultClient.authentications['apiKey'].apiKey = brevoApiKey;
 
     const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
     sendSmtpEmail.subject = 'New Lead from Your Website';
