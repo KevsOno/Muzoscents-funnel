@@ -1,5 +1,5 @@
 const fetch = require('node-fetch');
-const SibApiV3Sdk = require('@getbrevo/brevo'); // NEW: Import the Brevo SDK
+const SibApiV3Sdk = require('@getbrevo/brevo');
 
 exports.handler = async function (event, context) {
   if (event.httpMethod !== 'POST') {
@@ -9,7 +9,7 @@ exports.handler = async function (event, context) {
     };
   }
 
-  const { name, email, message } = JSON.parse(event.body); // Updated: Added 'message'
+  const { name, email, message } = JSON.parse(event.body);
   
   if (!email || !name) {
     return {
@@ -19,9 +19,8 @@ exports.handler = async function (event, context) {
   }
 
   const brevoApiKey = process.env.BREVO_API_KEY;
-  const brevoListId = process.env.BREVO_LIST_ID; // Assuming you have this env variable
+  const brevoListId = process.env.BREVO_LIST_ID;
 
-  // Check if API key or list ID are missing
   if (!brevoApiKey || !brevoListId) {
     return {
       statusCode: 500,
@@ -30,9 +29,7 @@ exports.handler = async function (event, context) {
   }
   
   try {
-    // ----------------------------------------------------------------------------------
-    // ACTION 1 (Your Original Code): Add contact to the mailing list
-    // ----------------------------------------------------------------------------------
+    // ACTION 1: Add contact to the mailing list
     const response = await fetch('https://api.brevo.com/v3/contacts', {
       method: 'POST',
       headers: {
@@ -55,10 +52,7 @@ exports.handler = async function (event, context) {
       };
     }
 
-    // ----------------------------------------------------------------------------------
-    // ACTION 2 (New Code): Send an email notification to your inbox
-    // This is the new functionality to get notifications
-    // ----------------------------------------------------------------------------------
+    // ACTION 2: Send an email notification to your inbox
     const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
     const apiKey = apiInstance.authentications['apiKey'];
     apiKey.apiKey = brevoApiKey;
@@ -76,19 +70,17 @@ exports.handler = async function (event, context) {
         </body>
       </html>
     `;
-    sendSmtpEmail.sender = { "email": "your_verified_sender_email@yourdomain.com", "name": "Your Website" };
-    sendSmtpEmail.to = [{ "email": "your_business_email@yourdomain.com" }];
+    sendSmtpEmail.sender = { "email": "mickevsono@gmail.com", "name": "Your Website" };
+    sendSmtpEmail.to = [{ "email": "mickevsono@gmail.com" }];
 
     await apiInstance.sendTransacEmail(sendSmtpEmail);
-    // ----------------------------------------------------------------------------------
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: 'Subscribed successfully' }),
+      body: JSON.stringify({ message: '🎉 Thanks! You’re on the list (or already subscribed).' }),
     };
     
   } catch (err) {
-    // If either API call fails, the entire function will return an error
     return {
       statusCode: 500,
       body: JSON.stringify({ message: 'Server error', error: err.message }),
