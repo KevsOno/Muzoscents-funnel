@@ -81,6 +81,8 @@ exports.handler = async function (event, context) {
     };
     
   } catch (err) {
+    // THIS LINE IS MODIFIED to log the full error
+    console.error("Function Error:", err);
     return {
       statusCode: 500,
       body: JSON.stringify({ message: 'Server error', error: err.message }),
