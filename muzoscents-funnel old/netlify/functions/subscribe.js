@@ -9,6 +9,7 @@ exports.handler = async function (event, context) {
     };
   }
 
+  // The 'message' variable will be 'undefined' if the form doesn't contain it.
   const { name, email, message } = JSON.parse(event.body);
   
   if (!email || !name) {
@@ -54,7 +55,7 @@ exports.handler = async function (event, context) {
 
     // ACTION 2: Send an email notification to your inbox
     const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-    apiInstance.setApiKey(SibApiV3Sdk.ApiClient.instance.authentications['apiKey'], brevoApiKey);
+    SibApiV3Sdk.ApiClient.instance.authentications['apiKey'].apiKey = brevoApiKey;
 
     const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
     sendSmtpEmail.subject = 'New Lead from Your Website';
@@ -80,7 +81,6 @@ exports.handler = async function (event, context) {
     };
     
   } catch (err) {
-    // THIS LINE IS MODIFIED to log the full error
     console.error("Function Error:", err);
     return {
       statusCode: 500,
