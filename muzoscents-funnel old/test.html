@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Penafort Rewards Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root { --navy: #002147; --green: #2ecc71; }
+        .bg-navy { background-color: var(--navy); }
+        .text-navy { color: var(--navy); }
+        .bg-green { background-color: var(--green); }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans min-h-screen">
+
+    <nav class="bg-white shadow p-4 mb-10">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="text-xl font-bold text-navy uppercase">Penafort<span class="text-green-500">Energy</span></div>
+        </div>
+    </nav>
+
+    <div class="max-w-md mx-auto px-4">
+        <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100">
+            <h2 class="text-2xl font-bold text-navy mb-2 text-center">Member Portal</h2>
+            <p class="text-gray-400 text-xs text-center mb-6 uppercase tracking-widest font-bold">Search by ID, Email, or Phone</p>
+            
+            <input type="text" id="searchInput" placeholder="Enter ID, Email or Phone" 
+                   class="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-green-500 rounded-2xl mb-4 outline-none transition-all">
+            
+            <button onclick="searchMember()" class="w-full bg-navy text-white font-bold py-4 rounded-2xl hover:opacity-90 transition shadow-lg">
+                Check Rewards
+            </button>
+
+            <div id="loader" class="hidden text-center mt-4 text-navy font-bold animate-pulse text-sm">Accessing Rewards Database...</div>
+            <div id="error" class="hidden text-center mt-4 text-red-500 font-bold text-sm"></div>
+        </div>
+
+        <div id="result" class="hidden mt-6 bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 animate-in fade-in duration-500">
+            <div class="bg-navy p-6 text-white text-center">
+                <div id="userInitials" class="w-16 h-16 bg-green rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-3">P</div>
+                <h3 id="resName" class="text-xl font-bold">---</h3>
+                <p id="resSub" class="text-xs opacity-60">---</p>
+            </div>
+            <div class="p-8 text-center">
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Accrued Points</p>
+                <div id="resPoints" class="text-7xl font-black text-navy mb-4">0</div>
+                <div class="inline-block px-4 py-1 bg-green/10 text-green-700 rounded-full text-xs font-bold">✓ Verified Member</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTx2wspc7VoYtuig37DAj0xTQLwHRk6iaI5pDFRy5o2b3CgbtibZ1xBM6wcSWNW5rSB0jd2nJ4qCI2i/pub?gid=0&single=true&output=csv";
+        const PROXY = "https://api.allorigins.win/get?url=";
+
+        async function searchMember() {
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+            const loader = document.getElementById('loader');
+            const error = document.getElementById('error');
+            const result = document.getElementById('result');
+
+            if(!query) return;
+
+            // Reset UI
+            loader.classList.remove('hidden');
+            error.classList.add('hidden');
+            result.classList.add('hidden');
+
+            try {
+                const response = await fetch(`${PROXY}${encodeURIComponent(SHEET_URL)}&cache=${Date.now()}`);
+                const data = await response.json();
+                const rows = data.contents.split('\n').map(row => row.split(',').map(c => c.replace(/"/g, '').trim()));
+
+                // Search columns A, B, C, and D
+                const user = rows.find(r => 
+                    r[0].toLowerCase() === query || 
+                    r[1] === query || 
+                    r[2].toLowerCase() === query || 
+                    r[3] === query
+                );
+
+                if(user) {
+                    document.getElementById('resName').innerText = user[0];
+                    document.getElementById('resSub').innerText = user[2] || user[1];
+                    document.getElementById('resPoints').innerText = user[4] || "0";
+                    document.getElementById('userInitials').innerText = user[0].charAt(0);
+                    result.classList.remove('hidden');
+                } else {
+                    error.innerText = "No member found with those details.";
+                    error.classList.remove('hidden');
+                }
+            } catch (e) {
+                error.innerText = "Connection error. Please try again.";
+                error.classList.remove('hidden');
+            } finally {
+                loader.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
