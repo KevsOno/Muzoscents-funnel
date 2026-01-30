@@ -50,53 +50,44 @@
         </div>
     </div>
 
-    <script>
-        const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTx2wspc7VoYtuig37DAj0xTQLwHRk6iaI5pDFRy5o2b3CgbtibZ1xBM6wcSWNW5rSB0jd2nJ4qCI2i/pub?gid=0&single=true&output=csv";
-        const PROXY = "https://api.allorigins.win/get?url=";
+   <script>
+    // PASTE YOUR GOOGLE WEB APP URL HERE
+    const SCRIPT_URL = "YOUR_COPIED_WEB_APP_URL_HERE";
 
-        async function searchMember() {
-            const query = document.getElementById('searchInput').value.trim().toLowerCase();
-            const loader = document.getElementById('loader');
-            const error = document.getElementById('error');
-            const result = document.getElementById('result');
+    async function searchMember() {
+        const query = document.getElementById('searchInput').value.trim();
+        const loader = document.getElementById('loader');
+        const error = document.getElementById('error');
+        const result = document.getElementById('result');
 
-            if(!query) return;
+        if(!query) return;
 
-            // Reset UI
-            loader.classList.remove('hidden');
-            error.classList.add('hidden');
-            result.classList.add('hidden');
+        loader.classList.remove('hidden');
+        error.classList.add('hidden');
+        result.classList.add('hidden');
 
-            try {
-                const response = await fetch(`${PROXY}${encodeURIComponent(SHEET_URL)}&cache=${Date.now()}`);
-                const data = await response.json();
-                const rows = data.contents.split('\n').map(row => row.split(',').map(c => c.replace(/"/g, '').trim()));
+        try {
+            // This calls your Google Script directly
+            const response = await fetch(`${SCRIPT_URL}?id=${encodeURIComponent(query)}`);
+            const user = await response.json();
 
-                // Search columns A, B, C, and D
-                const user = rows.find(r => 
-                    r[0].toLowerCase() === query || 
-                    r[1] === query || 
-                    r[2].toLowerCase() === query || 
-                    r[3] === query
-                );
-
-                if(user) {
-                    document.getElementById('resName').innerText = user[0];
-                    document.getElementById('resSub').innerText = user[2] || user[1];
-                    document.getElementById('resPoints').innerText = user[4] || "0";
-                    document.getElementById('userInitials').innerText = user[0].charAt(0);
-                    result.classList.remove('hidden');
-                } else {
-                    error.innerText = "No member found with those details.";
-                    error.classList.remove('hidden');
-                }
-            } catch (e) {
-                error.innerText = "Connection error. Please try again.";
+            if(user) {
+                document.getElementById('resName').innerText = user.name;
+                document.getElementById('resSub').innerText = user.email || user.mobile;
+                document.getElementById('resPoints').innerText = user.points;
+                document.getElementById('userInitials').innerText = user.name.charAt(0).toUpperCase();
+                result.classList.remove('hidden');
+            } else {
+                error.innerText = "Member not found. Check your ID or Email.";
                 error.classList.remove('hidden');
-            } finally {
-                loader.classList.add('hidden');
             }
+        } catch (e) {
+            error.innerText = "Connection error. Ensure your Script is deployed to 'Anyone'.";
+            error.classList.remove('hidden');
+        } finally {
+            loader.classList.add('hidden');
         }
-    </script>
+    }
+</script>
 </body>
 </html>
