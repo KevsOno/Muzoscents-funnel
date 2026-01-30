@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Penafort Energy | Member Portal</title>
+    <title>Penafort Energy | Rewards Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --navy: #002147; --green: #2ecc71; }
@@ -12,57 +12,56 @@
         .bg-green { background-color: var(--green); }
     </style>
 </head>
-<body class="bg-slate-100 min-h-screen font-sans">
+<body class="bg-slate-50 min-h-screen">
 
-    <nav class="bg-white shadow-sm p-4 border-b">
+    <nav class="bg-white shadow-sm p-4 mb-10 border-b">
         <div class="container mx-auto">
-            <div class="text-2xl font-black text-navy uppercase tracking-tighter">
+            <div class="text-2xl font-black text-navy uppercase italic">
                 PENAFORT<span class="text-green-500">ENERGY</span>
             </div>
         </div>
     </nav>
 
-    <main class="container mx-auto px-4 py-12 text-center">
-        <div class="max-w-md mx-auto bg-white p-8 rounded-[2.5rem] shadow-2xl border border-white">
-            <h2 class="text-2xl font-bold text-navy mb-1">Welcome Back</h2>
-            <p class="text-gray-400 text-[10px] uppercase tracking-[0.2em] mb-8 font-bold">Rewards & Loyalty Portal</p>
+    <div class="max-w-md mx-auto px-4">
+        <div class="bg-white p-8 rounded-[2rem] shadow-2xl border border-gray-100">
+            <h2 class="text-2xl font-bold text-navy mb-2 text-center">Member Portal</h2>
+            <p class="text-gray-400 text-[10px] text-center mb-8 uppercase tracking-[0.2em] font-bold">Search by ID, Email, or Phone</p>
             
             <div class="space-y-4">
-                <input type="text" id="searchInput" placeholder="ID, Email or Phone" 
+                <input type="text" id="searchInput" placeholder="Enter Details Here..." 
                        class="w-full p-5 bg-gray-50 border-2 border-transparent focus:border-green-500 rounded-2xl outline-none text-center font-bold text-lg transition-all shadow-inner">
                 
                 <button onclick="searchMember()" class="w-full bg-navy text-white font-bold py-5 rounded-2xl hover:bg-black transition-all shadow-lg active:scale-95">
-                    Check My Points
+                    Check Rewards
                 </button>
             </div>
 
-            <div id="loader" class="hidden mt-6 text-navy font-bold animate-pulse text-xs uppercase tracking-widest">Searching Database...</div>
-            <div id="error" class="hidden mt-6 p-4 bg-red-50 text-red-600 rounded-xl font-bold text-[10px] uppercase"></div>
+            <div id="loader" class="hidden text-center mt-6 text-navy font-bold animate-pulse text-xs">Connecting to Database...</div>
+            <div id="error" class="hidden text-center mt-6 p-4 bg-red-50 text-red-600 rounded-xl font-bold text-[10px] uppercase"></div>
+        </div>
 
-            <div id="result" class="hidden mt-8 border-t pt-8 animate-in fade-in zoom-in duration-300 text-center">
-                <div id="userInitials" class="w-20 h-20 bg-green text-white rounded-full flex items-center justify-center text-3xl font-black mx-auto mb-4 shadow-xl border-4 border-white">P</div>
-                <h3 id="resName" class="text-xl font-black text-navy uppercase tracking-tight">---</h3>
-                <p id="resSub" class="text-[10px] font-bold text-gray-400 mt-1 uppercase">---</p>
-                
-                <div class="my-8">
-                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-2">Current Balance</p>
-                    <div id="resPoints" class="text-7xl font-black text-navy tracking-tighter">0</div>
-                </div>
-                
+        <div id="result" class="hidden mt-8 bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-gray-100 animate-in fade-in zoom-in duration-300">
+            <div class="bg-navy p-10 text-white text-center">
+                <div id="userInitials" class="w-20 h-20 bg-green rounded-full flex items-center justify-center text-3xl font-black mx-auto mb-4 border-4 border-white/10 shadow-xl">P</div>
+                <h3 id="resName" class="text-2xl font-bold tracking-tight uppercase">---</h3>
+                <p id="resID" class="text-[10px] font-bold opacity-40 mt-1 uppercase tracking-widest">---</p>
+            </div>
+            <div class="p-10 text-center">
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-2">Total Accrued Points</p>
+                <div id="resPoints" class="text-7xl font-black text-navy mb-4 tracking-tighter">0</div>
                 <div class="inline-flex items-center px-4 py-1 bg-green/10 text-green-700 rounded-full text-[10px] font-black uppercase tracking-widest">
-                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                    Verified Member
+                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-ping"></span> Verified Member
                 </div>
             </div>
         </div>
-    </main>
+    </div>
 
     <script>
-        // Use the direct API URL
+        // Verified SheetDB Endpoint
         const API_URL = "https://sheetdb.io/api/v1/7v0s5mxlsoila";
 
         async function searchMember() {
-            const query = document.getElementById('searchInput').value.trim();
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
             const loader = document.getElementById('loader');
             const error = document.getElementById('error');
             const result = document.getElementById('result');
@@ -74,40 +73,40 @@
             result.classList.add('hidden');
 
             try {
-                // Fetch ALL data once - this is more reliable for 'Table' formatted sheets
+                // We fetch the full list to bypass column-name matching issues
                 const response = await fetch(API_URL);
-                if (!response.ok) throw new Error("Connection Failed");
-                
                 const data = await response.json();
 
-                // Find user by checking all possible columns (ID, Email, Phone, Name)
+                // If the data comes back empty [], it's a Sheet tab name issue
+                if (!data || data.length === 0) {
+                    throw new Error("Database is empty. Please rename your Sheet tab and refresh SheetDB.");
+                }
+
+                // Scan every value in every row for a match
                 const user = data.find(row => 
-                    Object.values(row).some(val => 
-                        val.toString().toLowerCase() === query.toLowerCase()
-                    )
+                    Object.values(row).some(val => val.toString().toLowerCase() === query)
                 );
 
                 if (user) {
-                    // Logic to find 'Points' even if the header has weird spacing
-                    const pointsKey = Object.keys(user).find(k => k.toLowerCase().includes('point'));
+                    // Smart detection of Name, ID, and Points columns
                     const nameKey = Object.keys(user).find(k => k.toLowerCase().includes('name'));
-                    const emailKey = Object.keys(user).find(k => k.toLowerCase().includes('email') || k.toLowerCase().includes('mail'));
+                    const idKey = Object.keys(user).find(k => k.toLowerCase().includes('id'));
+                    const pointsKey = Object.keys(user).find(k => k.toLowerCase().includes('point'));
 
-                    document.getElementById('resName').innerText = user[nameKey] || "Member";
-                    document.getElementById('resSub').innerText = user[emailKey] || "";
+                    document.getElementById('resName').innerText = user[nameKey] || "Valued Member";
+                    document.getElementById('resID').innerText = "Member ID: " + (user[idKey] || "N/A");
                     document.getElementById('resPoints').innerText = user[pointsKey] || "0";
                     document.getElementById('userInitials').innerText = (user[nameKey] || "P").charAt(0).toUpperCase();
                     
                     loader.classList.add('hidden');
                     result.classList.remove('hidden');
                 } else {
-                    throw new Error("No record found for '" + query + "'");
+                    throw new Error("Member not found. Check the ID and try again.");
                 }
             } catch (e) {
                 loader.classList.add('hidden');
                 error.innerText = e.message;
                 error.classList.remove('hidden');
-                console.error("System Log:", e);
             }
         }
     </script>
