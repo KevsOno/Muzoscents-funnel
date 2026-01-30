@@ -25,7 +25,7 @@
     <div class="max-w-md mx-auto px-4">
         <div class="bg-white p-8 rounded-[2rem] shadow-2xl border border-gray-100">
             <h2 class="text-2xl font-bold text-navy mb-2 text-center">Member Portal</h2>
-            <p class="text-gray-400 text-[10px] text-center mb-8 uppercase tracking-[0.2em] font-bold">Search by ID, Email, or Phone</p>
+            <p class="text-gray-400 text-[10px] text-center mb-8 uppercase tracking-[0.2em] font-bold">Search by ID, Email, Name or Phone</p>
             
             <div class="space-y-4">
                 <input type="text" id="searchInput" placeholder="Enter Details Here..." 
@@ -66,47 +66,61 @@
             const error = document.getElementById('error');
             const result = document.getElementById('result');
 
-            if (!query) return;
-
-            loader.classList.remove('hidden');
+            // Clear previous results/errors
             error.classList.add('hidden');
             result.classList.add('hidden');
 
-            try {
-                // We fetch the full list to bypass column-name matching issues
-                const response = await fetch(API_URL);
-                const data = await response.json();
+            if (!query) {
+                error.innerText = "Please enter an ID, name, email or phone number";
+                error.classList.remove('hidden');
+                return;
+            }
 
-                // If the data comes back empty [], it's a Sheet tab name issue
-                if (!data || data.length === 0) {
-                    throw new Error("Database is empty. Please rename your Sheet tab and refresh SheetDB.");
+            loader.classList.remove('hidden');
+
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) {
+                    throw new Error(`API responded with status ${response.status}`);
                 }
 
-                // Scan every value in every row for a match
+                const data = await response.json();
+
+                if (!data || data.length === 0) {
+                    throw new Error("Database appears empty at the moment.");
+                }
+
+                // Find first row where ANY field contains the query (partial match)
                 const user = data.find(row => 
-                    Object.values(row).some(val => val.toString().toLowerCase() === query)
+                    Object.values(row).some(val => 
+                        val && val.toString().toLowerCase().includes(query)
+                    )
                 );
 
                 if (user) {
-                    // Smart detection of Name, ID, and Points columns
-                    const nameKey = Object.keys(user).find(k => k.toLowerCase().includes('name'));
-                    const idKey = Object.keys(user).find(k => k.toLowerCase().includes('id'));
-                    const pointsKey = Object.keys(user).find(k => k.toLowerCase().includes('point'));
+                    // Detect column names (case-insensitive)
+                    const nameKey   = Object.keys(user).find(k => k.toLowerCase().includes('name'))   || 'NAME';
+                    const idKey     = Object.keys(user).find(k => k.toLowerCase().includes('id'))     || 'PENAFORT ID';
+                    const pointsKey = Object.keys(user).find(k => k.toLowerCase().includes('point'))  || 'POINTS';
 
+                    // Update DOM
                     document.getElementById('resName').innerText = user[nameKey] || "Valued Member";
-                    document.getElementById('resID').innerText = "Member ID: " + (user[idKey] || "N/A");
+                    document.getElementById('resID').innerText   = "Member ID: " + (user[idKey] || "N/A");
                     document.getElementById('resPoints').innerText = user[pointsKey] || "0";
-                    document.getElementById('userInitials').innerText = (user[nameKey] || "P").charAt(0).toUpperCase();
-                    
+
+                    const initials = (user[nameKey] || "P").trim().charAt(0).toUpperCase();
+                    document.getElementById('userInitials').innerText = initials;
+
                     loader.classList.add('hidden');
                     result.classList.remove('hidden');
                 } else {
-                    throw new Error("Member not found. Check the ID and try again.");
+                    throw new Error("No matching member found. Try a different detail.");
                 }
             } catch (e) {
                 loader.classList.add('hidden');
-                error.innerText = e.message;
+                error.innerText = e.message || "Connection issue — please try again later.";
                 error.classList.remove('hidden');
+                console.error("Search failed:", e);
             }
         }
     </script>
