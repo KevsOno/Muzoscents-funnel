@@ -12,7 +12,7 @@
         .bg-green { background-color: var(--green); }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-gray-100 min-h-screen font-sans">
 
     <nav class="bg-white shadow-md p-4">
         <div class="container mx-auto">
@@ -27,30 +27,31 @@
             
             <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100 mb-6">
                 <h2 class="text-2xl font-bold text-navy mb-2 text-center">Rewards Portal</h2>
-                <p class="text-gray-400 text-sm text-center mb-6 uppercase tracking-widest">Search by ID, Email, or Phone</p>
+                <p class="text-gray-400 text-sm text-center mb-6 uppercase tracking-widest">Enter ID, Email or Phone</p>
                 
                 <div class="space-y-4">
-                    <input type="text" id="searchInput" placeholder="Enter ID, Email or Phone" 
-                           class="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-green-500 rounded-2xl outline-none text-center font-semibold">
+                    <input type="text" id="searchInput" placeholder="e.g. 001" 
+                           class="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-green-500 rounded-2xl outline-none text-center font-semibold text-lg">
                     
-                    <button onclick="searchMember()" class="w-full bg-navy text-white font-bold py-4 rounded-2xl hover:bg-black transition-all shadow-lg">
+                    <button onclick="searchMember()" class="w-full bg-navy text-white font-bold py-4 rounded-2xl hover:bg-black transition-all shadow-lg active:scale-95">
                         Check My Points
                     </button>
                 </div>
 
-                <div id="loader" class="hidden text-center mt-4 text-navy font-bold animate-pulse text-sm">Accessing Database...</div>
+                <div id="loader" class="hidden text-center mt-4 text-navy font-bold animate-pulse text-sm">Searching Database...</div>
                 <div id="error" class="hidden text-center mt-4 text-red-500 font-bold text-sm"></div>
             </div>
 
-            <div id="result" class="hidden bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
+            <div id="result" class="hidden bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 animate-in fade-in zoom-in duration-300">
                 <div class="bg-navy p-8 text-white text-center">
-                    <div id="userInitials" class="w-20 h-20 bg-green rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-4">P</div>
+                    <div id="userInitials" class="w-20 h-20 bg-green rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-4 border-4 border-white/20">P</div>
                     <h3 id="resName" class="text-2xl font-bold tracking-tight uppercase">---</h3>
+                    <p id="resEmail" class="text-xs opacity-60 mt-1">---</p>
                 </div>
                 
                 <div class="p-10 text-center">
                     <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Total Accrued Points</p>
-                    <div id="resPoints" class="text-7xl font-black text-navy mb-4">0</div>
+                    <div id="resPoints" class="text-7xl font-black text-navy mb-4 tracking-tighter">0</div>
                     <div class="inline-block px-6 py-2 bg-green/10 text-green-700 rounded-full text-xs font-bold uppercase tracking-widest">
                         Verified Member
                     </div>
@@ -61,7 +62,6 @@
     </main>
 
     <script>
-        // Use this direct API link for the test to work
         const API_URL = "https://sheetdb.io/api/v1/7v0s5mxlsoila";
 
         async function searchMember() {
@@ -77,7 +77,7 @@
             result.classList.add('hidden');
 
             try {
-                // Testing connection to SheetDB
+                // Optimized search URL to handle spaces in headers correctly
                 const searchUrl = `${API_URL}/search_or?PENAFORT%20ID=${query}&EMAIL%20ADDRESS=${query}&MOBILE%20NUMBER=${query}&casesensitive=false`;
                 
                 const response = await fetch(searchUrl);
@@ -85,7 +85,10 @@
 
                 if (data && data.length > 0) {
                     const user = data[0];
+                    
+                    // Display Data - Using bracket notation for headers with spaces
                     document.getElementById('resName').innerText = user["NAME"];
+                    document.getElementById('resEmail').innerText = user["EMAIL ADDRESS"];
                     document.getElementById('resPoints').innerText = user["POINTS"] || "0";
                     document.getElementById('userInitials').innerText = user["NAME"].charAt(0).toUpperCase();
                     
@@ -93,13 +96,14 @@
                     result.classList.remove('hidden');
                 } else {
                     loader.classList.add('hidden');
-                    error.innerText = "Member not found. Check your Sheet columns.";
+                    error.innerText = "Member not found. Try '001' or your email.";
                     error.classList.remove('hidden');
                 }
             } catch (e) {
                 loader.classList.add('hidden');
-                error.innerText = "Connection Error. Use the direct API URL, not Bitly.";
+                error.innerText = "Database Connection Error. Please refresh.";
                 error.classList.remove('hidden');
+                console.error("Connection Debug:", e);
             }
         }
     </script>
