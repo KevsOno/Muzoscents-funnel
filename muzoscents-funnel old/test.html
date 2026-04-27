@@ -16,6 +16,14 @@
         .typing-dot { animation: blink 1.2s infinite; display: inline-block; }
         .typing-dot:nth-child(2) { animation-delay: 0.2s; }
         .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        .mode-active {
+            background-color: #1E3A5F !important;
+            color: white !important;
+        }
+        .mode-inactive {
+            background-color: #e5e7eb !important;
+            color: #374151 !important;
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen p-4">
@@ -60,31 +68,73 @@
         <div class="bg-blue-50/50 border border-blue-100 rounded-2xl overflow-hidden">
 
             <!-- Chat Header -->
-            <div class="bg-blue-900 px-5 py-3 flex items-center gap-3">
-                <span class="w-2 h-2 bg-green-400 rounded-full" style="animation: blink 2s infinite;"></span>
-                <span class="text-xs font-black text-white uppercase tracking-widest">AI Strategy Assistant</span>
+            <div class="bg-blue-900 px-5 py-3 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="w-2 h-2 bg-green-400 rounded-full" style="animation: blink 2s infinite;"></span>
+                    <span class="text-xs font-black text-white uppercase tracking-widest">AI Strategy Assistant</span>
+                </div>
+                <div class="text-xs text-white/60">
+                    <span id="frameworkBadge" class="bg-white/20 px-2 py-1 rounded">🤖 Hybrid Mode</span>
+                </div>
+            </div>
+
+            <!-- Mode Selector (Integrated) -->
+            <div class="p-4 border-b border-blue-100 bg-white/50">
+                <p class="text-xs font-bold text-gray-500 mb-2">🧠 ANALYSIS MODE:</p>
+                <div class="flex gap-2">
+                    <button onclick="Portal.setMode('customer')" 
+                            data-mode="customer"
+                            id="modeCustomer"
+                            class="mode-btn flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all bg-gray-200 text-gray-700 hover:bg-blue-100">
+                        👥 Customer
+                    </button>
+                    <button onclick="Portal.setMode('market')" 
+                            data-mode="market"
+                            id="modeMarket"
+                            class="mode-btn flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all bg-gray-200 text-gray-700 hover:bg-blue-100">
+                        🏪 Market
+                    </button>
+                    <button onclick="Portal.setMode('hybrid')" 
+                            data-mode="hybrid"
+                            id="modeHybrid"
+                            class="mode-btn flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all bg-blue-900 text-white">
+                        🔗 Hybrid
+                    </button>
+                </div>
+                <div class="flex justify-between items-center mt-2">
+                    <p class="text-xs text-gray-400">
+                        Current Mode: <span id="currentMode" class="font-bold text-blue-900">HYBRID</span>
+                    </p>
+                    <p class="text-xs text-gray-400">
+                        <span id="dataStatus" class="text-green-600">✅ Data Available</span>
+                    </p>
+                </div>
             </div>
 
             <!-- Chat Messages -->
             <div class="chat-messages flex flex-col gap-3 p-4 overflow-y-auto" id="chatMessages" style="height: 260px;">
                 <div class="msg-ai self-start max-w-xs text-sm px-4 py-3 rounded-xl rounded-bl-sm">
-                    Hi! I'm your Penafort AI advisor. Ask me anything about your points, energy tips, or membership strategy.
+                    Hi! I'm your Penafort AI advisor. I can analyze from customer, market, or hybrid perspectives. Select a mode above to get started!
                 </div>
             </div>
 
             <!-- Quick Prompts -->
             <div class="flex gap-2 px-4 pb-3 flex-wrap">
-                <button onclick="Portal.quickAsk('How do I earn more points?')"
+                <button onclick="Portal.quickAsk('Who are our primary customers?')"
                     class="text-xs bg-white border border-blue-200 text-blue-800 px-3 py-1.5 rounded-full hover:bg-blue-50 transition-all">
-                    Earn more points
+                    👥 Who are our customers?
                 </button>
-                <button onclick="Portal.quickAsk('What are the benefits of being a Penafort member?')"
+                <button onclick="Portal.quickAsk('How do we beat competitors?')"
                     class="text-xs bg-white border border-blue-200 text-blue-800 px-3 py-1.5 rounded-full hover:bg-blue-50 transition-all">
-                    Member benefits
+                    🏪 Competitive analysis
                 </button>
-                <button onclick="Portal.quickAsk('Give me a renewable energy tip for today.')"
+                <button onclick="Portal.quickAsk('What growth strategy should we use?')"
                     class="text-xs bg-white border border-blue-200 text-blue-800 px-3 py-1.5 rounded-full hover:bg-blue-50 transition-all">
-                    Energy tip
+                    📈 Growth strategy
+                </button>
+                <button onclick="Portal.quickAsk('Give me a renewable energy tip')"
+                    class="text-xs bg-white border border-blue-200 text-blue-800 px-3 py-1.5 rounded-full hover:bg-blue-50 transition-all">
+                    💡 Energy tip
                 </button>
             </div>
 
@@ -104,223 +154,220 @@
     </div>
 
     <script>
-    const Portal = {
-        SHEET_URL: "https://sheetdb.io/api/v1/a4z6gyofxc4lo",
-        AI_URL: "/.netlify/functions/chat-proxy",  // ✅ Calls your secure proxy
-        // ❌ NO API KEY HERE - it's hidden in the Netlify function!
-        chatHistory: [],
-
-        async search() {
-            const query = document.getElementById('searchInput').value.trim().toLowerCase();
-            const loader = document.getElementById('loader');
-            const error = document.getElementById('error');
-            const result = document.getElementById('result');
-
-            if (!query) return;
-
-            loader.classList.remove('hidden');
-            error.classList.add('hidden');
-            result.classList.add('hidden');
-
-            try {
-                const response = await fetch(this.SHEET_URL);
-                const data = await response.json();
-                const user = data.find(row =>
-                    Object.values(row).some(v => v?.toString().toLowerCase().includes(query))
-                );
-                if (!user) throw new Error("Member not found. Check your details and try again.");
-
-                const name = user.NAME || user.Name || "Member";
-                document.getElementById('resName').innerText = name;
-                document.getElementById('resInitial').innerText = name.charAt(0).toUpperCase();
-                document.getElementById('resID').innerText = `ID: ${user['PENAFORT ID'] || 'N/A'}`;
-                document.getElementById('resPoints').innerText = Number(user.POINTS || 0).toLocaleString();
-                result.classList.remove('hidden');
-            } catch (e) {
-                error.innerText = e.message;
-                error.classList.remove('hidden');
-            } finally {
-                loader.classList.add('hidden');
-            }
-        },
-
-        addMessage(text, role) {
-            const container = document.getElementById('chatMessages');
-            const div = document.createElement('div');
-            div.className = role === 'user'
-                ? 'msg-user self-end max-w-xs text-sm px-4 py-3 rounded-xl rounded-br-sm'
-                : 'msg-ai self-start max-w-xs text-sm px-4 py-3 rounded-xl rounded-bl-sm';
-            div.textContent = text;
-            container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
-            return div;
-        },
-
-        addTyping() {
-            const container = document.getElementById('chatMessages');
-            const div = document.createElement('div');
-            div.className = 'msg-ai self-start px-4 py-3 rounded-xl rounded-bl-sm text-blue-400 text-sm italic';
-            div.id = 'typingIndicator';
-            div.innerHTML = '<span class="typing-dot">●</span> <span class="typing-dot">●</span> <span class="typing-dot">●</span>';
-            container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
-        },
-
-        removeTyping() {
-            const el = document.getElementById('typingIndicator');
-            if (el) el.remove();
-        },
-
-        quickAsk(text) {
-            document.getElementById('chatInput').value = text;
-            this.sendMessage();
-        },
-
-        async sendMessage() {
-            const input = document.getElementById('chatInput');
-            const text = input.value.trim();
-            if (!text) return;
-            input.value = '';
-
-            this.addMessage(text, 'user');
-            this.chatHistory.push({ role: 'user', content: text });
-            this.addTyping();
-
-            try {
-                // ✅ Calls your Netlify Function proxy (no API key exposed)
-                const res = await fetch(this.AI_URL, {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        message: text,
-                        history: this.chatHistory.slice(-6)
-                    })
-                });
-                
-                // Handle errors
-                if (res.status === 401) {
-                    throw new Error('Service authentication failed. Please contact support.');
-                }
-                if (res.status === 429) {
-                    throw new Error('Rate limit exceeded. Please wait a moment before sending more messages.');
-                }
-                if (!res.ok) {
-                    throw new Error(`Service error (${res.status})`);
-                }
-                
-                const data = await res.json();
-                this.removeTyping();
-                const reply = data.response || 'No response received.';
-                this.addMessage(reply, 'ai');
-                this.chatHistory.push({ role: 'assistant', content: reply });
-            } catch (err) {
-                this.removeTyping();
-                let errorMsg = err.message;
-                if (err.message.includes('Failed to fetch')) {
-                    errorMsg = 'Cannot reach the service. It might be waking up - try again in 30 seconds.';
-                }
-                this.addMessage(errorMsg, 'ai');
-            }
-
-            // Keep history manageable
-            if (this.chatHistory.length > 20) {
-                this.chatHistory = this.chatHistory.slice(-20);
-            }
-        }
-    };
-</script> <!-- Add this to your Netlify frontend JavaScript section -->
-<script>
-    const Portal = {
-        SHEET_URL: "https://sheetdb.io/api/v1/a4z6gyofxc4lo",
-        AI_URL: "/.netlify/functions/chat-proxy",
-        analysisMode: "hybrid",  // Default mode: 'customer', 'market', or 'hybrid'
-        chatHistory: [],
-        
-        // New: Change analysis mode
-        setMode(mode) {
-            this.analysisMode = mode;
-            document.getElementById('currentMode').innerText = mode.toUpperCase();
+        const Portal = {
+            SHEET_URL: "https://sheetdb.io/api/v1/a4z6gyofxc4lo",
+            AI_URL: "/.netlify/functions/chat-proxy",
+            analysisMode: "hybrid",
+            chatHistory: [],
             
-            // Update UI to show active mode
-            document.querySelectorAll('.mode-btn').forEach(btn => {
-                if(btn.dataset.mode === mode) {
-                    btn.classList.add('bg-blue-900', 'text-white');
-                    btn.classList.remove('bg-gray-200', 'text-gray-700');
+            // Initialize
+            init() {
+                this.setMode('hybrid');
+                this.checkDataStatus();
+            },
+            
+            // Check if data is available (optional - could call API health)
+            async checkDataStatus() {
+                const statusSpan = document.getElementById('dataStatus');
+                if (statusSpan) {
+                    statusSpan.innerHTML = '✅ System Ready';
+                    statusSpan.className = 'text-xs text-green-600';
+                }
+            },
+            
+            // Change analysis mode
+            setMode(mode) {
+                this.analysisMode = mode;
+                document.getElementById('currentMode').innerText = mode.toUpperCase();
+                
+                // Update framework badge
+                const badge = document.getElementById('frameworkBadge');
+                if (mode === 'customer') {
+                    badge.innerHTML = '👥 Customer Analysis';
+                } else if (mode === 'market') {
+                    badge.innerHTML = '🏪 Market Analysis';
                 } else {
-                    btn.classList.remove('bg-blue-900', 'text-white');
-                    btn.classList.add('bg-gray-200', 'text-gray-700');
+                    badge.innerHTML = '🔗 Hybrid Strategy';
                 }
-            });
-        },
-        
-        async sendMessage() {
-            const input = document.getElementById('chatInput');
-            const text = input.value.trim();
-            if (!text) return;
-            input.value = '';
-            
-            this.addMessage(text, 'user');
-            this.chatHistory.push({ role: 'user', content: text });
-            this.addTyping();
-            
-            try {
-                const res = await fetch(this.AI_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        message: text,
-                        history: this.chatHistory.slice(-6),
-                        analysis_mode: this.analysisMode  // ✅ Send mode to API
-                    })
+                
+                // Update button styles
+                const buttons = {
+                    customer: document.getElementById('modeCustomer'),
+                    market: document.getElementById('modeMarket'),
+                    hybrid: document.getElementById('modeHybrid')
+                };
+                
+                Object.keys(buttons).forEach(key => {
+                    if (buttons[key]) {
+                        if (key === mode) {
+                            buttons[key].className = 'mode-btn flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all bg-blue-900 text-white';
+                        } else {
+                            buttons[key].className = 'mode-btn flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all bg-gray-200 text-gray-700 hover:bg-blue-100';
+                        }
+                    }
                 });
                 
-                if (res.status === 401) {
-                    throw new Error('Authentication failed.');
-                }
-                if (res.status === 429) {
-                    throw new Error('Rate limit exceeded. Please wait.');
-                }
-                if (!res.ok) {
-                    throw new Error(`API error (${res.status})`);
-                }
-                
-                const data = await res.json();
-                this.removeTyping();
-                const reply = data.response || 'No response received.';
-                this.addMessage(reply, 'ai');
-                this.chatHistory.push({ role: 'assistant', content: reply });
-            } catch (err) {
-                this.removeTyping();
-                this.addMessage(err.message, 'ai');
-            }
-        }
-    };
-</script>
+                // Add system message about mode change
+                this.addSystemMessage(`Switched to ${mode.toUpperCase()} analysis mode. How can I help?`);
+            },
+            
+            addSystemMessage(text) {
+                const container = document.getElementById('chatMessages');
+                const div = document.createElement('div');
+                div.className = 'msg-ai self-start max-w-xs text-sm px-4 py-3 rounded-xl rounded-bl-sm italic text-gray-500';
+                div.textContent = text;
+                container.appendChild(div);
+                container.scrollTop = container.scrollHeight;
+            },
+            
+            // Member search
+            async search() {
+                const query = document.getElementById('searchInput').value.trim().toLowerCase();
+                const loader = document.getElementById('loader');
+                const error = document.getElementById('error');
+                const result = document.getElementById('result');
 
-<!-- Add Mode Selector UI above chat input -->
-<div class="p-4 border-b border-blue-100">
-    <p class="text-xs font-bold text-gray-500 mb-2">🧠 ANALYSIS MODE:</p>
-    <div class="flex gap-2">
-        <button onclick="Portal.setMode('customer')" 
-                data-mode="customer"
-                class="mode-btn flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all bg-gray-200 text-gray-700">
-            👥 Customer
-        </button>
-        <button onclick="Portal.setMode('market')" 
-                data-mode="market"
-                class="mode-btn flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all bg-gray-200 text-gray-700">
-            🏪 Market
-        </button>
-        <button onclick="Portal.setMode('hybrid')" 
-                data-mode="hybrid"
-                class="mode-btn flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all bg-blue-900 text-white">
-            🔗 Hybrid
-        </button>
-    </div>
-    <p class="text-xs text-gray-400 mt-2">
-        Current Mode: <span id="currentMode" class="font-bold text-blue-900">HYBRID</span>
-    </p>
-</div></body>
+                if (!query) return;
+
+                loader.classList.remove('hidden');
+                error.classList.add('hidden');
+                result.classList.add('hidden');
+
+                try {
+                    const response = await fetch(this.SHEET_URL);
+                    const data = await response.json();
+                    const user = data.find(row =>
+                        Object.values(row).some(v => v?.toString().toLowerCase().includes(query))
+                    );
+                    if (!user) throw new Error("Member not found. Check your details and try again.");
+
+                    const name = user.NAME || user.Name || "Member";
+                    document.getElementById('resName').innerText = name;
+                    document.getElementById('resInitial').innerText = name.charAt(0).toUpperCase();
+                    document.getElementById('resID').innerText = `ID: ${user['PENAFORT ID'] || 'N/A'}`;
+                    document.getElementById('resPoints').innerText = Number(user.POINTS || 0).toLocaleString();
+                    result.classList.remove('hidden');
+                } catch (e) {
+                    error.innerText = e.message;
+                    error.classList.remove('hidden');
+                } finally {
+                    loader.classList.add('hidden');
+                }
+            },
+
+            // Chat functions
+            addMessage(text, role) {
+                const container = document.getElementById('chatMessages');
+                const div = document.createElement('div');
+                div.className = role === 'user'
+                    ? 'msg-user self-end max-w-xs text-sm px-4 py-3 rounded-xl rounded-br-sm'
+                    : 'msg-ai self-start max-w-xs text-sm px-4 py-3 rounded-xl rounded-bl-sm';
+                div.textContent = text;
+                container.appendChild(div);
+                container.scrollTop = container.scrollHeight;
+                return div;
+            },
+
+            addTyping() {
+                const container = document.getElementById('chatMessages');
+                const div = document.createElement('div');
+                div.className = 'msg-ai self-start px-4 py-3 rounded-xl rounded-bl-sm text-blue-400 text-sm italic';
+                div.id = 'typingIndicator';
+                div.innerHTML = '<span class="typing-dot">●</span> <span class="typing-dot">●</span> <span class="typing-dot">●</span>';
+                container.appendChild(div);
+                container.scrollTop = container.scrollHeight;
+            },
+
+            removeTyping() {
+                const el = document.getElementById('typingIndicator');
+                if (el) el.remove();
+            },
+
+            quickAsk(text) {
+                document.getElementById('chatInput').value = text;
+                this.sendMessage();
+            },
+
+            async sendMessage() {
+                const input = document.getElementById('chatInput');
+                const text = input.value.trim();
+                if (!text) return;
+                input.value = '';
+
+                this.addMessage(text, 'user');
+                this.chatHistory.push({ role: 'user', content: text });
+                this.addTyping();
+
+                try {
+                    const res = await fetch(this.AI_URL, {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            message: text,
+                            history: this.chatHistory.slice(-6),
+                            analysis_mode: this.analysisMode,
+                            location: "Lagos, LASU",
+                            niche: "student fragrance market"
+                        })
+                    });
+                    
+                    if (res.status === 401) {
+                        throw new Error('Authentication failed. Please contact support.');
+                    }
+                    if (res.status === 429) {
+                        throw new Error('Rate limit exceeded. Please wait a moment.');
+                    }
+                    if (!res.ok) {
+                        throw new Error(`Service error (${res.status})`);
+                    }
+                    
+                    const data = await res.json();
+                    this.removeTyping();
+                    
+                    // Show which framework was used
+                    const frameworkInfo = data.framework_used ? `[${data.framework_used}] ` : '';
+                    const reply = frameworkInfo + (data.response || 'No response received.');
+                    
+                    this.addMessage(reply, 'ai');
+                    this.chatHistory.push({ role: 'assistant', content: data.response });
+                    
+                    // Update data quality badge if available
+                    if (data.data_quality) {
+                        const statusSpan = document.getElementById('dataStatus');
+                        if (data.data_quality === 'HIGH') {
+                            statusSpan.innerHTML = '✅ High Quality Data';
+                            statusSpan.className = 'text-xs text-green-600';
+                        } else if (data.data_quality === 'MEDIUM') {
+                            statusSpan.innerHTML = '⚠️ Medium Quality Data';
+                            statusSpan.className = 'text-xs text-yellow-600';
+                        } else {
+                            statusSpan.innerHTML = '⚠️ Limited Data Available';
+                            statusSpan.className = 'text-xs text-orange-600';
+                        }
+                    }
+                    
+                } catch (err) {
+                    this.removeTyping();
+                    let errorMsg = err.message;
+                    if (err.message.includes('Failed to fetch')) {
+                        errorMsg = 'Cannot reach the service. It might be waking up - try again in 30 seconds.';
+                    }
+                    this.addMessage(errorMsg, 'ai');
+                }
+
+                // Keep history manageable
+                if (this.chatHistory.length > 20) {
+                    this.chatHistory = this.chatHistory.slice(-20);
+                }
+            }
+        };
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            Portal.init();
+        });
+    </script>
+</body>
 </html>
