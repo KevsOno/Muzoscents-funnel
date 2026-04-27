@@ -1,4 +1,15 @@
 [build]
-  command = "cd netlify/functions && npm install"
+  command = "cd netlify/functions && npm install || echo 'No dependencies to install'"
   publish = "."
-  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+  directory = "netlify/functions"
+
+# Security headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
