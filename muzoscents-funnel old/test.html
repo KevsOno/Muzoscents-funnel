@@ -230,5 +230,97 @@
             }
         }
     };
-</script></body>
+</script> <!-- Add this to your Netlify frontend JavaScript section -->
+<script>
+    const Portal = {
+        SHEET_URL: "https://sheetdb.io/api/v1/a4z6gyofxc4lo",
+        AI_URL: "/.netlify/functions/chat-proxy",
+        analysisMode: "hybrid",  // Default mode: 'customer', 'market', or 'hybrid'
+        chatHistory: [],
+        
+        // New: Change analysis mode
+        setMode(mode) {
+            this.analysisMode = mode;
+            document.getElementById('currentMode').innerText = mode.toUpperCase();
+            
+            // Update UI to show active mode
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                if(btn.dataset.mode === mode) {
+                    btn.classList.add('bg-blue-900', 'text-white');
+                    btn.classList.remove('bg-gray-200', 'text-gray-700');
+                } else {
+                    btn.classList.remove('bg-blue-900', 'text-white');
+                    btn.classList.add('bg-gray-200', 'text-gray-700');
+                }
+            });
+        },
+        
+        async sendMessage() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text) return;
+            input.value = '';
+            
+            this.addMessage(text, 'user');
+            this.chatHistory.push({ role: 'user', content: text });
+            this.addTyping();
+            
+            try {
+                const res = await fetch(this.AI_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: text,
+                        history: this.chatHistory.slice(-6),
+                        analysis_mode: this.analysisMode  // ✅ Send mode to API
+                    })
+                });
+                
+                if (res.status === 401) {
+                    throw new Error('Authentication failed.');
+                }
+                if (res.status === 429) {
+                    throw new Error('Rate limit exceeded. Please wait.');
+                }
+                if (!res.ok) {
+                    throw new Error(`API error (${res.status})`);
+                }
+                
+                const data = await res.json();
+                this.removeTyping();
+                const reply = data.response || 'No response received.';
+                this.addMessage(reply, 'ai');
+                this.chatHistory.push({ role: 'assistant', content: reply });
+            } catch (err) {
+                this.removeTyping();
+                this.addMessage(err.message, 'ai');
+            }
+        }
+    };
+</script>
+
+<!-- Add Mode Selector UI above chat input -->
+<div class="p-4 border-b border-blue-100">
+    <p class="text-xs font-bold text-gray-500 mb-2">🧠 ANALYSIS MODE:</p>
+    <div class="flex gap-2">
+        <button onclick="Portal.setMode('customer')" 
+                data-mode="customer"
+                class="mode-btn flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all bg-gray-200 text-gray-700">
+            👥 Customer
+        </button>
+        <button onclick="Portal.setMode('market')" 
+                data-mode="market"
+                class="mode-btn flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all bg-gray-200 text-gray-700">
+            🏪 Market
+        </button>
+        <button onclick="Portal.setMode('hybrid')" 
+                data-mode="hybrid"
+                class="mode-btn flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all bg-blue-900 text-white">
+            🔗 Hybrid
+        </button>
+    </div>
+    <p class="text-xs text-gray-400 mt-2">
+        Current Mode: <span id="currentMode" class="font-bold text-blue-900">HYBRID</span>
+    </p>
+</div></body>
 </html>
