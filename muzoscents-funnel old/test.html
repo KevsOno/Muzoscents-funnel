@@ -1,161 +1,122 @@
-<nav class="bg-white shadow-sm p-4 mb-10 border-b">
-    <div class="container mx-auto">
-        <div class="text-2xl font-black text-navy uppercase italic">
-            PENAFORT<span class="text-green-500">ENERGY</span>
-        </div>
-    </div>
-</nav>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom brand colors to keep classes clean */
+        :root { --navy: #000080; --brand-green: #22c55e; }
+        .text-navy { color: var(--navy); }
+        .bg-navy { background-color: var(--navy); }
+        .bg-green-soft { background-color: rgba(34, 197, 94, 0.1); }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
 
-<div class="max-w-md mx-auto px-4">
-    <div class="bg-white p-8 rounded-[2rem] shadow-2xl border border-gray-100">
-        <h2 class="text-2xl font-bold text-navy mb-2 text-center">Member Portal</h2>
-        <p class="text-gray-400 text-[10px] text-center mb-8 uppercase tracking-[0.2em] font-bold">Search by ID, Email, Name or Phone</p>
-        
-        <div class="space-y-4">
-            <input type="text" id="searchInput" placeholder="Enter Details Here..." 
-                   class="w-full p-5 bg-gray-50 border-2 border-transparent focus:border-green-500 rounded-2xl outline-none text-center font-bold text-lg transition-all shadow-inner">
-            
-            <button onclick="searchMember()" class="w-full bg-navy text-white font-bold py-5 rounded-2xl hover:bg-black transition-all shadow-lg active:scale-95">
-                Check Rewards
-            </button>
-        </div>
-
-        <div id="loader" class="hidden text-center mt-6 text-navy font-bold animate-pulse text-xs">Connecting to Database...</div>
-        <div id="error" class="hidden text-center mt-6 p-4 bg-red-50 text-red-600 rounded-xl font-bold text-[10px] uppercase"></div>
-    </div>
-
-
-
-    
-    <div id="result" class="hidden mt-8 bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-gray-100 animate-in fade-in zoom-in duration-300">
-        <div class="bg-navy p-10 text-white text-center">
-            <div id="userInitials" class="w-20 h-20 bg-green rounded-full flex items-center justify-center text-3xl font-black mx-auto mb-4 border-4 border-white/10 shadow-xl">P</div>
-            <h3 id="resName" class="text-2xl font-bold tracking-tight uppercase">---</h3>
-            <p id="resID" class="text-[10px] font-bold opacity-40 mt-1 uppercase tracking-widest">---</p>
-        </div>
-        <div class="p-10 text-center">
-            <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-2">Total Accrued Points</p>
-            <div id="resPoints" class="text-7xl font-black text-navy mb-4 tracking-tighter">0</div>
-            <div class="inline-flex items-center px-4 py-1 bg-green/10 text-green-700 rounded-full text-[10px] font-black uppercase tracking-widest">
-                <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-ping"></span> Verified Member
+    <nav class="bg-white shadow-sm p-4 mb-10 border-b">
+        <div class="container mx-auto">
+            <div class="text-2xl font-black text-navy uppercase italic">
+                PENAFORT<span class="text-green-500">ENERGY</span>
             </div>
         </div>
-    </div>
-</div>
-<div id="ai-response" style="border:1px solid #ccc; padding:10px; margin-top:20px;">
-  Waiting for AI...
-</div>
+    </nav>
 
-<script>
-fetch("https://kevsono-aibot.hf.space/chat", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    message: "Give me a 1-sentence strategic tip for Penafort based on our current data.",
-    history: [],
-    budget: 500000
-  })
-})
-.then(res => res.json())
-.then(data => {
-  // This puts the answer on the screen instead of the console
-  document.getElementById("ai-response").innerText = data.response;
-})
-.catch(err => {
-  document.getElementById("ai-response").innerText = "Brain offline.";
-});
-</script>
-<script>
-    // Verified SheetDB Endpoint
-    const API_URL = "https://sheetdb.io/api/v1/a4z6gyofxc4lo";
+    <main class="max-w-md mx-auto px-4">
+        <section class="bg-white p-8 rounded-[2rem] shadow-2xl border border-gray-100">
+            <h2 class="text-2xl font-bold text-navy mb-2 text-center">Member Portal</h2>
+            <p class="text-gray-400 text-[10px] text-center mb-8 uppercase tracking-[0.2em] font-bold">
+                Search by ID, Email, Name or Phone
+            </p>
+            
+            <div class="space-y-4">
+                <input type="text" id="searchInput" placeholder="Enter Details Here..." 
+                       class="w-full p-5 bg-gray-50 border-2 border-transparent focus:border-green-500 rounded-2xl outline-none text-center font-bold text-lg transition-all shadow-inner">
+                
+                <button onclick="App.handleSearch()" class="w-full bg-navy text-white font-bold py-5 rounded-2xl hover:bg-black transition-all shadow-lg active:scale-95">
+                    Check Rewards
+                </button>
+            </div>
 
-    async function searchMember() {
-        const query = document.getElementById('searchInput').value.trim();
-        const searchTerm = query.toLowerCase(); // keep original query for display if needed
+            <div id="loader" class="hidden text-center mt-6 text-navy font-bold animate-pulse text-xs">Connecting to Database...</div>
+            <div id="error" class="hidden text-center mt-6 p-4 bg-red-50 text-red-600 rounded-xl font-bold text-[10px] uppercase"></div>
+        </section>
 
-        const loader = document.getElementById('loader');
-        const error = document.getElementById('error');
-        const result = document.getElementById('result');
+        <section id="result" class="hidden mt-8 bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-gray-100 animate-in fade-in zoom-in duration-300">
+            <header class="bg-navy p-10 text-white text-center">
+                <div id="userInitials" class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center text-3xl font-black mx-auto mb-4 border-4 border-white/10 shadow-xl">P</div>
+                <h3 id="resName" class="text-2xl font-bold tracking-tight uppercase">---</h3>
+                <p id="resID" class="text-[10px] font-bold opacity-40 mt-1 uppercase tracking-widest">---</p>
+            </header>
+            
+            <div class="p-10 text-center">
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-2">Total Accrued Points</p>
+                <div id="resPoints" class="text-7xl font-black text-navy mb-4 tracking-tighter">0</div>
+                <div class="inline-flex items-center px-4 py-1 bg-green-soft text-green-700 rounded-full text-[10px] font-black uppercase tracking-widest">
+                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-ping"></span> Verified Member
+                </div>
+            </div>
+        </section>
+    </main>
 
-        error.classList.add('hidden');
-        result.classList.add('hidden');
+    <script>
+        const App = {
+            API_URL: "https://sheetdb.io/api/v1/a4z6gyofxc4lo",
+            
+            // UI Helpers
+            toggle(id, show) { document.getElementById(id).classList.toggle('hidden', !show); },
+            
+            setText(id, text) { document.getElementById(id).innerText = text; },
 
-        if (!query) {
-            error.innerText = "Please enter an ID, name, email or phone number";
-            error.classList.remove('hidden');
-            return;
-        }
+            async handleSearch() {
+                const query = document.getElementById('searchInput').value.trim().toLowerCase();
+                if (!query) return this.showError("Please enter member details");
 
-        loader.classList.remove('hidden');
+                this.toggle('loader', true);
+                this.toggle('error', false);
+                this.toggle('result', false);
 
-        try {
-            const response = await fetch(API_URL);
-            if (!response.ok) {
-                throw new Error(`API error: ${response.status} ${response.statusText}`);
+                try {
+                    const response = await fetch(this.API_URL);
+                    const data = await response.json();
+                    
+                    const user = data.find(row => 
+                        Object.values(row).some(v => v?.toString().toLowerCase().includes(query))
+                    );
+
+                    if (!user) throw new Error("No matching member found.");
+
+                    this.renderUser(user);
+                } catch (e) {
+                    this.showError(e.message);
+                } finally {
+                    this.toggle('loader', false);
+                }
+            },
+
+            renderUser(user) {
+                // Key Mapping
+                const name = user.NAME || user.Name || "Valued Member";
+                const id = user['PENAFORT ID'] || user.ID || "N/A";
+                const rawPoints = user.POINTS || user.Points || "0";
+                
+                // Formatting
+                const points = parseInt(rawPoints.toString().replace(/\D/g, '')) || 0;
+                const initials = name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+
+                this.setText('resName', name);
+                this.setText('resID', `Member ID: ${id}`);
+                this.setText('resPoints', points.toLocaleString());
+                this.setText('userInitials', initials);
+                
+                this.toggle('result', true);
+            },
+
+            showError(msg) {
+                this.setText('error', msg);
+                this.toggle('error', true);
             }
-
-            const data = await response.json();
-
-            if (!Array.isArray(data) || data.length === 0) {
-                throw new Error("No members in database right now.");
-            }
-
-            // ────────────────────────────────────────────────
-            // Improved matching: case-insensitive + multiple fields
-            // ────────────────────────────────────────────────
-            const matchedRows = data.filter(row => {
-                return Object.values(row).some(val => {
-                    if (!val) return false;
-                    const str = val.toString().toLowerCase().trim();
-                    return str.includes(searchTerm) || str.replace(/\s+/g, '').includes(searchTerm.replace(/\s+/g, ''));
-                });
-            });
-
-            if (matchedRows.length === 0) {
-                throw new Error("No matching member found. Try a different detail (name, ID, phone or email).");
-            }
-
-            // For now take the first match (you can later show list if > 1)
-            const user = matchedRows[0];
-
-            // More robust column name detection (tolerant to small variations)
-            const findKey = (keywords) => 
-                Object.keys(user).find(k => 
-                    keywords.some(w => k.toLowerCase().includes(w.toLowerCase()))
-                );
-
-            const nameKey   = findKey(['name'])          || 'NAME';
-            const idKey     = findKey(['id', 'penafort']) || 'PENAFORT ID';
-            const pointsKey = findKey(['point', 'reward'])|| 'POINTS';
-
-            // Update UI
-            const name = user[nameKey]?.trim() || "Valued Member";
-            document.getElementById('resName').innerText = name;
-            document.getElementById('resID').innerText   = "Member ID: " + (user[idKey] || "N/A");
-
-            // Format points nicely (add commas if > 999)
-            let points = user[pointsKey] || "0";
-            points = Number(points.replace(/[^0-9]/g, '')) || 0;
-            document.getElementById('resPoints').innerText = points.toLocaleString('en-US');
-
-            // Initials (better handling of multi-word names)
-            const initials = name
-                .split(/\s+/)
-                .map(w => w.charAt(0))
-                .join('')
-                .slice(0,2)
-                .toUpperCase() || "P";
-
-            document.getElementById('userInitials').innerText = initials;
-
-            loader.classList.add('hidden');
-            result.classList.remove('hidden');
-
-        } catch (e) {
-            loader.classList.add('hidden');
-            error.innerText = e.message || "Something went wrong — please try again.";
-            error.classList.remove('hidden');
-            console.error("Search failed:", e);
-        }
-    }
-</script>
+        };
+    </script>
+</body>
+</html>
