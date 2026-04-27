@@ -3,16 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Penafort Energy | Member Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* Custom brand colors to keep classes clean */
-        :root { --navy: #000080; --brand-green: #22c55e; }
-        .text-navy { color: var(--navy); }
-        .bg-navy { background-color: var(--navy); }
-        .bg-green-soft { background-color: rgba(34, 197, 94, 0.1); }
-    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { navy: '#001F3F' }
+                }
+            }
+        }
+    </script>
 </head>
-<body class="bg-gray-50 font-sans">
+<body class="bg-gray-50 min-h-screen font-sans">
 
     <nav class="bg-white shadow-sm p-4 mb-10 border-b">
         <div class="container mx-auto">
@@ -22,101 +25,124 @@
         </div>
     </nav>
 
-    <main class="max-w-md mx-auto px-4">
-        <section class="bg-white p-8 rounded-[2rem] shadow-2xl border border-gray-100">
+    <div class="max-w-md mx-auto px-4 pb-12">
+        <div class="bg-white p-8 rounded-[2rem] shadow-2xl border border-gray-100">
             <h2 class="text-2xl font-bold text-navy mb-2 text-center">Member Portal</h2>
-            <p class="text-gray-400 text-[10px] text-center mb-8 uppercase tracking-[0.2em] font-bold">
-                Search by ID, Email, Name or Phone
-            </p>
+            <p class="text-gray-400 text-[10px] text-center mb-8 uppercase tracking-[0.2em] font-bold">Search by ID, Email, Name or Phone</p>
             
             <div class="space-y-4">
                 <input type="text" id="searchInput" placeholder="Enter Details Here..." 
                        class="w-full p-5 bg-gray-50 border-2 border-transparent focus:border-green-500 rounded-2xl outline-none text-center font-bold text-lg transition-all shadow-inner">
                 
-                <button onclick="App.handleSearch()" class="w-full bg-navy text-white font-bold py-5 rounded-2xl hover:bg-black transition-all shadow-lg active:scale-95">
+                <button onclick="Portal.searchMember()" class="w-full bg-navy text-white font-bold py-5 rounded-2xl hover:bg-black transition-all shadow-lg active:scale-95">
                     Check Rewards
                 </button>
             </div>
 
             <div id="loader" class="hidden text-center mt-6 text-navy font-bold animate-pulse text-xs">Connecting to Database...</div>
             <div id="error" class="hidden text-center mt-6 p-4 bg-red-50 text-red-600 rounded-xl font-bold text-[10px] uppercase"></div>
-        </section>
+        </div>
 
-        <section id="result" class="hidden mt-8 bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-gray-100 animate-in fade-in zoom-in duration-300">
-            <header class="bg-navy p-10 text-white text-center">
+        <div id="result" class="hidden mt-8 bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-gray-100 transition-all duration-500">
+            <div class="bg-navy p-10 text-white text-center">
                 <div id="userInitials" class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center text-3xl font-black mx-auto mb-4 border-4 border-white/10 shadow-xl">P</div>
                 <h3 id="resName" class="text-2xl font-bold tracking-tight uppercase">---</h3>
                 <p id="resID" class="text-[10px] font-bold opacity-40 mt-1 uppercase tracking-widest">---</p>
-            </header>
-            
+            </div>
             <div class="p-10 text-center">
                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-2">Total Accrued Points</p>
                 <div id="resPoints" class="text-7xl font-black text-navy mb-4 tracking-tighter">0</div>
-                <div class="inline-flex items-center px-4 py-1 bg-green-soft text-green-700 rounded-full text-[10px] font-black uppercase tracking-widest">
+                <div class="inline-flex items-center px-4 py-1 bg-green-50 text-green-700 rounded-full text-[10px] font-black uppercase tracking-widest">
                     <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-ping"></span> Verified Member
                 </div>
             </div>
-        </section>
-    </main>
+        </div>
+
+        <div id="ai-response" class="mt-6 p-4 bg-white/50 border border-dashed border-gray-300 rounded-xl text-xs text-gray-500 text-center italic">
+            Fetching strategic insight...
+        </div>
+    </div>
 
     <script>
-        const App = {
+        const Portal = {
             API_URL: "https://sheetdb.io/api/v1/a4z6gyofxc4lo",
-            
-            // UI Helpers
-            toggle(id, show) { document.getElementById(id).classList.toggle('hidden', !show); },
-            
-            setText(id, text) { document.getElementById(id).innerText = text; },
+            AI_URL: "https://kevsono-aibot.hf.space/chat",
 
-            async handleSearch() {
-                const query = document.getElementById('searchInput').value.trim().toLowerCase();
-                if (!query) return this.showError("Please enter member details");
+            init() {
+                this.getAISuggestion();
+            },
 
-                this.toggle('loader', true);
-                this.toggle('error', false);
-                this.toggle('result', false);
+            async getAISuggestion() {
+                try {
+                    const res = await fetch(this.AI_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            message: "Give a 1-sentence strategic tip for a green energy member loyalty program.",
+                            history: [],
+                            budget: 500000
+                        })
+                    });
+                    const data = await res.json();
+                    document.getElementById("ai-response").innerText = data.response;
+                } catch (err) {
+                    document.getElementById("ai-response").innerText = "Strategy module offline.";
+                }
+            },
+
+            async searchMember() {
+                const input = document.getElementById('searchInput');
+                const query = input.value.trim().toLowerCase();
+                const ui = {
+                    loader: document.getElementById('loader'),
+                    error: document.getElementById('error'),
+                    result: document.getElementById('result')
+                };
+
+                if (!query) return this.showError("Enter a detail first.");
+
+                ui.error.classList.add('hidden');
+                ui.loader.classList.remove('hidden');
 
                 try {
                     const response = await fetch(this.API_URL);
                     const data = await response.json();
-                    
+
                     const user = data.find(row => 
-                        Object.values(row).some(v => v?.toString().toLowerCase().includes(query))
+                        Object.values(row).some(val => val?.toString().toLowerCase().includes(query))
                     );
 
-                    if (!user) throw new Error("No matching member found.");
+                    if (!user) throw new Error("Member not found.");
 
-                    this.renderUser(user);
+                    this.displayUser(user);
+                    ui.result.classList.remove('hidden');
                 } catch (e) {
                     this.showError(e.message);
                 } finally {
-                    this.toggle('loader', false);
+                    ui.loader.classList.add('hidden');
                 }
             },
 
-            renderUser(user) {
-                // Key Mapping
-                const name = user.NAME || user.Name || "Valued Member";
-                const id = user['PENAFORT ID'] || user.ID || "N/A";
-                const rawPoints = user.POINTS || user.Points || "0";
+            displayUser(user) {
+                const name = user.NAME || user.Name || "User";
+                document.getElementById('resName').innerText = name;
+                document.getElementById('resID').innerText = `Member ID: ${user['PENAFORT ID'] || 'N/A'}`;
                 
-                // Formatting
-                const points = parseInt(rawPoints.toString().replace(/\D/g, '')) || 0;
-                const initials = name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+                const points = parseInt(user.POINTS?.toString().replace(/\D/g, '')) || 0;
+                document.getElementById('resPoints').innerText = points.toLocaleString();
 
-                this.setText('resName', name);
-                this.setText('resID', `Member ID: ${id}`);
-                this.setText('resPoints', points.toLocaleString());
-                this.setText('userInitials', initials);
-                
-                this.toggle('result', true);
+                document.getElementById('userInitials').innerText = name.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase();
             },
 
             showError(msg) {
-                this.setText('error', msg);
-                this.toggle('error', true);
+                const errEl = document.getElementById('error');
+                errEl.innerText = msg;
+                errEl.classList.remove('hidden');
             }
         };
+
+        // Run AI tip on load
+        Portal.init();
     </script>
 </body>
 </html>
