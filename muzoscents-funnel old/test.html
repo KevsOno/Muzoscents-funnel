@@ -3,146 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Penafort Energy | Member Portal</title>
+    <title>Penafort Energy Member Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: { navy: '#001F3F' }
-                }
-            }
-        }
-    </script>
 </head>
-<body class="bg-gray-50 min-h-screen font-sans">
+<body class="bg-gray-50 min-h-screen p-4">
 
-    <nav class="bg-white shadow-sm p-4 mb-10 border-b">
-        <div class="container mx-auto">
-            <div class="text-2xl font-black text-navy uppercase italic">
-                PENAFORT<span class="text-green-500">ENERGY</span>
-            </div>
-        </div>
+    <nav class="max-w-4xl mx-auto mb-10 flex justify-between items-center">
+        <div class="text-xl font-black text-blue-900 italic">PENAFORT<span class="text-green-500">ENERGY</span></div>
     </nav>
 
-    <div class="max-w-md mx-auto px-4 pb-12">
-        <div class="bg-white p-8 rounded-[2rem] shadow-2xl border border-gray-100">
-            <h2 class="text-2xl font-bold text-navy mb-2 text-center">Member Portal</h2>
-            <p class="text-gray-400 text-[10px] text-center mb-8 uppercase tracking-[0.2em] font-bold">Search by ID, Email, Name or Phone</p>
+    <div class="max-w-md mx-auto">
+        <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100">
+            <h2 class="text-2xl font-bold text-slate-800 mb-6 text-center">Member Portal</h2>
             
             <div class="space-y-4">
-                <input type="text" id="searchInput" placeholder="Enter Details Here..." 
-                       class="w-full p-5 bg-gray-50 border-2 border-transparent focus:border-green-500 rounded-2xl outline-none text-center font-bold text-lg transition-all shadow-inner">
+                <input type="text" id="searchInput" placeholder="ID, Email, or Phone" 
+                       class="w-full p-4 bg-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-green-500 text-center font-bold">
                 
-                <button onclick="Portal.searchMember()" class="w-full bg-navy text-white font-bold py-5 rounded-2xl hover:bg-black transition-all shadow-lg active:scale-95">
+                <button onclick="Portal.search()" class="w-full bg-blue-900 text-white font-bold py-4 rounded-xl hover:bg-black transition-all">
                     Check Rewards
                 </button>
             </div>
 
-            <div id="loader" class="hidden text-center mt-6 text-navy font-bold animate-pulse text-xs">Connecting to Database...</div>
-            <div id="error" class="hidden text-center mt-6 p-4 bg-red-50 text-red-600 rounded-xl font-bold text-[10px] uppercase"></div>
+            <div id="loader" class="hidden text-center mt-4 animate-pulse text-blue-900 font-bold text-xs">Connecting...</div>
+            <div id="error" class="hidden mt-4 p-3 bg-red-50 text-red-600 rounded-lg text-center text-xs font-bold uppercase"></div>
         </div>
 
-        <div id="result" class="hidden mt-8 bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-gray-100 transition-all duration-500">
-            <div class="bg-navy p-10 text-white text-center">
-                <div id="userInitials" class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center text-3xl font-black mx-auto mb-4 border-4 border-white/10 shadow-xl">P</div>
-                <h3 id="resName" class="text-2xl font-bold tracking-tight uppercase">---</h3>
-                <p id="resID" class="text-[10px] font-bold opacity-40 mt-1 uppercase tracking-widest">---</p>
+        <div class="mt-6 bg-blue-50/50 border border-blue-100 p-4 rounded-2xl">
+            <div class="flex items-center gap-2 mb-2">
+                <span class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
+                <span class="text-[10px] font-black text-blue-400 uppercase tracking-widest">AI Strategy Assistant</span>
             </div>
-            <div class="p-10 text-center">
-                <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-2">Total Accrued Points</p>
-                <div id="resPoints" class="text-7xl font-black text-navy mb-4 tracking-tighter">0</div>
-                <div class="inline-flex items-center px-4 py-1 bg-green-50 text-green-700 rounded-full text-[10px] font-black uppercase tracking-widest">
-                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-ping"></span> Verified Member
-                </div>
-            </div>
+            <p id="ai-response" class="text-sm text-blue-900 italic">Waking up the brain...</p>
         </div>
 
-        <div id="ai-response" class="mt-6 p-4 bg-white/50 border border-dashed border-gray-300 rounded-xl text-xs text-gray-500 text-center italic">
-            Fetching strategic insight...
+        <div id="result" class="hidden mt-6 bg-white rounded-3xl shadow-lg overflow-hidden border border-gray-100">
+            <div class="bg-blue-900 p-6 text-white text-center">
+                <h3 id="resName" class="text-xl font-bold uppercase">---</h3>
+                <p id="resID" class="text-[10px] opacity-60">---</p>
+            </div>
+            <div class="p-8 text-center">
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Points Balance</p>
+                <div id="resPoints" class="text-5xl font-black text-blue-900 my-2">0</div>
+            </div>
         </div>
     </div>
 
     <script>
         const Portal = {
-            API_URL: "https://sheetdb.io/api/v1/a4z6gyofxc4lo",
+            SHEET_URL: "https://sheetdb.io/api/v1/a4z6gyofxc4lo",
             AI_URL: "https://kevsono-aibot.hf.space/chat",
 
-            init() {
-                this.getAISuggestion();
-            },
-
-            async getAISuggestion() {
+            // Wake up the AI when the page loads
+            async initAI() {
+                const display = document.getElementById("ai-response");
                 try {
                     const res = await fetch(this.AI_URL, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            message: "Give a 1-sentence strategic tip for a green energy member loyalty program.",
-                            history: [],
-                            budget: 500000
-                        })
+                        body: JSON.stringify({ message: "Hello! Provide a 1-sentence tip for renewable energy users." })
                     });
+                    
+                    if (!res.ok) throw new Error();
                     const data = await res.json();
-                    document.getElementById("ai-response").innerText = data.response;
+                    display.innerText = data.response;
                 } catch (err) {
-                    document.getElementById("ai-response").innerText = "Strategy module offline.";
+                    display.innerText = "Connection to AI failed. Check your internet or CORS settings.";
+                    display.classList.add("text-red-400");
                 }
             },
 
-            async searchMember() {
-                const input = document.getElementById('searchInput');
-                const query = input.value.trim().toLowerCase();
-                const ui = {
-                    loader: document.getElementById('loader'),
-                    error: document.getElementById('error'),
-                    result: document.getElementById('result')
-                };
+            async search() {
+                const query = document.getElementById('searchInput').value.trim().toLowerCase();
+                const loader = document.getElementById('loader');
+                const error = document.getElementById('error');
+                const result = document.getElementById('result');
 
-                if (!query) return this.showError("Enter a detail first.");
+                if (!query) return;
 
-                ui.error.classList.add('hidden');
-                ui.loader.classList.remove('hidden');
+                loader.classList.remove('hidden');
+                error.classList.add('hidden');
+                result.classList.add('hidden');
 
                 try {
-                    const response = await fetch(this.API_URL);
+                    const response = await fetch(this.SHEET_URL);
                     const data = await response.json();
-
                     const user = data.find(row => 
-                        Object.values(row).some(val => val?.toString().toLowerCase().includes(query))
+                        Object.values(row).some(v => v?.toString().toLowerCase().includes(query))
                     );
 
                     if (!user) throw new Error("Member not found.");
 
-                    this.displayUser(user);
-                    ui.result.classList.remove('hidden');
+                    document.getElementById('resName').innerText = user.NAME || user.Name || "Member";
+                    document.getElementById('resID').innerText = `ID: ${user['PENAFORT ID'] || 'N/A'}`;
+                    document.getElementById('resPoints').innerText = (user.POINTS || 0).toLocaleString();
+                    
+                    result.classList.remove('hidden');
                 } catch (e) {
-                    this.showError(e.message);
+                    error.innerText = e.message;
+                    error.classList.remove('hidden');
                 } finally {
-                    ui.loader.classList.add('hidden');
+                    loader.classList.add('hidden');
                 }
-            },
-
-            displayUser(user) {
-                const name = user.NAME || user.Name || "User";
-                document.getElementById('resName').innerText = name;
-                document.getElementById('resID').innerText = `Member ID: ${user['PENAFORT ID'] || 'N/A'}`;
-                
-                const points = parseInt(user.POINTS?.toString().replace(/\D/g, '')) || 0;
-                document.getElementById('resPoints').innerText = points.toLocaleString();
-
-                document.getElementById('userInitials').innerText = name.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase();
-            },
-
-            showError(msg) {
-                const errEl = document.getElementById('error');
-                errEl.innerText = msg;
-                errEl.classList.remove('hidden');
             }
         };
 
-        // Run AI tip on load
-        Portal.init();
+        // Start AI on load
+        window.onload = () => Portal.initAI();
     </script>
 </body>
 </html>
