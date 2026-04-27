@@ -107,6 +107,7 @@
         const Portal = {
             SHEET_URL: "https://sheetdb.io/api/v1/a4z6gyofxc4lo",
             AI_URL: "https://kevsono-aibot.hf.space/chat",
+            API_KEY: "your_super_secret_key",  // ⚠️ Replace with your actual API key from Hugging Face secrets
             chatHistory: [],
 
             // ── MEMBER SEARCH ──────────────────────────────────────
@@ -190,13 +191,27 @@
                 try {
                     const res = await fetch(this.AI_URL, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'x-api-key': this.API_KEY  // ✅ API key added here
+                        },
                         body: JSON.stringify({
                             message: text,
                             history: this.chatHistory.slice(-6)
                         })
                     });
-                    if (!res.ok) throw new Error('API error');
+                    
+                    // Handle rate limiting and auth errors
+                    if (res.status === 401) {
+                        throw new Error('Authentication failed. Please check your API key.');
+                    }
+                    if (res.status === 429) {
+                        throw new Error('Rate limit exceeded. Please wait a minute before sending more messages.');
+                    }
+                    if (!res.ok) {
+                        throw new Error(`API error (${res.status})`);
+                    }
+                    
                     const data = await res.json();
                     this.removeTyping();
                     const reply = data.response || 'No response received.';
@@ -204,7 +219,11 @@
                     this.chatHistory.push({ role: 'assistant', content: reply });
                 } catch (err) {
                     this.removeTyping();
-                    this.addMessage('Could not reach the AI. The space may be waking up — try again in a moment.', 'ai');
+                    let errorMsg = err.message;
+                    if (err.message.includes('Failed to fetch')) {
+                        errorMsg = 'Cannot reach the AI service. It might be starting up - try again in 30 seconds.';
+                    }
+                    this.addMessage(errorMsg, 'ai');
                 }
 
                 // Keep history manageable
