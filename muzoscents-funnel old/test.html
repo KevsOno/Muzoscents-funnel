@@ -5,6 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Penafort Energy Member Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .chat-messages::-webkit-scrollbar { width: 4px; }
+        .chat-messages::-webkit-scrollbar-track { background: transparent; }
+        .chat-messages::-webkit-scrollbar-thumb { background: #BFDBFE; border-radius: 4px; }
+        .msg-ai { background: #fff; border: 0.5px solid #BFDBFE; color: #1E3A5F; align-self: flex-start; border-bottom-left-radius: 3px; }
+        .msg-user { background: #1E3A5F; color: #fff; align-self: flex-end; border-bottom-right-radius: 3px; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        .typing-dot { animation: blink 1.2s infinite; display: inline-block; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    </style>
 </head>
 <body class="bg-gray-50 min-h-screen p-4">
 
@@ -12,67 +23,92 @@
         <div class="text-xl font-black text-blue-900 italic">PENAFORT<span class="text-green-500">ENERGY</span></div>
     </nav>
 
-    <div class="max-w-md mx-auto">
+    <div class="max-w-md mx-auto space-y-6">
+
+        <!-- Member Search Card -->
         <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100">
             <h2 class="text-2xl font-bold text-slate-800 mb-6 text-center">Member Portal</h2>
-            
             <div class="space-y-4">
-                <input type="text" id="searchInput" placeholder="ID, Email, or Phone" 
+                <input type="text" id="searchInput" placeholder="Search by ID, Email, Name or Phone"
                        class="w-full p-4 bg-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-green-500 text-center font-bold">
-                
                 <button onclick="Portal.search()" class="w-full bg-blue-900 text-white font-bold py-4 rounded-xl hover:bg-black transition-all">
                     Check Rewards
                 </button>
             </div>
-
-            <div id="loader" class="hidden text-center mt-4 animate-pulse text-blue-900 font-bold text-xs">Connecting...</div>
+            <div id="loader" class="hidden text-center mt-4 animate-pulse text-blue-900 font-bold text-xs">Connecting to Database...</div>
             <div id="error" class="hidden mt-4 p-3 bg-red-50 text-red-600 rounded-lg text-center text-xs font-bold uppercase"></div>
         </div>
 
-        <div class="mt-6 bg-blue-50/50 border border-blue-100 p-4 rounded-2xl">
-            <div class="flex items-center gap-2 mb-2">
-                <span class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
-                <span class="text-[10px] font-black text-blue-400 uppercase tracking-widest">AI Strategy Assistant</span>
-            </div>
-            <p id="ai-response" class="text-sm text-blue-900 italic">Waking up the brain...</p>
-        </div>
-
-        <div id="result" class="hidden mt-6 bg-white rounded-3xl shadow-lg overflow-hidden border border-gray-100">
+        <!-- Member Result Card -->
+        <div id="result" class="hidden bg-white rounded-3xl shadow-lg overflow-hidden border border-gray-100">
             <div class="bg-blue-900 p-6 text-white text-center">
+                <div class="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-3">
+                    <span id="resInitial" class="text-2xl font-black">P</span>
+                </div>
                 <h3 id="resName" class="text-xl font-bold uppercase">---</h3>
-                <p id="resID" class="text-[10px] opacity-60">---</p>
+                <p id="resID" class="text-xs opacity-60 mt-1">---</p>
             </div>
             <div class="p-8 text-center">
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Points Balance</p>
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Total Accrued Points</p>
                 <div id="resPoints" class="text-5xl font-black text-blue-900 my-2">0</div>
+                <p class="text-xs text-gray-400">Verified Member</p>
             </div>
         </div>
+
+        <!-- AI Chat Assistant -->
+        <div class="bg-blue-50/50 border border-blue-100 rounded-2xl overflow-hidden">
+
+            <!-- Chat Header -->
+            <div class="bg-blue-900 px-5 py-3 flex items-center gap-3">
+                <span class="w-2 h-2 bg-green-400 rounded-full" style="animation: blink 2s infinite;"></span>
+                <span class="text-xs font-black text-white uppercase tracking-widest">AI Strategy Assistant</span>
+            </div>
+
+            <!-- Chat Messages -->
+            <div class="chat-messages flex flex-col gap-3 p-4 overflow-y-auto" id="chatMessages" style="height: 260px;">
+                <div class="msg-ai self-start max-w-xs text-sm px-4 py-3 rounded-xl rounded-bl-sm">
+                    Hi! I'm your Penafort AI advisor. Ask me anything about your points, energy tips, or membership strategy.
+                </div>
+            </div>
+
+            <!-- Quick Prompts -->
+            <div class="flex gap-2 px-4 pb-3 flex-wrap">
+                <button onclick="Portal.quickAsk('How do I earn more points?')"
+                    class="text-xs bg-white border border-blue-200 text-blue-800 px-3 py-1.5 rounded-full hover:bg-blue-50 transition-all">
+                    Earn more points
+                </button>
+                <button onclick="Portal.quickAsk('What are the benefits of being a Penafort member?')"
+                    class="text-xs bg-white border border-blue-200 text-blue-800 px-3 py-1.5 rounded-full hover:bg-blue-50 transition-all">
+                    Member benefits
+                </button>
+                <button onclick="Portal.quickAsk('Give me a renewable energy tip for today.')"
+                    class="text-xs bg-white border border-blue-200 text-blue-800 px-3 py-1.5 rounded-full hover:bg-blue-50 transition-all">
+                    Energy tip
+                </button>
+            </div>
+
+            <!-- Chat Input -->
+            <div class="flex gap-2 px-4 pb-4">
+                <input type="text" id="chatInput"
+                    placeholder="Ask the AI assistant..."
+                    class="flex-1 px-4 py-3 rounded-xl border border-blue-200 bg-white text-sm text-blue-900 outline-none focus:ring-2 focus:ring-blue-400"
+                    onkeydown="if(event.key==='Enter') Portal.sendMessage()">
+                <button onclick="Portal.sendMessage()"
+                    class="bg-blue-900 text-white font-bold px-5 py-3 rounded-xl hover:bg-black transition-all text-sm">
+                    Send
+                </button>
+            </div>
+        </div>
+
     </div>
 
     <script>
         const Portal = {
             SHEET_URL: "https://sheetdb.io/api/v1/a4z6gyofxc4lo",
             AI_URL: "https://kevsono-aibot.hf.space/chat",
+            chatHistory: [],
 
-            // Wake up the AI when the page loads
-            async initAI() {
-                const display = document.getElementById("ai-response");
-                try {
-                    const res = await fetch(this.AI_URL, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ message: "Hello! Provide a 1-sentence tip for renewable energy users." })
-                    });
-                    
-                    if (!res.ok) throw new Error();
-                    const data = await res.json();
-                    display.innerText = data.response;
-                } catch (err) {
-                    display.innerText = "Connection to AI failed. Check your internet or CORS settings.";
-                    display.classList.add("text-red-400");
-                }
-            },
-
+            // ── MEMBER SEARCH ──────────────────────────────────────
             async search() {
                 const query = document.getElementById('searchInput').value.trim().toLowerCase();
                 const loader = document.getElementById('loader');
@@ -88,16 +124,16 @@
                 try {
                     const response = await fetch(this.SHEET_URL);
                     const data = await response.json();
-                    const user = data.find(row => 
+                    const user = data.find(row =>
                         Object.values(row).some(v => v?.toString().toLowerCase().includes(query))
                     );
+                    if (!user) throw new Error("Member not found. Check your details and try again.");
 
-                    if (!user) throw new Error("Member not found.");
-
-                    document.getElementById('resName').innerText = user.NAME || user.Name || "Member";
+                    const name = user.NAME || user.Name || "Member";
+                    document.getElementById('resName').innerText = name;
+                    document.getElementById('resInitial').innerText = name.charAt(0).toUpperCase();
                     document.getElementById('resID').innerText = `ID: ${user['PENAFORT ID'] || 'N/A'}`;
-                    document.getElementById('resPoints').innerText = (user.POINTS || 0).toLocaleString();
-                    
+                    document.getElementById('resPoints').innerText = Number(user.POINTS || 0).toLocaleString();
                     result.classList.remove('hidden');
                 } catch (e) {
                     error.innerText = e.message;
@@ -105,11 +141,77 @@
                 } finally {
                     loader.classList.add('hidden');
                 }
+            },
+
+            // ── AI CHAT ────────────────────────────────────────────
+            addMessage(text, role) {
+                const container = document.getElementById('chatMessages');
+                const div = document.createElement('div');
+                div.className = role === 'user'
+                    ? 'msg-user self-end max-w-xs text-sm px-4 py-3 rounded-xl rounded-br-sm'
+                    : 'msg-ai self-start max-w-xs text-sm px-4 py-3 rounded-xl rounded-bl-sm';
+                div.textContent = text;
+                container.appendChild(div);
+                container.scrollTop = container.scrollHeight;
+                return div;
+            },
+
+            addTyping() {
+                const container = document.getElementById('chatMessages');
+                const div = document.createElement('div');
+                div.className = 'msg-ai self-start px-4 py-3 rounded-xl rounded-bl-sm text-blue-400 text-sm italic';
+                div.id = 'typingIndicator';
+                div.innerHTML = '<span class="typing-dot">●</span> <span class="typing-dot">●</span> <span class="typing-dot">●</span>';
+                container.appendChild(div);
+                container.scrollTop = container.scrollHeight;
+            },
+
+            removeTyping() {
+                const el = document.getElementById('typingIndicator');
+                if (el) el.remove();
+            },
+
+            quickAsk(text) {
+                document.getElementById('chatInput').value = text;
+                this.sendMessage();
+            },
+
+            async sendMessage() {
+                const input = document.getElementById('chatInput');
+                const text = input.value.trim();
+                if (!text) return;
+                input.value = '';
+
+                this.addMessage(text, 'user');
+                this.chatHistory.push({ role: 'user', content: text });
+                this.addTyping();
+
+                try {
+                    const res = await fetch(this.AI_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            message: text,
+                            history: this.chatHistory.slice(-6)
+                        })
+                    });
+                    if (!res.ok) throw new Error('API error');
+                    const data = await res.json();
+                    this.removeTyping();
+                    const reply = data.response || 'No response received.';
+                    this.addMessage(reply, 'ai');
+                    this.chatHistory.push({ role: 'assistant', content: reply });
+                } catch (err) {
+                    this.removeTyping();
+                    this.addMessage('Could not reach the AI. The space may be waking up — try again in a moment.', 'ai');
+                }
+
+                // Keep history manageable
+                if (this.chatHistory.length > 20) {
+                    this.chatHistory = this.chatHistory.slice(-20);
+                }
             }
         };
-
-        // Start AI on load
-        window.onload = () => Portal.initAI();
     </script>
 </body>
 </html>
