@@ -5,80 +5,83 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Penafort Value Rewards</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
-    <div id="app" class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md text-center">
-        <h2 class="text-2xl font-bold mb-2 text-blue-900">Penafort Express</h2>
-        <p class="text-gray-500 text-sm mb-6 uppercase tracking-widest">Value Rewards Portal</p>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4 font-sans">
+
+    <div id="app" class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md text-center border border-gray-100">
+        <header class="mb-8">
+            <h2 class="text-3xl font-extrabold text-blue-900 tracking-tight">Penafort Express</h2>
+            <p class="text-blue-500 text-xs font-bold uppercase tracking-[0.2em] mt-1">Value Rewards Portal</p>
+        </header>
         
-        <div id="search-section">
-            <label class="block text-left text-xs font-bold text-gray-400 mb-1 ml-1">PHONE NUMBER</label>
-            <input id="phone-input" type="tel" placeholder="e.g. 2348030000000" 
-                class="w-full p-4 border border-gray-200 rounded-xl mb-4 text-lg font-semibold focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+        <div id="search-section" class="space-y-4">
+            <div class="text-left">
+                <label for="phone-input" class="block text-[10px] font-black text-gray-400 uppercase mb-1 ml-1">Member Phone Number</label>
+                <input id="phone-input" type="tel" placeholder="234..." 
+                    class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-lg font-bold text-gray-700 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all">
+            </div>
             
             <button onclick="checkPoints()" id="check-btn" 
-                class="w-full bg-blue-600 hover:bg-blue-800 text-white font-bold p-4 rounded-xl shadow-lg transition-transform active:scale-95">
-                Check My Points
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-[0.98]">
+                CHECK MY BALANCE
             </button>
         </div>
 
-        <div id="result-section" class="hidden animate-in fade-in duration-500">
-            <div class="bg-blue-50 border border-blue-100 p-6 rounded-2xl mb-4">
-                <p class="text-blue-800 text-sm mb-1">Hello, <span id="display-name" class="font-bold"></span>!</p>
-                <h3 class="text-gray-500 text-xs uppercase mb-4">Your current balance is</h3>
-                <h1 id="display-points" class="text-6:xl font-black text-blue-600">0</h1>
-                <p class="text-blue-900 font-bold mt-2" id="display-tier"></p>
+        <div id="result-section" class="hidden animate-in fade-in zoom-in duration-300">
+            <div class="bg-gradient-to-b from-blue-50 to-white border border-blue-100 p-8 rounded-3xl mb-6">
+                <p class="text-blue-600 text-sm font-medium mb-1">Welcome back, <span id="display-name" class="font-black"></span>!</p>
+                <h3 class="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-4">Total Points Earned</h3>
+                <h1 id="display-points" class="text-6xl font-black text-blue-900 tracking-tighter">0</h1>
+                <div id="display-tier" class="mt-4 inline-block bg-blue-600 text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest"></div>
             </div>
             
-            <div id="message-box" class="text-sm text-gray-600 italic px-4"></div>
+            <p id="message-box" class="text-gray-500 text-sm italic leading-relaxed px-6"></p>
 
             <button onclick="window.location.reload()" 
-                class="mt-8 text-gray-400 hover:text-blue-600 text-sm font-medium">
-                ← Back to Search
+                class="mt-10 text-gray-400 hover:text-blue-600 text-xs font-bold uppercase tracking-widest transition-colors">
+                ← New Search
             </button>
         </div>
     </div>
 
     <script>
-        // 1. YOUR SUPABASE CONFIG
-        const SUPABASE_URL = 'https://YOUR_PROJECT_ID.supabase.co';
-        const SUPABASE_ANON_KEY = 'YOUR_ANON_PUBLIC_KEY';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
         async function checkPoints() {
-            const phone = document.getElementById('phone-input').value.trim();
+            const phoneField = document.getElementById('phone-input');
             const btn = document.getElementById('check-btn');
+            const phone = phoneField.value.trim();
 
-            if (!phone) return alert("Please enter your phone number!");
+            if (!phone) return alert("Please enter your registered phone number.");
 
-            btn.innerText = "Searching...";
+            // UI Feedback
+            btn.innerText = "VERIFYING...";
             btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
 
-            // 2. SEARCH DATABASE BY PHONE
-            // We search the 'profiles' table for the matching phone number
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('first_name, last_name, current_points, tier')
-                .eq('phone', phone)
-                .single();
+            try {
+                const response = await fetch('/.netlify/functions/get-points', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone })
+                });
 
-            if (error || !data) {
-                alert("Sorry, we couldn't find a member with that phone number. Please check the number or visit our outlet to register!");
-                btn.innerText = "Check My Points";
-                btn.disabled = false;
-            } else {
-                // 3. DISPLAY THE MESSAGE
+                const data = await response.json();
+
+                if (!response.ok) throw new Error(data.error || 'Connection failed');
+
+                // Success: Populate and Switch Views
                 document.getElementById('search-section').classList.add('hidden');
                 document.getElementById('result-section').classList.remove('hidden');
 
                 document.getElementById('display-name').innerText = data.first_name;
                 document.getElementById('display-points').innerText = data.current_points;
-                document.getElementById('display-tier').innerText = `Tier ${data.tier} Member`;
-                
-                // Personalized Message
-                document.getElementById('message-box').innerText = 
-                    `"Thank you for being a valued Penafort customer, ${data.first_name}. You're doing great!"`;
+                document.getElementById('display-tier').innerText = `Tier ${data.tier}`;
+                document.getElementById('message-box').innerText = `Thank you for being part of the Penafort family. Your loyalty drives our excellence.`;
+
+            } catch (err) {
+                alert("We couldn't find a record for this number. Please check the digits and try again.");
+                btn.innerText = "CHECK MY BALANCE";
+                btn.disabled = false;
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
             }
         }
     </script>
