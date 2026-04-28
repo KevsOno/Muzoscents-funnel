@@ -12,6 +12,7 @@
   "dependencies": {
     "node-fetch": "^2.6.1",
     "@getbrevo/brevo": "^1.0.1",
-    "mongodb": "^6.3.0"
+    "mongodb": "^6.3.0",
+    "@supabase/supabase-js": "^2.39.0"
   }
 }
