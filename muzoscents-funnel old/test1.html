@@ -6,14 +6,16 @@
     <title>Penafort Value Rewards</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Exact Penafort Brand Colors */
+        /* Precision Brand Colors */
         .brand-green { color: #00A651; }
         .bg-brand-green { background-color: #00A651; }
-        .brand-blue { color: #003366; }
-        .bg-brand-blue { background-color: #003366; }
+        
+        /* Deep Forest Green for high-contrast buttons */
+        .bg-brand-green-dark { background-color: #008541; }
+        .hover\:bg-brand-green-darker:hover { background-color: #006b35; }
     </style>
 </head>
-<body class="bg-[#F4F7F6] min-h-screen flex items-center justify-center p-4 font-sans">
+<body class="bg-[#F4F7F6] min-h-screen flex items-center justify-center p-4 font-sans text-slate-900">
 
     <div id="app" class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md text-center border border-gray-100 relative overflow-hidden">
         
@@ -24,19 +26,19 @@
                  alt="Penafort Logo" 
                  class="h-16 mx-auto mb-6">
             
-            <h2 class="text-xl font-black brand-blue tracking-tight uppercase">Value Rewards</h2>
-            <p class="text-brand-green text-[10px] font-bold uppercase tracking-[0.3em] mt-1">Member Portal</p>
+            <h2 class="text-xl font-black brand-green tracking-tight uppercase">Value Rewards</h2>
+            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-[0.3em] mt-1">Member Portal</p>
         </header>
         
         <div id="search-section" class="space-y-6">
             <div class="text-left">
-                <label for="phone-input" class="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1">Member Phone Number</label>
+                <label for="phone-input" class="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">Member Phone Number</label>
                 <input id="phone-input" type="tel" placeholder="e.g. 234803000000" 
-                    class="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-2xl text-lg font-bold text-gray-800 focus:ring-4 focus:ring-green-50 focus:border-brand-green outline-none transition-all">
+                    class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-lg font-bold text-slate-800 focus:ring-4 focus:ring-green-50 focus:border-brand-green outline-none transition-all">
             </div>
             
             <button onclick="checkPoints()" id="check-btn" 
-                class="w-full bg-brand-blue hover:bg-[#002244] text-white font-black py-5 rounded-2xl shadow-xl transition-all active:scale-[0.97] tracking-widest text-sm">
+                class="w-full bg-brand-green-dark hover:bg-brand-green-darker text-white font-black py-5 rounded-2xl shadow-xl shadow-green-100 transition-all active:scale-[0.97] tracking-widest text-sm">
                 CHECK BALANCE
             </button>
         </div>
@@ -57,11 +59,11 @@
             </div>
             
             <div class="px-4">
-                <p id="message-box" class="text-gray-600 text-sm font-medium leading-relaxed italic"></p>
+                <p id="message-box" class="text-slate-600 text-sm font-medium leading-relaxed italic"></p>
             </div>
 
             <button onclick="window.location.reload()" 
-                class="mt-10 text-gray-400 hover:text-brand-blue text-[10px] font-black uppercase tracking-widest transition-colors flex items-center justify-center mx-auto gap-2">
+                class="mt-10 text-slate-400 hover:text-brand-green text-[10px] font-black uppercase tracking-widest transition-colors flex items-center justify-center mx-auto gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
@@ -69,8 +71,8 @@
             </button>
         </div>
 
-        <footer class="mt-12 pt-6 border-t border-gray-50">
-            <p class="text-[9px] text-gray-300 font-bold uppercase tracking-widest">© 2026 Penafort Energy Nigeria Ltd.</p>
+        <footer class="mt-12 pt-6 border-t border-slate-50">
+            <p class="text-[9px] text-slate-300 font-bold uppercase tracking-widest">© 2026 Penafort Energy Nigeria Ltd.</p>
         </footer>
     </div>
 
@@ -80,11 +82,11 @@
             const btn = document.getElementById('check-btn');
             const phone = phoneField.value.trim();
 
-            if (!phone) return alert("Please enter your phone number.");
+            if (!phone) return alert("Please enter your registered phone number.");
 
             btn.innerText = "SEARCHING...";
             btn.disabled = true;
-            btn.style.opacity = "0.7";
+            btn.classList.add('opacity-70');
 
             try {
                 const response = await fetch('/.netlify/functions/get-points', {
@@ -103,13 +105,13 @@
                 document.getElementById('display-name').innerText = data.first_name;
                 document.getElementById('display-points').innerText = Number(data.current_points).toLocaleString();
                 document.getElementById('display-tier').innerText = `TIER ${data.tier} MEMBER`;
-                document.getElementById('message-box').innerText = `Visit any Penafort station to convert your points into rewards. We value your patronage!`;
+                document.getElementById('message-box').innerText = `Thank you for shopping with Penafort Supermarket. We value your patronage!`;
 
             } catch (err) {
                 alert("Account not found. Please verify the number.");
                 btn.innerText = "CHECK BALANCE";
                 btn.disabled = false;
-                btn.style.opacity = "1";
+                btn.classList.remove('opacity-70');
             }
         }
     </script>
