@@ -18,7 +18,7 @@ exports.handler = async (event) => {
     const { data, error } = await supabase
       .from('phone_lookup_public')
       .select('first_name, current_points, tier')
-      .eq('phone', phone)
+      .eq('phone', parseInt(phone))
       .single();
 
     if (error || !data) {
