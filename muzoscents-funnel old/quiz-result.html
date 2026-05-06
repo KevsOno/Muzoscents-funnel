@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <!-- Google Tag Manager -->
@@ -55,9 +55,35 @@
       border-radius: 12px;
       text-decoration: none;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      display: inline-block;
+      margin-top: 1rem;
     }
     a.button:hover {
       background: #593b85;
+    }
+    
+    /* Fallback chat button styling */
+    .fallback-chat-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      border-radius: 30px;
+      background: #6b4b9a;
+      cursor: pointer;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: transform 0.2s;
+      border: none;
+      color: white;
+      font-size: 24px;
+    }
+    .fallback-chat-btn:hover {
+      transform: scale(1.05);
     }
   </style>
 </head>
@@ -86,10 +112,264 @@
     <p>Elegant and magnetic — perfect for moments of clarity and quiet strength.</p>
     <a href="thank-you.html" class="button">Buy Now</a>
   </div>
-</body>
-  <!-- Add this to your website -->
-<script>
+
+  <!-- Simple test button to check if API is working -->
+  <div style="position: fixed; bottom: 20px; left: 20px; background: white; padding: 10px; border-radius: 5px; font-size: 12px; z-index: 9999;">
+    <button onclick="testAPI()" style="background: #6b4b9a; color: white; border: none; padding: 5px 10px; border-radius: 3px;">Test API Connection</button>
+    <div id="api-status" style="margin-top: 5px;"></div>
+  </div>
+
+  <script>
+    // Test API connection function
+    async function testAPI() {
+      const statusDiv = document.getElementById('api-status');
+      statusDiv.textContent = 'Testing connection...';
+      statusDiv.style.color = 'orange';
+      
+      try {
+        const response = await fetch('https://kevsono-penafort-concierge.hf.space/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: 'Hello, testing connection!',
+            user_id: 'test_user_' + Date.now(),
+            channel: 'website'
+          })
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          statusDiv.textContent = '✅ API is working! Response: ' + (data.response || data.message || 'Connected');
+          statusDiv.style.color = 'green';
+          
+          // Show success alert
+          alert('✅ API Connected! Check console for details.\n\nResponse: ' + (data.response || 'Connected'));
+        } else {
+          statusDiv.textContent = '❌ API returned error: ' + response.status;
+          statusDiv.style.color = 'red';
+          alert('❌ API Error: ' + response.status + '\nPlease check if the backend is running.');
+        }
+      } catch (error) {
+        statusDiv.textContent = '❌ Cannot connect to API: ' + error.message;
+        statusDiv.style.color = 'red';
+        alert('❌ Cannot connect to API!\n\nError: ' + error.message + '\n\nMake sure your backend is running at:\nhttps://kevsono-penafort-concierge.hf.space');
+      }
+    }
+    
+    // Fallback chat implementation in case the widget doesn't load
+    function createFallbackChat() {
+      // Check if widget already loaded
+      if (document.getElementById('penafort-chat-widget')) {
+        console.log('Widget already loaded');
+        return;
+      }
+      
+      console.log('Creating fallback chat widget...');
+      
+      // Create chat container
+      const chatContainer = document.createElement('div');
+      chatContainer.id = 'penafort-chat-fallback';
+      chatContainer.innerHTML = `
+        <style>
+          #penafort-chat-fallback {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10000;
+            font-family: Arial, sans-serif;
+          }
+          .fb-chat-button {
+            width: 60px;
+            height: 60px;
+            border-radius: 30px;
+            background: #6b4b9a;
+            cursor: pointer;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            border: none;
+          }
+          .fb-chat-window {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 350px;
+            height: 500px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+          }
+          .fb-chat-header {
+            background: #6b4b9a;
+            color: white;
+            padding: 15px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+          }
+          .fb-chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background: #f5f5f5;
+          }
+          .fb-message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 18px;
+            max-width: 80%;
+          }
+          .fb-user-message {
+            background: #6b4b9a;
+            color: white;
+            margin-left: auto;
+          }
+          .fb-bot-message {
+            background: #e9e9e9;
+            color: #333;
+          }
+          .fb-chat-input-area {
+            display: flex;
+            padding: 10px;
+            background: white;
+            border-top: 1px solid #ddd;
+          }
+          .fb-chat-input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+          }
+          .fb-send-btn {
+            margin-left: 10px;
+            padding: 8px 15px;
+            background: #6b4b9a;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+          }
+          .fb-close {
+            cursor: pointer;
+          }
+        </style>
+        <button class="fb-chat-button" id="fb-chat-toggle">💬</button>
+        <div class="fb-chat-window" id="fb-chat-window">
+          <div class="fb-chat-header">
+            <span>Penafort Assistant</span>
+            <span class="fb-close" id="fb-close-chat">×</span>
+          </div>
+          <div class="fb-chat-messages" id="fb-chat-messages">
+            <div class="fb-message fb-bot-message">Hello! I'm your assistant. How can I help you today?</div>
+          </div>
+          <div class="fb-chat-input-area">
+            <input type="text" class="fb-chat-input" id="fb-chat-input" placeholder="Type your message...">
+            <button class="fb-send-btn" id="fb-send-btn">Send</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(chatContainer);
+      
+      // Get elements
+      const toggleBtn = document.getElementById('fb-chat-toggle');
+      const chatWindow = document.getElementById('fb-chat-window');
+      const closeBtn = document.getElementById('fb-close-chat');
+      const sendBtn = document.getElementById('fb-send-btn');
+      const input = document.getElementById('fb-chat-input');
+      const messagesDiv = document.getElementById('fb-chat-messages');
+      
+      let userId = localStorage.getItem('penafort_user_id');
+      if (!userId) {
+        userId = 'user_' + Date.now();
+        localStorage.setItem('penafort_user_id', userId);
+      }
+      
+      toggleBtn.onclick = () => chatWindow.style.display = 'flex';
+      closeBtn.onclick = () => chatWindow.style.display = 'none';
+      
+      async function sendMessage() {
+        const message = input.value.trim();
+        if (!message) return;
+        
+        // Add user message
+        const userMsgDiv = document.createElement('div');
+        userMsgDiv.className = 'fb-message fb-user-message';
+        userMsgDiv.textContent = message;
+        messagesDiv.appendChild(userMsgDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        input.value = '';
+        
+        // Add typing indicator
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'fb-message fb-bot-message';
+        typingDiv.textContent = 'Typing...';
+        messagesDiv.appendChild(typingDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        
+        try {
+          const response = await fetch('https://kevsono-penafort-concierge.hf.space/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              message: message,
+              user_id: userId,
+              channel: 'website'
+            })
+          });
+          
+          const data = await response.json();
+          typingDiv.remove();
+          
+          const botMsgDiv = document.createElement('div');
+          botMsgDiv.className = 'fb-message fb-bot-message';
+          botMsgDiv.textContent = data.response || data.message || "I received your message but I'm having trouble responding.";
+          messagesDiv.appendChild(botMsgDiv);
+          messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        } catch (error) {
+          typingDiv.remove();
+          const errorDiv = document.createElement('div');
+          errorDiv.className = 'fb-message fb-bot-message';
+          errorDiv.textContent = 'Sorry, I cannot connect to the server. Please try again later.';
+          messagesDiv.appendChild(errorDiv);
+          messagesDiv.scrollTop = messagesDiv.scrollHeight;
+          console.error('Chat error:', error);
+        }
+      }
+      
+      sendBtn.onclick = sendMessage;
+      input.onkeypress = (e) => {
+        if (e.key === 'Enter') sendMessage();
+      };
+    }
+    
+    // Try to load the main widget, but if it fails, use fallback
+    window.addEventListener('load', function() {
+      // Wait 3 seconds to see if widget loads
+      setTimeout(function() {
+        if (!document.getElementById('penafort-chat-widget')) {
+          console.log('Main widget not loaded, using fallback');
+          createFallbackChat();
+        } else {
+          console.log('Main widget loaded successfully');
+        }
+      }, 3000);
+    });
+  </script>
+  
+  <!-- Try to load the official widget -->
+  <script>
     window.PENAFORT_CHAT_API = 'https://kevsono-penafort-concierge.hf.space';
-</script>
-<script src="https://kevsono-penafort-concierge.hf.space/chat-widget.js"></script>
+  </script>
+  <script src="https://kevsono-penafort-concierge.hf.space/chat-widget.js" 
+          onerror="console.log('Failed to load chat widget from main source')">
+  </script>
+</body>
 </html>
