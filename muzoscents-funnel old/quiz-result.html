@@ -147,13 +147,18 @@
     <a href="thank-you.html" class="button">Buy Now</a>
   </div>
 
-  <!-- Authentication Modal -->
+  <!-- Authentication Modal with Show Password checkbox -->
   <div id="auth-modal" class="modal">
     <div class="modal-content">
       <span class="modal-close" id="modal-close">&times;</span>
       <h3 id="modal-title">Login</h3>
       <input type="email" id="auth-email" placeholder="Email">
       <input type="password" id="auth-password" placeholder="Password">
+      <div style="margin: 5px 0;">
+        <label style="font-size: 0.8rem;">
+          <input type="checkbox" id="show-password"> Show Password
+        </label>
+      </div>
       <div>
         <button id="modal-login">Login</button>
         <button id="modal-signup">Sign Up</button>
@@ -181,6 +186,14 @@
     const emailInput = document.getElementById('auth-email');
     const passwordInput = document.getElementById('auth-password');
     const authMessage = document.getElementById('auth-message');
+
+    // Show password checkbox
+    const showPasswordCheckbox = document.getElementById('show-password');
+    if (showPasswordCheckbox) {
+      showPasswordCheckbox.addEventListener('change', function() {
+        passwordInput.type = this.checked ? 'text' : 'password';
+      });
+    }
 
     // Open modal
     navAuthBtn.onclick = () => {
@@ -272,7 +285,7 @@
     }
 
     // --------------------------------------------------------------
-    // FULL FALLBACK CHAT (copied from your original working code)
+    // FULL FALLBACK CHAT (unchanged)
     // --------------------------------------------------------------
     function createFallbackChat() {
       if (document.getElementById('penafort-chat-widget')) {
