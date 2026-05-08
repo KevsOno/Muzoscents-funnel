@@ -147,7 +147,7 @@
     <a href="thank-you.html" class="button">Buy Now</a>
   </div>
 
-  <!-- Authentication Modal with Show Password checkbox -->
+  <!-- Authentication Modal with Show Password and Forgot Password -->
   <div id="auth-modal" class="modal">
     <div class="modal-content">
       <span class="modal-close" id="modal-close">&times;</span>
@@ -159,11 +159,14 @@
           <input type="checkbox" id="show-password"> Show Password
         </label>
       </div>
+      <div style="text-align: right; margin-top: 5px;">
+        <a href="#" id="forgot-password-link" style="font-size: 0.75rem; color: #6b4b9a;">Forgot password?</a>
+      </div>
       <div>
         <button id="modal-login">Login</button>
         <button id="modal-signup">Sign Up</button>
       </div>
-      <div id="auth-message" style="margin-top: 10px; color: red; font-size: 0.8rem;"></div>
+      <div id="auth-message" style="margin-top: 10px; font-size: 0.8rem;"></div>
     </div>
   </div>
 
@@ -192,6 +195,40 @@
     if (showPasswordCheckbox) {
       showPasswordCheckbox.addEventListener('change', function() {
         passwordInput.type = this.checked ? 'text' : 'password';
+      });
+    }
+
+    // Forgot password link
+    const forgotLink = document.getElementById('forgot-password-link');
+    if (forgotLink) {
+      forgotLink.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const email = emailInput.value.trim();
+        if (!email) {
+          authMessage.style.color = 'red';
+          authMessage.innerText = 'Please enter your email address first.';
+          return;
+        }
+        authMessage.style.color = 'orange';
+        authMessage.innerText = 'Sending reset link...';
+        try {
+          const res = await fetch(API_BASE + '/auth/reset-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+          });
+          const data = await res.json();
+          if (res.ok) {
+            authMessage.style.color = 'green';
+            authMessage.innerText = data.message || 'Reset email sent. Check your inbox.';
+          } else {
+            authMessage.style.color = 'red';
+            authMessage.innerText = data.detail || 'Failed to send reset email.';
+          }
+        } catch (err) {
+          authMessage.style.color = 'red';
+          authMessage.innerText = 'Server error. Please try again.';
+        }
       });
     }
 
