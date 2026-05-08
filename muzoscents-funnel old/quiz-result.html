@@ -160,7 +160,6 @@
     
     // Fallback chat implementation in case the widget doesn't load
     function createFallbackChat() {
-      // Check if widget already loaded
       if (document.getElementById('penafort-chat-widget')) {
         console.log('Widget already loaded');
         return;
@@ -168,7 +167,6 @@
       
       console.log('Creating fallback chat widget...');
       
-      // Create chat container
       const chatContainer = document.createElement('div');
       chatContainer.id = 'penafort-chat-fallback';
       chatContainer.innerHTML = `
@@ -278,7 +276,6 @@
       `;
       document.body.appendChild(chatContainer);
       
-      // Get elements
       const toggleBtn = document.getElementById('fb-chat-toggle');
       const chatWindow = document.getElementById('fb-chat-window');
       const closeBtn = document.getElementById('fb-close-chat');
@@ -299,7 +296,6 @@
         const message = input.value.trim();
         if (!message) return;
         
-        // Add user message
         const userMsgDiv = document.createElement('div');
         userMsgDiv.className = 'fb-message fb-user-message';
         userMsgDiv.textContent = message;
@@ -307,7 +303,6 @@
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
         input.value = '';
         
-        // Add typing indicator
         const typingDiv = document.createElement('div');
         typingDiv.className = 'fb-message fb-bot-message';
         typingDiv.textContent = 'Typing...';
@@ -350,9 +345,7 @@
       };
     }
     
-    // Try to load the main widget, but if it fails, use fallback
     window.addEventListener('load', function() {
-      // Wait 3 seconds to see if widget loads
       setTimeout(function() {
         if (!document.getElementById('penafort-chat-widget')) {
           console.log('Main widget not loaded, using fallback');
@@ -364,7 +357,7 @@
     });
   </script>
   
-  <!-- Try to load the official widget -->
+  <!-- Try to load the official widget (now includes authentication) -->
   <script>
     window.PENAFORT_CHAT_API = 'https://kevsono-penafort-concierge.hf.space';
   </script>
