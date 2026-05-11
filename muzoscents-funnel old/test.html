@@ -5,191 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kevs Digital Business Intelligence</title>
     <script src="https://cdn.tailwindcss.com/3.4.1"></script>
-    <!-- Supabase JS -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* ── Scrollbar ── */
-        .chat-messages::-webkit-scrollbar { width: 4px; }
-        .chat-messages::-webkit-scrollbar-track { background: transparent; }
-        .chat-messages::-webkit-scrollbar-thumb { background: #BFDBFE; border-radius: 4px; }
-
-        /* ── Bubbles ── */
-        .msg-ai {
-            background: #fff;
-            border: 0.5px solid #BFDBFE;
-            color: #1E3A5F;
-            align-self: flex-start;
-            border-bottom-left-radius: 3px;
-            line-height: 1.6;
-        }
-        .msg-user {
-            background: #1E3A5F;
-            color: #fff;
-            align-self: flex-end;
-            border-bottom-right-radius: 3px;
-        }
-
-        /* ── Typing indicator ── */
-        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-        .typing-dot { animation: blink 1.2s infinite; display: inline-block; }
-        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-
-        /* ── Pillar buttons ── */
-        .pillar-btn { transition: all 0.2s ease; }
-        .pillar-active   { background-color: #1E3A5F !important; color: white !important; }
-        .pillar-inactive { background-color: #e5e7eb !important; color: #374151 !important; }
-
-        /* ── Usage bar ── */
-        #usageBarFill {
-            height: 100%;
-            border-radius: 4px;
-            transition: width 0.5s ease, background-color 0.3s;
-        }
-
-        /* ── Animations ── */
-        @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
-        .fade-in { animation: fadeIn 0.3s ease forwards; }
-
-        /* ── Tab underline ── */
-        .tab-btn { border-bottom: 2px solid transparent; transition: all 0.15s; }
-        .tab-btn.tab-active { border-color: #1E3A5F; color: #1E3A5F; font-weight: 700; }
-
-        /* ── History item ── */
-        .history-item { border-bottom: 1px solid #F1F5F9; }
-        .history-item:last-child { border-bottom: none; }
-
-        /* ── Pulse dot ── */
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-        .live-dot { animation: pulse 2s infinite; }
-
-        /* ── Auth modal ── */
-        .auth-modal {
-            display: flex;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(4px);
-            z-index: 10001;
-            align-items: center;
-            justify-content: center;
-        }
-        .auth-modal-content {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            max-width: 450px;
-            width: 90%;
-            text-align: left;
-        }
-        .auth-modal-content input {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .auth-modal-content button {
-            background: #6b4b9a;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            margin: 5px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-        .auth-modal-content button:hover { background: #593b85; }
-        .name-row {
-            display: flex;
-            gap: 10px;
-        }
-        .name-row > div { flex: 1; }
-        .auth-close {
-            float: right;
-            cursor: pointer;
-            font-size: 1.5rem;
-        }
-        .auth-message {
-            margin-top: 10px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-        .toggle-form {
-            text-align: center;
-            margin-top: 15px;
-            font-size: 0.8rem;
-        }
-        .toggle-form a {
-            color: #6b4b9a;
-            cursor: pointer;
-            text-decoration: underline;
-        }
+        /* your existing styles – keep them as they are */
+        /* ... */
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen p-4">
 
-<!-- ══════════════════════════════════════════════
-     AUTHENTICATION MODAL (no guest, name fields on signup)
-     ══════════════════════════════════════════════ -->
+<!-- Auth modal (no Supabase) -->
 <div id="authModal" class="auth-modal">
     <div class="auth-modal-content">
         <span class="auth-close" id="modalClose">&times;</span>
         <h3 id="modalTitle" class="text-xl font-bold mb-4">Login</h3>
-
-        <!-- Login form (always visible) -->
         <div id="loginForm">
-            <input type="email" id="loginEmail" placeholder="Email address" autocomplete="email">
-            <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password">
-            <div style="margin: 5px 0;">
-                <label style="font-size: 0.8rem;">
-                    <input type="checkbox" id="showPasswordLogin"> Show Password
-                </label>
-            </div>
-            <div style="text-align: right; margin-top: 5px;">
-                <a href="#" id="forgotPasswordLink" style="font-size: 0.75rem; color: #6b4b9a;">Forgot password?</a>
-            </div>
+            <input type="email" id="loginEmail" placeholder="Email address">
+            <input type="password" id="loginPassword" placeholder="Password">
+            <div style="margin:5px 0;"><label><input type="checkbox" id="showPasswordLogin"> Show Password</label></div>
+            <div style="text-align:right;"><a href="#" id="forgotPasswordLink" style="font-size:0.75rem; color:#6b4b9a;">Forgot password?</a></div>
             <button id="doLoginBtn" style="width:100%; margin-top:15px;">Login</button>
         </div>
-
-        <!-- Signup form (hidden initially) -->
-        <div id="signupForm" style="display: none;">
-            <div class="name-row">
-                <div><input type="text" id="signupFirstName" placeholder="First name *"></div>
-                <div><input type="text" id="signupLastName" placeholder="Last name *"></div>
-            </div>
+        <div id="signupForm" style="display:none;">
+            <div class="name-row"><div><input type="text" id="signupFirstName" placeholder="First name *"></div><div><input type="text" id="signupLastName" placeholder="Last name *"></div></div>
             <input type="email" id="signupEmail" placeholder="Email address *">
             <input type="tel" id="signupPhone" placeholder="Phone (optional)">
             <input type="password" id="signupPassword" placeholder="Password *">
-            <div style="margin: 5px 0;">
-                <label style="font-size: 0.8rem;">
-                    <input type="checkbox" id="showPasswordSignup"> Show Password
-                </label>
-            </div>
+            <div style="margin:5px 0;"><label><input type="checkbox" id="showPasswordSignup"> Show Password</label></div>
             <button id="doSignupBtn" style="width:100%; margin-top:15px;">Create Account</button>
         </div>
-
-        <div class="toggle-form">
-            <span id="toggleLink">
-                <a id="showSignupLink">Don't have an account? Sign up</a>
-            </span>
-        </div>
+        <div class="toggle-form"><a id="showSignupLink">Don't have an account? Sign up</a></div>
         <div id="authMessage" class="auth-message"></div>
     </div>
 </div>
 
-<!-- ══════════════════════════════════════════════
-     MAIN APP (hidden until authenticated)
-     ══════════════════════════════════════════════ -->
+<!-- Main app (hidden until login) -->
 <div id="mainApp" style="display: none;">
     <nav class="max-w-4xl mx-auto mb-6 flex justify-between items-center">
-        <div class="text-xl font-black text-blue-900 italic">
-            Kevs<span class="text-green-500">Digital</span>
-        </div>
+        <div class="text-xl font-black text-blue-900 italic">Kevs<span class="text-green-500">Digital</span></div>
         <div class="flex items-center gap-3">
             <div class="text-xs text-gray-400 flex items-center gap-1.5">
                 <span class="live-dot w-2 h-2 rounded-full bg-green-400 inline-block"></span>
@@ -199,114 +50,167 @@
         </div>
     </nav>
 
-    <!-- BI Interface (unchanged) -->
-    <div class="bg-blue-50/50 border border-blue-100 rounded-2xl overflow-hidden">
-        <div class="bg-blue-900 px-5 py-3 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <span class="live-dot w-2 h-2 bg-green-400 rounded-full"></span>
-                <span class="text-xs font-black text-white uppercase tracking-widest">Intelligence Engine</span>
-            </div>
-            <span id="modelBadge" class="text-xs text-white/50 font-mono">—</span>
-        </div>
-
-        <div class="flex bg-white border-b border-blue-100 px-4">
-            <button onclick="Portal.switchTab('analysis')" id="tabAnalysis" class="tab-btn tab-active text-sm font-medium text-gray-600 py-3 mr-5">Analysis</button>
-            <button onclick="Portal.switchTab('history')" id="tabHistory" class="tab-btn text-sm font-medium text-gray-500 py-3 mr-5">History</button>
-            <button onclick="Portal.switchTab('profile')" id="tabProfile" class="tab-btn text-sm font-medium text-gray-500 py-3">Profile</button>
-        </div>
-
-        <div id="panelAnalysis">
-            <div class="p-4 border-b border-blue-100 bg-white/60">
-                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Analysis Focus</p>
-                <div class="grid grid-cols-2 gap-2">
-                    <button onclick="Portal.setPillar(1)" id="pillar1Btn" class="pillar-btn pillar-inactive px-3 py-2.5 rounded-lg text-xs font-bold text-left">👥 Customer</button>
-                    <button onclick="Portal.setPillar(2)" id="pillar2Btn" class="pillar-btn pillar-inactive px-3 py-2.5 rounded-lg text-xs font-bold text-left">🏪 Market</button>
-                    <button onclick="Portal.setPillar(3)" id="pillar3Btn" class="pillar-btn pillar-active px-3 py-2.5 rounded-lg text-xs font-bold text-left">⚙️ Capability</button>
-                    <button onclick="Portal.setPillar(4)" id="pillar4Btn" class="pillar-btn pillar-inactive px-3 py-2.5 rounded-lg text-xs font-bold text-left">📈 Growth</button>
-                </div>
-            </div>
-            <div class="px-4 pt-3 pb-1 bg-white/40">
-                <div class="flex justify-between items-center mb-1">
-                    <span class="text-xs text-gray-400">Free analyses</span>
-                    <span id="usageLabel" class="text-xs font-bold text-gray-600 font-mono">— / 15</span>
-                </div>
-                <div class="h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                    <div id="usageBarFill" style="width:0%; background:#22c55e;"></div>
-                </div>
-                <div id="upgradeBanner" class="hidden mt-3 p-3 bg-blue-900 text-white rounded-xl text-center">
-                    <p class="text-xs font-bold mb-1">🚀 Upgrade for unlimited analyses</p>
-                    <p class="text-xs text-white/70">PDF exports · Priority routing · Full history</p>
-                </div>
-            </div>
-            <div class="chat-messages flex flex-col gap-3 p-4 overflow-y-auto" id="chatMessages" style="height: 280px;">
-                <div class="msg-ai self-start max-w-xs text-sm px-4 py-3 rounded-xl rounded-bl-sm fade-in">
-                    Welcome. I'm your business intelligence advisor. Select a focus area above, then ask anything about your market, customers, operations, or growth.
-                </div>
-            </div>
-            <div class="flex gap-2 px-4 pb-3 flex-wrap">
-                <button onclick="Portal.quickAsk('Who are our best customers and what drives them to buy?')" class="text-xs bg-white border border-blue-200 text-blue-800 px-3 py-1.5 rounded-full hover:bg-blue-50 transition-all">👥 Who buys from us?</button>
-                <button onclick="Portal.quickAsk('How do we outposition our competitors right now?')" class="text-xs bg-white border border-blue-200 text-blue-800 px-3 py-1.5 rounded-full hover:bg-blue-50 transition-all">🏪 Beat competitors</button>
-                <button onclick="Portal.quickAsk('What is our strongest internal advantage we should double down on?')" class="text-xs bg-white border border-blue-200 text-blue-800 px-3 py-1.5 rounded-full hover:bg-blue-50 transition-all">⚙️ Our strengths</button>
-                <button onclick="Portal.quickAsk('What are our real unit economics and how do we improve CAC?')" class="text-xs bg-white border border-blue-200 text-blue-800 px-3 py-1.5 rounded-full hover:bg-blue-50 transition-all">📈 Unit economics</button>
-            </div>
-            <div class="flex gap-2 px-4 pb-4">
-                <input type="text" id="chatInput" placeholder="Ask your intelligence engine..." class="flex-1 px-4 py-3 rounded-xl border border-blue-200 bg-white text-sm text-blue-900 outline-none focus:ring-2 focus:ring-blue-900" onkeydown="if(event.key==='Enter') Portal.sendMessage()">
-                <button onclick="Portal.sendMessage()" id="sendBtn" class="bg-blue-900 text-white font-bold px-5 py-3 rounded-xl hover:bg-black transition-all text-sm">Send</button>
-            </div>
-        </div>
-
-        <div id="panelHistory" class="hidden p-4">
-            <div class="flex justify-between items-center mb-4">
-                <p class="text-sm font-bold text-gray-700">Past Analyses</p>
-                <button onclick="Portal.loadHistory()" class="text-xs text-blue-900 font-bold hover:underline">Refresh</button>
-            </div>
-            <div id="historyList" class="overflow-y-auto space-y-0 rounded-xl border border-blue-100 bg-white" style="max-height: 320px;">
-                <p class="text-xs text-gray-400 text-center py-10">No history yet. Start an analysis.</p>
-            </div>
-        </div>
-
-        <div id="panelProfile" class="hidden p-4">
-            <p class="text-sm font-bold text-gray-700 mb-4">Your Business Context</p>
-            <div class="space-y-3">
-                <div>
-                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">Location</label>
-                    <input id="profLocation" type="text" placeholder="e.g. Lagos, Nigeria" class="mt-1 w-full p-3 bg-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-900 text-sm">
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">Industry / Niche</label>
-                    <input id="profNiche" type="text" placeholder="e.g. student fragrance market" class="mt-1 w-full p-3 bg-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-900 text-sm">
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">Monthly Budget (₦)</label>
-                    <input id="profBudget" type="number" placeholder="e.g. 500000" class="mt-1 w-full p-3 bg-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-900 text-sm">
-                </div>
-                <button onclick="Portal.saveProfile()" class="w-full bg-blue-900 text-white font-bold py-3 rounded-xl hover:bg-black transition-all text-sm">Save Context</button>
-                <div id="profileMsg" class="hidden text-center text-xs text-green-600 font-bold pt-1"></div>
-            </div>
-        </div>
-    </div>
+    <!-- BI interface (tabs, chat, history, profile) – copy your existing structure -->
+    <!-- You can reuse the Portal object from earlier but adapt all fetch URLs -->
 </div>
 
 <script>
-// ==================================================================
-// CONFIGURATION – YOUR SUPABASE PROJECT (dedicated for BI)
-// ==================================================================
-const SUPABASE_URL = 'https://thzfuhbsieubjonggjxc.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoemZ1aGJzaWV1YmpvbmdnanhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxOTQzNzIsImV4cCI6MjA4Nzc3MDM3Mn0.-z1eFn6qGnwPMbO1_OFRSZ-bPTHZm28Wjq9602EP8Sg';
+const API_BASE = 'https://your-backend-url.com'; // e.g., https://kevsono-penafort-concierge.hf.space
 
-// BI backend endpoints (Netlify functions)
-const BI_AI_URL = '/.netlify/functions/chat-proxy';
-const BI_HISTORY_URL = '/.netlify/functions/history-proxy';
-const BI_PROFILE_URL = '/.netlify/functions/profile-proxy';
+let authToken = localStorage.getItem('auth_token');
+let userId = localStorage.getItem('user_id');
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Helper to show message in auth modal
+function showMessage(text, isError = true) {
+    const msgDiv = document.getElementById('authMessage');
+    msgDiv.innerText = text;
+    msgDiv.style.color = isError ? '#dc2626' : '#16a34a';
+    setTimeout(() => { if (msgDiv.innerText === text) msgDiv.innerText = ''; }, 5000);
+}
 
-let currentSession = null;
-let userId = null;
+// ---------- AUTH HANDLERS ----------
+async function handleLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    if (!email || !password) { showMessage('Email and password required'); return; }
+    const btn = document.getElementById('doLoginBtn');
+    btn.disabled = true;
+    btn.innerText = 'Logging in...';
+    try {
+        const res = await fetch(`${API_BASE}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Login failed');
+        authToken = data.access_token;
+        userId = data.user_id;
+        localStorage.setItem('auth_token', authToken);
+        localStorage.setItem('user_id', userId);
+        document.getElementById('authModal').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'block';
+        Portal.loadUserContext();
+        Portal.loadHistory();
+    } catch(err) {
+        showMessage(err.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerText = 'Login';
+    }
+}
 
-// ==================================================================
-// PORTAL OBJECT (BI logic)
-// ==================================================================
+async function handleSignup() {
+    const firstName = document.getElementById('signupFirstName').value.trim();
+    const lastName = document.getElementById('signupLastName').value.trim();
+    const email = document.getElementById('signupEmail').value.trim();
+    const phone = document.getElementById('signupPhone').value.trim();
+    const password = document.getElementById('signupPassword').value;
+    if (!firstName || !lastName || !email || !password) {
+        showMessage('First name, last name, email and password required');
+        return;
+    }
+    const btn = document.getElementById('doSignupBtn');
+    btn.disabled = true;
+    btn.innerText = 'Creating...';
+    try {
+        // Register
+        const regRes = await fetch(`${API_BASE}/auth/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        const regData = await regRes.json();
+        if (!regRes.ok) throw new Error(regData.detail || 'Registration failed');
+        // Auto login
+        const loginRes = await fetch(`${API_BASE}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        const loginData = await loginRes.json();
+        if (!loginRes.ok) throw new Error('Account created but could not log in automatically. Please log in manually.');
+        authToken = loginData.access_token;
+        userId = loginData.user_id;
+        // Update profile with name and phone
+        await fetch(`${API_BASE}/bi/profile`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+            body: JSON.stringify({ first_name: firstName, last_name: lastName, phone: phone || null })
+        });
+        localStorage.setItem('auth_token', authToken);
+        localStorage.setItem('user_id', userId);
+        document.getElementById('authModal').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'block';
+        Portal.loadUserContext();
+        Portal.loadHistory();
+        showMessage('Account created and logged in!', false);
+    } catch(err) {
+        showMessage(err.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerText = 'Create Account';
+    }
+}
+
+async function handleLogout() {
+    if (authToken) {
+        await fetch(`${API_BASE}/auth/logout`, { method: 'POST', headers: { 'Authorization': `Bearer ${authToken}` } });
+    }
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('user_id');
+    location.reload();
+}
+
+// Forgot password
+document.getElementById('forgotPasswordLink').addEventListener('click', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value.trim();
+    if (!email) { showMessage('Enter your email address'); return; }
+    try {
+        const res = await fetch(`${API_BASE}/auth/reset-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+        if (!res.ok) throw new Error(await res.text());
+        showMessage('Password reset email sent. Check your inbox.', false);
+    } catch(err) {
+        showMessage(err.message);
+    }
+});
+
+// Toggle login/signup forms
+let showingLogin = true;
+document.getElementById('showSignupLink').addEventListener('click', () => {
+    showingLogin = !showingLogin;
+    document.getElementById('loginForm').style.display = showingLogin ? 'block' : 'none';
+    document.getElementById('signupForm').style.display = showingLogin ? 'none' : 'block';
+    document.getElementById('modalTitle').innerText = showingLogin ? 'Login' : 'Create Account';
+    document.getElementById('showSignupLink').innerText = showingLogin ? "Don't have an account? Sign up" : "Back to Login";
+    document.getElementById('authMessage').innerText = '';
+});
+
+document.getElementById('doLoginBtn').onclick = handleLogin;
+document.getElementById('doSignupBtn').onclick = handleSignup;
+document.getElementById('logoutBtn').onclick = handleLogout;
+
+// Show/hide password
+document.getElementById('showPasswordLogin').addEventListener('change', function() {
+    document.getElementById('loginPassword').type = this.checked ? 'text' : 'password';
+});
+document.getElementById('showPasswordSignup').addEventListener('change', function() {
+    document.getElementById('signupPassword').type = this.checked ? 'text' : 'password';
+});
+
+// Close modal when clicking outside
+const modal = document.getElementById('authModal');
+document.getElementById('modalClose').onclick = () => modal.style.display = 'none';
+window.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
+
+// ================================
+// PORTAL OBJECT (chat, history, profile)
+// ================================
 const Portal = {
     location: "Lagos, Nigeria",
     niche: "local SME market",
@@ -316,42 +220,57 @@ const Portal = {
     currentTab: "analysis",
 
     updateHeader() {
-        if (userId && !userId.startsWith('guest_')) {
-            document.getElementById("headerUser").innerText = userId.slice(0, 8) + "...";
-        } else {
-            document.getElementById("headerUser").innerText = "—";
-        }
+        document.getElementById("headerUser").innerText = userId ? userId.slice(0,8)+"..." : "—";
     },
 
     loadUserContext() {
-        const savedLoc = localStorage.getItem("pf_location");
-        if (savedLoc) this.location = savedLoc;
-        const savedNiche = localStorage.getItem("pf_niche");
-        if (savedNiche) this.niche = savedNiche;
-        const savedBudget = localStorage.getItem("pf_budget");
-        if (savedBudget) this.budget = parseInt(savedBudget);
+        this.location = localStorage.getItem('pf_location') || this.location;
+        this.niche = localStorage.getItem('pf_niche') || this.niche;
+        this.budget = parseInt(localStorage.getItem('pf_budget')) || this.budget;
         document.getElementById("profLocation").value = this.location;
         document.getElementById("profNiche").value = this.niche;
         document.getElementById("profBudget").value = this.budget;
         this.updateHeader();
+        this.fetchProfileFromBackend();
+    },
+
+    async fetchProfileFromBackend() {
+        if (!userId) return;
+        try {
+            const res = await fetch(`${API_BASE}/bi/profile`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (data.location) this.location = data.location;
+                if (data.niche) this.niche = data.niche;
+                if (data.budget) this.budget = data.budget;
+                document.getElementById("profLocation").value = this.location;
+                document.getElementById("profNiche").value = this.niche;
+                document.getElementById("profBudget").value = this.budget;
+                localStorage.setItem('pf_location', this.location);
+                localStorage.setItem('pf_niche', this.niche);
+                localStorage.setItem('pf_budget', this.budget);
+            }
+        } catch(e) { console.warn('Profile fetch failed', e); }
     },
 
     async saveProfile() {
         this.location = document.getElementById("profLocation").value.trim() || this.location;
-        this.niche    = document.getElementById("profNiche").value.trim()    || this.niche;
-        this.budget   = parseInt(document.getElementById("profBudget").value) || this.budget;
-        localStorage.setItem("pf_location", this.location);
-        localStorage.setItem("pf_niche", this.niche);
-        localStorage.setItem("pf_budget", this.budget);
+        this.niche = document.getElementById("profNiche").value.trim() || this.niche;
+        this.budget = parseInt(document.getElementById("profBudget").value) || this.budget;
+        localStorage.setItem('pf_location', this.location);
+        localStorage.setItem('pf_niche', this.niche);
+        localStorage.setItem('pf_budget', this.budget);
         const msg = document.getElementById("profileMsg");
         try {
-            await fetch(BI_PROFILE_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ user_id: userId, location: this.location, niche: this.niche, budget: this.budget })
+            await fetch(`${API_BASE}/bi/profile`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+                body: JSON.stringify({ location: this.location, niche: this.niche, budget: this.budget })
             });
             msg.textContent = "✅ Context saved.";
-        } catch (_) {
+        } catch(e) {
             msg.textContent = "✅ Saved locally.";
         }
         msg.classList.remove("hidden");
@@ -361,19 +280,21 @@ const Portal = {
     async loadHistory() {
         if (!userId) return;
         const list = document.getElementById("historyList");
-        list.innerHTML = '<p class="text-xs text-gray-400 text-center py-6 animate-pulse">Loading history...</p>';
+        list.innerHTML = '<p class="text-xs text-gray-400 text-center py-6">Loading...</p>';
         try {
-            const res = await fetch(`${BI_HISTORY_URL}?user_id=${encodeURIComponent(userId)}`);
+            const res = await fetch(`${API_BASE}/bi/history`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
             const data = await res.json();
             if (!data.history || data.history.length === 0) {
-                list.innerHTML = '<p class="text-xs text-gray-400 text-center py-10">No history yet. Start an analysis.</p>';
+                list.innerHTML = '<p class="text-xs text-gray-400 text-center py-10">No history yet.</p>';
                 return;
             }
-            const PILLAR_LABELS = {1:"👥 Customer", 2:"🏪 Market", 3:"⚙️ Capability", 4:"📈 Growth"};
+            const PILLAR_LABELS = {1:"👥 Customer",2:"🏪 Market",3:"⚙️ Capability",4:"📈 Growth"};
             list.innerHTML = data.history.map(h => {
                 const date = new Date(h.timestamp).toLocaleString("en-NG", { day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit" });
                 const label = PILLAR_LABELS[h.pillar] || "🔗 Analysis";
-                const preview = h.response?.substring(0, 120) + (h.response?.length > 120 ? "..." : "");
+                const preview = h.response?.substring(0,120)+(h.response?.length>120?"...":"");
                 return `<div class="history-item p-4 cursor-pointer hover:bg-blue-50 transition-all" onclick="Portal.replayHistory('${encodeURIComponent(h.query)}')">
                     <div class="flex justify-between items-start mb-1"><span class="text-xs font-bold text-blue-900">${label}</span><span class="text-xs text-gray-400">${date}</span></div>
                     <p class="text-xs font-medium text-gray-700 mb-1 truncate">${h.query}</p>
@@ -401,48 +322,37 @@ const Portal = {
 
     setPillar(num) {
         this.activePillar = num;
-        for (let i = 1; i <= 4; i++) {
-            document.getElementById(`pillar${i}Btn`).className = `pillar-btn ${i === num ? "pillar-active" : "pillar-inactive"} px-3 py-2.5 rounded-lg text-xs font-bold text-left`;
+        for (let i=1; i<=4; i++) {
+            document.getElementById(`pillar${i}Btn`).className = `pillar-btn ${i===num ? "pillar-active" : "pillar-inactive"} px-3 py-2.5 rounded-lg text-xs font-bold text-left`;
         }
     },
 
     updateUsage(usage) {
         if (!usage) return;
         const { requests_used, remaining, is_premium, limit } = usage;
-        const label = document.getElementById("usageLabel");
+        document.getElementById("usageLabel").innerHTML = is_premium ? "∞ (Premium)" : `${requests_used} / ${limit}`;
+        const pct = Math.min(100, Math.round((requests_used/limit)*100));
         const bar = document.getElementById("usageBarFill");
-        const pct = Math.min(100, Math.round((requests_used / limit) * 100));
-        label.textContent = is_premium ? "∞ (Premium)" : `${requests_used} / ${limit}`;
         bar.style.width = `${pct}%`;
-        if (pct >= 80) {
-            bar.style.background = "#EF4444";
-            document.getElementById("upgradeBanner").classList.remove("hidden");
-        } else if (pct >= 60) {
-            bar.style.background = "#F59E0B";
-        } else {
-            bar.style.background = "#22C55E";
-        }
+        bar.style.background = pct>=80 ? "#EF4444" : (pct>=60 ? "#F59E0B" : "#22C55E");
+        if (pct>=80) document.getElementById("upgradeBanner").classList.remove("hidden");
     },
 
     addMessage(text, role) {
         const container = document.getElementById("chatMessages");
         const div = document.createElement("div");
-        div.className = role === "user"
-            ? "msg-user self-end max-w-xs text-sm px-4 py-3 rounded-xl rounded-br-sm fade-in"
-            : "msg-ai self-start max-w-xs text-sm px-4 py-3 rounded-xl rounded-bl-sm fade-in";
+        div.className = role==="user" ? "msg-user self-end max-w-xs text-sm px-4 py-3 rounded-xl rounded-br-sm fade-in" : "msg-ai self-start max-w-xs text-sm px-4 py-3 rounded-xl rounded-bl-sm fade-in";
         div.textContent = text;
         container.appendChild(div);
         container.scrollTop = container.scrollHeight;
     },
 
     addTyping() {
-        const container = document.getElementById("chatMessages");
         const div = document.createElement("div");
         div.id = "typingIndicator";
         div.className = "msg-ai self-start px-4 py-3 rounded-xl rounded-bl-sm text-blue-300 text-sm italic";
-        div.innerHTML = '<span class="typing-dot">●</span> <span class="typing-dot">●</span> <span class="typing-dot">●</span>';
-        container.appendChild(div);
-        container.scrollTop = container.scrollHeight;
+        div.innerHTML = '<span class="typing-dot">●</span><span class="typing-dot">●</span><span class="typing-dot">●</span>';
+        document.getElementById("chatMessages").appendChild(div);
     },
 
     removeTyping() {
@@ -460,20 +370,18 @@ const Portal = {
         const text = input.value.trim();
         if (!text) return;
         input.value = "";
-
         this.addMessage(text, "user");
         this.chatHistory.push({ role: "user", content: text });
         this.addTyping();
         document.getElementById("sendBtn").disabled = true;
 
         try {
-            const res = await fetch(BI_AI_URL, {
+            const res = await fetch(`${API_BASE}/bi/chat`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${authToken}` },
                 body: JSON.stringify({
                     message: text,
                     history: this.chatHistory.slice(-6),
-                    user_id: userId,
                     location: this.location,
                     niche: this.niche,
                     budget: this.budget,
@@ -485,9 +393,9 @@ const Portal = {
             const data = await res.json();
             if (data.meta?.model) document.getElementById("modelBadge").textContent = data.meta.model;
             this.updateUsage(data.usage);
-            this.addMessage(data.response || "No response received.", "ai");
+            this.addMessage(data.response || "No response.", "ai");
             this.chatHistory.push({ role: "assistant", content: data.response });
-        } catch (err) {
+        } catch(err) {
             this.removeTyping();
             this.addMessage(err.message, "ai");
         }
@@ -496,262 +404,34 @@ const Portal = {
     }
 };
 
-// ==================================================================
-// AUTHENTICATION LOGIC – Login / Signup only (no guest)
-// ==================================================================
-const modal = document.getElementById('authModal');
-const closeModal = document.getElementById('modalClose');
-const loginForm = document.getElementById('loginForm');
-const signupForm = document.getElementById('signupForm');
-const toggleLink = document.getElementById('toggleLink');
-const showSignupLink = document.getElementById('showSignupLink');
-const doLoginBtn = document.getElementById('doLoginBtn');
-const doSignupBtn = document.getElementById('doSignupBtn');
-const authMessage = document.getElementById('authMessage');
-const logoutBtn = document.getElementById('logoutBtn');
-
-// Login form fields
-const loginEmail = document.getElementById('loginEmail');
-const loginPassword = document.getElementById('loginPassword');
-const showPasswordLogin = document.getElementById('showPasswordLogin');
-
-// Signup form fields
-const signupFirstName = document.getElementById('signupFirstName');
-const signupLastName = document.getElementById('signupLastName');
-const signupEmail = document.getElementById('signupEmail');
-const signupPhone = document.getElementById('signupPhone');
-const signupPassword = document.getElementById('signupPassword');
-const showPasswordSignup = document.getElementById('showPasswordSignup');
-
-// Forgot password link (shared)
-const forgotLink = document.getElementById('forgotPasswordLink');
-
-// Helper to show messages
-function showMessage(text, isError = true) {
-    authMessage.innerText = text;
-    authMessage.style.color = isError ? '#dc2626' : '#16a34a';
-    authMessage.style.fontWeight = '500';
-    setTimeout(() => {
-        if (authMessage.innerText === text) authMessage.innerText = '';
-    }, 5000);
-}
-
-// Validate email format
-function isValidEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-// Toggle between login and signup forms
-let showingLogin = true;
-function toggleForms() {
-    showingLogin = !showingLogin;
-    if (showingLogin) {
-        loginForm.style.display = 'block';
-        signupForm.style.display = 'none';
-        document.getElementById('modalTitle').innerText = 'Login';
-        showSignupLink.innerText = "Don't have an account? Sign up";
-        authMessage.innerText = '';
-    } else {
-        loginForm.style.display = 'none';
-        signupForm.style.display = 'block';
-        document.getElementById('modalTitle').innerText = 'Create Account';
-        showSignupLink.innerText = 'Back to Login';
-        authMessage.innerText = '';
-    }
-}
-showSignupLink.onclick = toggleForms;
-// Also if user clicks the "Back to Login" link (same element)
-
-// Show/hide password for login
-if (showPasswordLogin) {
-    showPasswordLogin.addEventListener('change', function() {
-        loginPassword.type = this.checked ? 'text' : 'password';
-    });
-}
-if (showPasswordSignup) {
-    showPasswordSignup.addEventListener('change', function() {
-        signupPassword.type = this.checked ? 'text' : 'password';
-    });
-}
-
-// Forgot password
-forgotLink.addEventListener('click', async (e) => {
-    e.preventDefault();
-    const email = showingLogin ? loginEmail.value.trim() : signupEmail.value.trim();
-    if (!email) {
-        showMessage('Please enter your email address first.', true);
-        return;
-    }
-    if (!isValidEmail(email)) {
-        showMessage('Please enter a valid email address.', true);
-        return;
-    }
-    showMessage('Sending reset link...', false);
-    const { error } = await supabase.auth.resetPasswordForEmail(email);
-    if (error) {
-        showMessage(error.message, true);
-    } else {
-        showMessage('Password reset email sent. Check your inbox (and spam folder).', false);
-    }
-});
-
-// Login handler
-async function handleLogin() {
-    const email = loginEmail.value.trim();
-    const password = loginPassword.value;
-    if (!email || !password) {
-        showMessage('Both email and password are required.', true);
-        return;
-    }
-    if (!isValidEmail(email)) {
-        showMessage('Please enter a valid email address.', true);
-        return;
-    }
-    doLoginBtn.disabled = true;
-    doLoginBtn.innerText = 'Logging in...';
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    doLoginBtn.disabled = false;
-    doLoginBtn.innerText = 'Login';
-    if (error) {
-        let friendlyMsg = error.message;
-        if (error.message.includes('Invalid login credentials')) friendlyMsg = 'Incorrect email or password. Please try again.';
-        else if (error.message.includes('Email not confirmed')) friendlyMsg = 'Please verify your email address before logging in. Check your inbox.';
-        showMessage(friendlyMsg, true);
-        return;
-    }
-    currentSession = data.session;
-    userId = data.user.id;
-    localStorage.setItem('supabase_session', JSON.stringify(currentSession));
-    localStorage.setItem('user_id', userId);
-    modal.style.display = 'none';
-    document.getElementById('mainApp').style.display = 'block';
-    Portal.loadUserContext();
-    Portal.loadHistory();
-}
-
-// Signup handler (saves name, phone to profiles table)
-async function handleSignup() {
-    const firstName = signupFirstName.value.trim();
-    const lastName = signupLastName.value.trim();
-    const email = signupEmail.value.trim();
-    const phone = signupPhone.value.trim();
-    const password = signupPassword.value;
-
-    if (!firstName || !lastName || !email || !password) {
-        showMessage('First name, last name, email, and password are required.', true);
-        return;
-    }
-    if (!isValidEmail(email)) {
-        showMessage('Please enter a valid email address.', true);
-        return;
-    }
-    if (password.length < 6) {
-        showMessage('Password must be at least 6 characters long.', true);
-        return;
-    }
-    doSignupBtn.disabled = true;
-    doSignupBtn.innerText = 'Creating account...';
-    const { data, error } = await supabase.auth.signUp({ email, password });
-    doSignupBtn.disabled = false;
-    doSignupBtn.innerText = 'Create Account';
-    if (error) {
-        let friendlyMsg = error.message;
-        if (error.message.includes('User already registered')) friendlyMsg = 'An account with this email already exists. Please log in instead.';
-        else if (error.message.includes('Password should be at least')) friendlyMsg = 'Password is too weak. Use at least 6 characters.';
-        showMessage(friendlyMsg, true);
-        return;
-    }
-    if (data.user && data.user.identities && data.user.identities.length === 0) {
-        showMessage('Email already registered. Please log in.', true);
-        return;
-    }
-    // Now update the user_profiles table with name and phone (using service_role key on backend, but we can do it via the same authenticated session)
-    if (data.session) {
-        // User is automatically logged in after signup (if email confirmation disabled)
-        // We'll update profile using the same access token
-        const accessToken = data.session.access_token;
-        userId = data.user.id;
-        const profileUpdate = {
-            user_id: userId,
-            first_name: firstName,
-            last_name: lastName,
-            phone: phone || null,
-            location: Portal.location,
-            niche: Portal.niche,
-            budget: Portal.budget
-        };
-        // Send to our backend profile endpoint (which uses service role key)
-        try {
-            await fetch(BI_PROFILE_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(profileUpdate)
-            });
-        } catch(e) { console.warn("Profile update after signup failed", e); }
-        // Also store locally
-        localStorage.setItem('supabase_session', JSON.stringify(data.session));
-        localStorage.setItem('user_id', userId);
-        modal.style.display = 'none';
-        document.getElementById('mainApp').style.display = 'block';
-        Portal.loadUserContext();
-        Portal.loadHistory();
-        showMessage('Account created and logged in!', false);
-    } else {
-        // Email confirmation required
-        showMessage('Signup successful! Please check your email to confirm your account, then log in.', false);
-        // Clear fields for next attempt
-        signupFirstName.value = '';
-        signupLastName.value = '';
-        signupEmail.value = '';
-        signupPhone.value = '';
-        signupPassword.value = '';
-        // Switch back to login form after a short delay
-        setTimeout(() => {
-            if (!showingLogin) toggleForms();
-        }, 2000);
-    }
-}
-
-doLoginBtn.onclick = handleLogin;
-doSignupBtn.onclick = handleSignup;
-closeModal.onclick = () => modal.style.display = 'none';
-window.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
-logoutBtn.onclick = async () => {
-    await supabase.auth.signOut();
-    localStorage.removeItem('supabase_session');
-    localStorage.removeItem('user_id');
-    currentSession = null;
-    userId = null;
-    location.reload();
-};
-
-// Session restore
-async function restoreSession() {
-    const storedSession = localStorage.getItem('supabase_session');
+// Restore session on page load
+(async function() {
+    const storedToken = localStorage.getItem('auth_token');
     const storedUserId = localStorage.getItem('user_id');
-    if (storedSession && storedUserId) {
+    if (storedToken && storedUserId) {
+        authToken = storedToken;
+        userId = storedUserId;
+        // Optionally verify token with /auth/me
         try {
-            const { data: { session }, error } = await supabase.auth.setSession(JSON.parse(storedSession));
-            if (error) throw error;
-            if (session) {
-                currentSession = session;
-                userId = session.user.id;
-                modal.style.display = 'none';
-                document.getElementById('mainApp').style.display = 'block';
-                Portal.loadUserContext();
-                Portal.loadHistory();
-                return;
-            }
+            const res = await fetch(`${API_BASE}/auth/me`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            if (!res.ok) throw new Error('Token invalid');
+            // Token valid, show main app
+            document.getElementById('authModal').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            Portal.loadUserContext();
+            Portal.loadHistory();
+            return;
         } catch(e) {
-            console.warn('Session restore failed:', e);
-            localStorage.removeItem('supabase_session');
+            console.warn('Session restore failed', e);
+            localStorage.removeItem('auth_token');
             localStorage.removeItem('user_id');
         }
     }
-    modal.style.display = 'flex';
+    document.getElementById('authModal').style.display = 'flex';
     document.getElementById('mainApp').style.display = 'none';
-}
-restoreSession();
+})();
 </script>
 </body>
 </html>
