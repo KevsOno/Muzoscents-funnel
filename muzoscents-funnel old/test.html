@@ -62,39 +62,85 @@
         /* ── Pulse dot ── */
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
         .live-dot { animation: pulse 2s infinite; }
+
+        /* ── Auth modal ── */
+        .auth-modal {
+            display: flex;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 10001;
+            align-items: center;
+            justify-content: center;
+        }
+        .auth-modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 400px;
+            width: 90%;
+            text-align: left;
+        }
+        .auth-modal-content input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .auth-modal-content button {
+            background: #6b4b9a;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .auth-modal-content button:hover { background: #593b85; }
+        .auth-modal-close {
+            float: right;
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+        .guest-btn {
+            background: #6c757d !important;
+            width: 100%;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen p-4">
 
-<!-- ══════════════════════════════════════════════
-     LOGIN / SIGNUP MODAL
-     ══════════════════════════════════════════════ -->
-<div id="authOverlay" style="position:fixed; inset:0; background:rgba(15,23,42,0.75); backdrop-filter:blur(4px); z-index:50; display:flex; align-items:center; justify-content:center; padding:16px;">
-    <div class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-sm fade-in">
-        <div class="text-center mb-6">
-            <div class="text-2xl font-black text-blue-900 italic mb-1">
-                Kevs<span class="text-green-500">Digital</span>
-            </div>
-            <p class="text-sm text-gray-500">Sign in to continue</p>
+<!-- AUTH MODAL -->
+<div id="authModal" class="auth-modal">
+    <div class="auth-modal-content">
+        <span class="auth-modal-close" id="modalClose">&times;</span>
+        <h3 id="modalTitle" class="text-xl font-bold mb-4">Login</h3>
+        <input type="email" id="authEmail" placeholder="Email">
+        <input type="password" id="authPassword" placeholder="Password">
+        <div style="margin: 5px 0;">
+            <label style="font-size: 0.8rem;">
+                <input type="checkbox" id="showPassword"> Show Password
+            </label>
         </div>
-
-        <div class="space-y-3">
-            <input id="authEmail" type="email" placeholder="Email" class="w-full p-3 bg-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-900">
-            <input id="authPassword" type="password" placeholder="Password" class="w-full p-3 bg-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-900">
+        <div style="text-align: right; margin-top: 5px;">
+            <a href="#" id="forgotPasswordLink" style="font-size: 0.75rem; color: #6b4b9a;">Forgot password?</a>
         </div>
-
-        <div class="flex gap-3 mt-6">
-            <button id="loginBtn" class="flex-1 bg-blue-900 text-white font-bold py-3 rounded-xl hover:bg-black transition-all">Login</button>
-            <button id="signupBtn" class="flex-1 border border-blue-900 text-blue-900 font-bold py-3 rounded-xl hover:bg-blue-50 transition-all">Sign Up</button>
+        <div>
+            <button id="loginBtn">Login</button>
+            <button id="signupBtn">Sign Up</button>
         </div>
-        <button id="guestBtn" class="w-full mt-4 text-center text-sm text-gray-400 hover:text-gray-600 transition-all">Continue as guest</button>
-        <div id="authMessage" class="mt-3 text-center text-xs text-red-600"></div>
+        <button id="guestBtn" class="guest-btn">Continue as Guest</button>
+        <div id="authMessage" style="margin-top: 10px; font-size: 0.8rem; color: red;"></div>
     </div>
 </div>
 
-<!-- ══════════════════════════════════════════════
-     MAIN LAYOUT (initially hidden until auth resolved)
-     ══════════════════════════════════════════════ -->
+<!-- MAIN APP (hidden until auth resolved) -->
 <div id="mainApp" style="display: none;">
     <nav class="max-w-4xl mx-auto mb-6 flex justify-between items-center">
         <div class="text-xl font-black text-blue-900 italic">
@@ -109,8 +155,8 @@
         </div>
     </nav>
 
+    <!-- BI Interface (unchanged) -->
     <div class="bg-blue-50/50 border border-blue-100 rounded-2xl overflow-hidden">
-        <!-- Header -->
         <div class="bg-blue-900 px-5 py-3 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <span class="live-dot w-2 h-2 bg-green-400 rounded-full"></span>
@@ -119,14 +165,12 @@
             <span id="modelBadge" class="text-xs text-white/50 font-mono">—</span>
         </div>
 
-        <!-- Tabs -->
         <div class="flex bg-white border-b border-blue-100 px-4">
             <button onclick="Portal.switchTab('analysis')" id="tabAnalysis" class="tab-btn tab-active text-sm font-medium text-gray-600 py-3 mr-5">Analysis</button>
             <button onclick="Portal.switchTab('history')" id="tabHistory" class="tab-btn text-sm font-medium text-gray-500 py-3 mr-5">History</button>
             <button onclick="Portal.switchTab('profile')" id="tabProfile" class="tab-btn text-sm font-medium text-gray-500 py-3">Profile</button>
         </div>
 
-        <!-- Analysis Panel -->
         <div id="panelAnalysis">
             <div class="p-4 border-b border-blue-100 bg-white/60">
                 <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Analysis Focus</p>
@@ -137,7 +181,6 @@
                     <button onclick="Portal.setPillar(4)" id="pillar4Btn" class="pillar-btn pillar-inactive px-3 py-2.5 rounded-lg text-xs font-bold text-left">📈 Growth</button>
                 </div>
             </div>
-
             <div class="px-4 pt-3 pb-1 bg-white/40">
                 <div class="flex justify-between items-center mb-1">
                     <span class="text-xs text-gray-400">Free analyses</span>
@@ -151,27 +194,23 @@
                     <p class="text-xs text-white/70">PDF exports · Priority routing · Full history</p>
                 </div>
             </div>
-
             <div class="chat-messages flex flex-col gap-3 p-4 overflow-y-auto" id="chatMessages" style="height: 280px;">
                 <div class="msg-ai self-start max-w-xs text-sm px-4 py-3 rounded-xl rounded-bl-sm fade-in">
                     Welcome. I'm your business intelligence advisor. Select a focus area above, then ask anything about your market, customers, operations, or growth.
                 </div>
             </div>
-
             <div class="flex gap-2 px-4 pb-3 flex-wrap">
                 <button onclick="Portal.quickAsk('Who are our best customers and what drives them to buy?')" class="text-xs bg-white border border-blue-200 text-blue-800 px-3 py-1.5 rounded-full hover:bg-blue-50 transition-all">👥 Who buys from us?</button>
                 <button onclick="Portal.quickAsk('How do we outposition our competitors right now?')" class="text-xs bg-white border border-blue-200 text-blue-800 px-3 py-1.5 rounded-full hover:bg-blue-50 transition-all">🏪 Beat competitors</button>
                 <button onclick="Portal.quickAsk('What is our strongest internal advantage we should double down on?')" class="text-xs bg-white border border-blue-200 text-blue-800 px-3 py-1.5 rounded-full hover:bg-blue-50 transition-all">⚙️ Our strengths</button>
                 <button onclick="Portal.quickAsk('What are our real unit economics and how do we improve CAC?')" class="text-xs bg-white border border-blue-200 text-blue-800 px-3 py-1.5 rounded-full hover:bg-blue-50 transition-all">📈 Unit economics</button>
             </div>
-
             <div class="flex gap-2 px-4 pb-4">
                 <input type="text" id="chatInput" placeholder="Ask your intelligence engine..." class="flex-1 px-4 py-3 rounded-xl border border-blue-200 bg-white text-sm text-blue-900 outline-none focus:ring-2 focus:ring-blue-900" onkeydown="if(event.key==='Enter') Portal.sendMessage()">
                 <button onclick="Portal.sendMessage()" id="sendBtn" class="bg-blue-900 text-white font-bold px-5 py-3 rounded-xl hover:bg-black transition-all text-sm">Send</button>
             </div>
         </div>
 
-        <!-- History Panel -->
         <div id="panelHistory" class="hidden p-4">
             <div class="flex justify-between items-center mb-4">
                 <p class="text-sm font-bold text-gray-700">Past Analyses</p>
@@ -182,7 +221,6 @@
             </div>
         </div>
 
-        <!-- Profile Panel -->
         <div id="panelProfile" class="hidden p-4">
             <p class="text-sm font-bold text-gray-700 mb-4">Your Business Context</p>
             <div class="space-y-3">
@@ -206,184 +244,110 @@
 </div>
 
 <script>
-// ------------------------------------------------------------------
-// Supabase configuration – REPLACE WITH YOUR ACTUAL VALUES
-// ------------------------------------------------------------------
-const SUPABASE_URL = "https://xqernsfxahiopzttnldv.supabase.co";
-const SUPABASE_ANON_KEY = "YOUR_ANON_KEY";  // <--- REPLACE ME
+// ==================================================================
+// CONFIGURATION – NEW SUPABASE PROJECT (dedicated for BI)
+// ==================================================================
+const SUPABASE_URL = 'https://thzfuhbsieubjonggjxc.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoemZ1aGJzaWV1YmpvbmdnanhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxOTQzNzIsImV4cCI6MjA4Nzc3MDM3Mn0.-z1eFn6qGnwPMbO1_OFRSZ-bPTHZm28Wjq9602EP8Sg';
+
+// BI backend endpoints (Netlify functions) – these stay the same
+const BI_AI_URL = '/.netlify/functions/chat-proxy';
+const BI_HISTORY_URL = '/.netlify/functions/history-proxy';
+const BI_PROFILE_URL = '/.netlify/functions/profile-proxy';
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// ------------------------------------------------------------------
-// Portal object (chat logic)
-// ------------------------------------------------------------------
+let currentSession = null;
+let userId = null;
+
+// ==================================================================
+// PORTAL OBJECT (BI logic) – unchanged
+// ==================================================================
 const Portal = {
-    SHEET_URL:    "https://sheetdb.io/api/v1/a4z6gyofxc4lo",
-    AI_URL:       "/.netlify/functions/chat-proxy",
-    HISTORY_URL:  "/.netlify/functions/history-proxy",
-    PROFILE_URL:  "/.netlify/functions/profile-proxy",
-
-    userId:       null,          // will be set after auth
-    location:     "Lagos, Nigeria",
-    niche:        "local SME market",
-    budget:       500000,
+    location: "Lagos, Nigeria",
+    niche: "local SME market",
+    budget: 500000,
     activePillar: 3,
-    chatHistory:  [],
-    currentTab:   "analysis",
-    authToken:    null,          // not used for API key, but we store session
+    chatHistory: [],
+    currentTab: "analysis",
 
-    // ------------------------------------------------------------------
-    // Auth UI
-    // ------------------------------------------------------------------
-    async handleLogin(email, password) {
-        try {
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-            if (error) throw error;
-            return { success: true, user: data.user };
-        } catch (err) {
-            return { success: false, error: err.message };
-        }
-    },
-
-    async handleSignup(email, password) {
-        try {
-            const { data, error } = await supabase.auth.signUp({ email, password });
-            if (error) throw error;
-            if (data.user && data.user.identities && data.user.identities.length === 0) {
-                return { success: false, error: "User already exists. Please log in." };
-            }
-            return { success: true, user: data.user, message: "Signup successful! Please verify your email." };
-        } catch (err) {
-            return { success: false, error: err.message };
-        }
-    },
-
-    async logout() {
-        await supabase.auth.signOut();
-        localStorage.removeItem("pf_user_id");
-        localStorage.removeItem("pf_location");
-        localStorage.removeItem("pf_niche");
-        localStorage.removeItem("pf_budget");
-        location.reload();
-    },
-
-    async initAuth() {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (session) {
-            // User already logged in
-            this.userId = session.user.id;
-            document.getElementById("headerUser").textContent = this.userId.slice(0, 8) + "...";
-            this.loadUserContext();
-            document.getElementById("authOverlay").style.display = "none";
-            document.getElementById("mainApp").style.display = "block";
+    updateHeader() {
+        if (userId && !userId.startsWith('guest_')) {
+            document.getElementById("headerUser").innerText = userId.slice(0, 8) + "...";
+        } else if (userId && userId.startsWith('guest_')) {
+            document.getElementById("headerUser").innerText = "Guest";
         } else {
-            // Show auth overlay
-            document.getElementById("authOverlay").style.display = "flex";
-            document.getElementById("mainApp").style.display = "none";
+            document.getElementById("headerUser").innerText = "—";
         }
-
-        // Bind auth buttons
-        document.getElementById("loginBtn").onclick = async () => {
-            const email = document.getElementById("authEmail").value.trim();
-            const password = document.getElementById("authPassword").value;
-            const msgDiv = document.getElementById("authMessage");
-            if (!email || !password) {
-                msgDiv.innerText = "Email and password required";
-                return;
-            }
-            msgDiv.innerText = "Logging in...";
-            const result = await this.handleLogin(email, password);
-            if (result.success) {
-                this.userId = result.user.id;
-                document.getElementById("headerUser").textContent = this.userId.slice(0, 8) + "...";
-                this.loadUserContext();
-                document.getElementById("authOverlay").style.display = "none";
-                document.getElementById("mainApp").style.display = "block";
-            } else {
-                msgDiv.innerText = result.error;
-            }
-        };
-
-        document.getElementById("signupBtn").onclick = async () => {
-            const email = document.getElementById("authEmail").value.trim();
-            const password = document.getElementById("authPassword").value;
-            const msgDiv = document.getElementById("authMessage");
-            if (!email || !password) {
-                msgDiv.innerText = "Email and password required";
-                return;
-            }
-            msgDiv.innerText = "Creating account...";
-            const result = await this.handleSignup(email, password);
-            if (result.success) {
-                if (result.message) {
-                    msgDiv.innerText = result.message + " Please check your email.";
-                } else {
-                    // Auto-login after signup (if email confirmation not required)
-                    if (result.user) {
-                        this.userId = result.user.id;
-                        document.getElementById("headerUser").textContent = this.userId.slice(0, 8) + "...";
-                        this.loadUserContext();
-                        document.getElementById("authOverlay").style.display = "none";
-                        document.getElementById("mainApp").style.display = "block";
-                    } else {
-                        msgDiv.innerText = "Signup successful! Please log in.";
-                    }
-                }
-            } else {
-                msgDiv.innerText = result.error;
-            }
-        };
-
-        document.getElementById("guestBtn").onclick = () => {
-            this.userId = "guest_" + Math.random().toString(36).substr(2, 8);
-            localStorage.setItem("pf_user_id", this.userId);
-            document.getElementById("headerUser").textContent = "Guest";
-            document.getElementById("authOverlay").style.display = "none";
-            document.getElementById("mainApp").style.display = "block";
-        };
-
-        document.getElementById("logoutBtn").onclick = () => this.logout();
     },
 
     loadUserContext() {
-        // Try to load from localStorage or backend
-        const saved = localStorage.getItem("pf_location");
-        if (saved) this.location = saved;
+        const savedLoc = localStorage.getItem("pf_location");
+        if (savedLoc) this.location = savedLoc;
         const savedNiche = localStorage.getItem("pf_niche");
         if (savedNiche) this.niche = savedNiche;
         const savedBudget = localStorage.getItem("pf_budget");
         if (savedBudget) this.budget = parseInt(savedBudget);
-
         document.getElementById("profLocation").value = this.location;
         document.getElementById("profNiche").value = this.niche;
         document.getElementById("profBudget").value = this.budget;
-
-        // Optionally fetch from backend profile endpoint
-        this._fetchProfileFromBackend();
+        this.updateHeader();
     },
 
-    async _fetchProfileFromBackend() {
-        if (this.userId && this.userId !== "anonymous") {
-            try {
-                const res = await fetch(`${this.PROFILE_URL}?user_id=${encodeURIComponent(this.userId)}`, {
-                    headers: { "Content-Type": "application/json" },
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.location) this.location = data.location;
-                    if (data.niche) this.niche = data.niche;
-                    if (data.budget) this.budget = data.budget;
-                    document.getElementById("profLocation").value = this.location;
-                    document.getElementById("profNiche").value = this.niche;
-                    document.getElementById("profBudget").value = this.budget;
-                }
-            } catch(e) {}
+    async saveProfile() {
+        this.location = document.getElementById("profLocation").value.trim() || this.location;
+        this.niche    = document.getElementById("profNiche").value.trim()    || this.niche;
+        this.budget   = parseInt(document.getElementById("profBudget").value) || this.budget;
+        localStorage.setItem("pf_location", this.location);
+        localStorage.setItem("pf_niche", this.niche);
+        localStorage.setItem("pf_budget", this.budget);
+        const msg = document.getElementById("profileMsg");
+        try {
+            await fetch(BI_PROFILE_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ user_id: userId, location: this.location, niche: this.niche, budget: this.budget })
+            });
+            msg.textContent = "✅ Context saved.";
+        } catch (_) {
+            msg.textContent = "✅ Saved locally.";
+        }
+        msg.classList.remove("hidden");
+        setTimeout(() => msg.classList.add("hidden"), 3000);
+    },
+
+    async loadHistory() {
+        if (!userId) return;
+        const list = document.getElementById("historyList");
+        list.innerHTML = '<p class="text-xs text-gray-400 text-center py-6 animate-pulse">Loading history...</p>';
+        try {
+            const res = await fetch(`${BI_HISTORY_URL}?user_id=${encodeURIComponent(userId)}`);
+            const data = await res.json();
+            if (!data.history || data.history.length === 0) {
+                list.innerHTML = '<p class="text-xs text-gray-400 text-center py-10">No history yet. Start an analysis.</p>';
+                return;
+            }
+            const PILLAR_LABELS = {1:"👥 Customer", 2:"🏪 Market", 3:"⚙️ Capability", 4:"📈 Growth"};
+            list.innerHTML = data.history.map(h => {
+                const date = new Date(h.timestamp).toLocaleString("en-NG", { day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit" });
+                const label = PILLAR_LABELS[h.pillar] || "🔗 Analysis";
+                const preview = h.response?.substring(0, 120) + (h.response?.length > 120 ? "..." : "");
+                return `<div class="history-item p-4 cursor-pointer hover:bg-blue-50 transition-all" onclick="Portal.replayHistory('${encodeURIComponent(h.query)}')">
+                    <div class="flex justify-between items-start mb-1"><span class="text-xs font-bold text-blue-900">${label}</span><span class="text-xs text-gray-400">${date}</span></div>
+                    <p class="text-xs font-medium text-gray-700 mb-1 truncate">${h.query}</p>
+                    <p class="text-xs text-gray-400 leading-relaxed">${preview}</p>
+                </div>`;
+            }).join("");
+        } catch(e) {
+            list.innerHTML = '<p class="text-xs text-red-400 text-center py-6">Could not load history.</p>';
         }
     },
 
-    // ------------------------------------------------------------------
-    // Tab, Pillar, UI helpers
-    // ------------------------------------------------------------------
+    replayHistory(encodedQuery) {
+        this.switchTab("analysis");
+        document.getElementById("chatInput").value = decodeURIComponent(encodedQuery);
+    },
+
     switchTab(tab) {
         this.currentTab = tab;
         ["analysis","history","profile"].forEach(t => {
@@ -418,9 +382,6 @@ const Portal = {
         }
     },
 
-    // ------------------------------------------------------------------
-    // Chat helpers
-    // ------------------------------------------------------------------
     addMessage(text, role) {
         const container = document.getElementById("chatMessages");
         const div = document.createElement("div");
@@ -428,15 +389,6 @@ const Portal = {
             ? "msg-user self-end max-w-xs text-sm px-4 py-3 rounded-xl rounded-br-sm fade-in"
             : "msg-ai self-start max-w-xs text-sm px-4 py-3 rounded-xl rounded-bl-sm fade-in";
         div.textContent = text;
-        container.appendChild(div);
-        container.scrollTop = container.scrollHeight;
-    },
-
-    addSystemMsg(text) {
-        const container = document.getElementById("chatMessages");
-        const div = document.createElement("div");
-        div.className = "self-center text-xs text-gray-400 italic fade-in";
-        div.textContent = `— ${text} —`;
         container.appendChild(div);
         container.scrollTop = container.scrollHeight;
     },
@@ -473,27 +425,21 @@ const Portal = {
         document.getElementById("sendBtn").disabled = true;
 
         try {
-            const res = await fetch(this.AI_URL, {
+            const res = await fetch(BI_AI_URL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     message: text,
                     history: this.chatHistory.slice(-6),
-                    user_id: this.userId,
+                    user_id: userId,
                     location: this.location,
                     niche: this.niche,
                     budget: this.budget,
-                    force_pillar: this.activePillar,
-                }),
+                    force_pillar: this.activePillar
+                })
             });
-
             this.removeTyping();
-
-            if (res.status === 401) throw new Error("Authentication failed. Please contact support.");
-            if (res.status === 429) throw new Error("Too many requests. Please wait 60 seconds.");
-            if (res.status === 402) throw new Error("You've used all 15 free analyses. Upgrade to continue.");
             if (!res.ok) throw new Error(`Service error (${res.status})`);
-
             const data = await res.json();
             if (data.meta?.model) document.getElementById("modelBadge").textContent = data.meta.model;
             this.updateUsage(data.usage);
@@ -501,92 +447,159 @@ const Portal = {
             this.chatHistory.push({ role: "assistant", content: data.response });
         } catch (err) {
             this.removeTyping();
-            let msg = err.message;
-            if (msg.includes("Failed to fetch")) msg = "Cannot reach the service — it may be waking up. Try again in 30 seconds.";
-            this.addMessage(msg, "ai");
+            this.addMessage(err.message, "ai");
         }
         document.getElementById("sendBtn").disabled = false;
         if (this.chatHistory.length > 20) this.chatHistory = this.chatHistory.slice(-20);
-    },
-
-    // ------------------------------------------------------------------
-    // History
-    // ------------------------------------------------------------------
-    async loadHistory() {
-        const list = document.getElementById("historyList");
-        list.innerHTML = '<p class="text-xs text-gray-400 text-center py-6 animate-pulse">Loading history...</p>';
-        try {
-            const res = await fetch(`${this.HISTORY_URL}?user_id=${encodeURIComponent(this.userId)}`, {
-                headers: { "Content-Type": "application/json" },
-            });
-            const data = await res.json();
-            if (!data.history || data.history.length === 0) {
-                list.innerHTML = '<p class="text-xs text-gray-400 text-center py-10">No history yet. Start an analysis.</p>';
-                return;
-            }
-            const PILLAR_LABELS = {1:"👥 Customer", 2:"🏪 Market", 3:"⚙️ Capability", 4:"📈 Growth"};
-            list.innerHTML = data.history.map(h => {
-                const date = new Date(h.timestamp).toLocaleString("en-NG", { day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit" });
-                const label = PILLAR_LABELS[h.pillar] || "🔗 Analysis";
-                const preview = h.response?.substring(0, 120) + (h.response?.length > 120 ? "..." : "");
-                return `<div class="history-item p-4 cursor-pointer hover:bg-blue-50 transition-all" onclick="Portal.replayHistory('${encodeURIComponent(h.query)}')">
-                    <div class="flex justify-between items-start mb-1"><span class="text-xs font-bold text-blue-900">${label}</span><span class="text-xs text-gray-400">${date}</span></div>
-                    <p class="text-xs font-medium text-gray-700 mb-1 truncate">${h.query}</p>
-                    <p class="text-xs text-gray-400 leading-relaxed">${preview}</p>
-                </div>`;
-            }).join("");
-        } catch(e) {
-            list.innerHTML = '<p class="text-xs text-red-400 text-center py-6">Could not load history.</p>';
-        }
-    },
-
-    replayHistory(encodedQuery) {
-        this.switchTab("analysis");
-        document.getElementById("chatInput").value = decodeURIComponent(encodedQuery);
-    },
-
-    // ------------------------------------------------------------------
-    // Profile
-    // ------------------------------------------------------------------
-    async saveProfile() {
-        this.location = document.getElementById("profLocation").value.trim() || this.location;
-        this.niche    = document.getElementById("profNiche").value.trim()    || this.niche;
-        this.budget   = parseInt(document.getElementById("profBudget").value) || this.budget;
-
-        localStorage.setItem("pf_location", this.location);
-        localStorage.setItem("pf_niche", this.niche);
-        localStorage.setItem("pf_budget", this.budget);
-
-        const msg = document.getElementById("profileMsg");
-        try {
-            await fetch(this.PROFILE_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    user_id: this.userId,
-                    location: this.location,
-                    niche: this.niche,
-                    budget: this.budget,
-                }),
-            });
-            msg.textContent = "✅ Context saved.";
-        } catch (_) {
-            msg.textContent = "✅ Saved locally.";
-        }
-        msg.classList.remove("hidden");
-        setTimeout(() => msg.classList.add("hidden"), 3000);
-    },
-
-    // ------------------------------------------------------------------
-    // Init
-    // ------------------------------------------------------------------
-    init() {
-        this.initAuth();
-        this.setPillar(3);
     }
 };
 
-document.addEventListener("DOMContentLoaded", () => Portal.init());
+// ==================================================================
+// AUTHENTICATION LOGIC (using new Supabase project)
+// ==================================================================
+const modal = document.getElementById('authModal');
+const closeModal = document.getElementById('modalClose');
+const loginBtn = document.getElementById('loginBtn');
+const signupBtn = document.getElementById('signupBtn');
+const guestBtn = document.getElementById('guestBtn');
+const authEmail = document.getElementById('authEmail');
+const authPassword = document.getElementById('authPassword');
+const authMessage = document.getElementById('authMessage');
+const showPasswordCheckbox = document.getElementById('showPassword');
+const forgotLink = document.getElementById('forgotPasswordLink');
+const logoutBtn = document.getElementById('logoutBtn');
+
+if (showPasswordCheckbox) {
+    showPasswordCheckbox.addEventListener('change', function() {
+        authPassword.type = this.checked ? 'text' : 'password';
+    });
+}
+
+forgotLink.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const email = authEmail.value.trim();
+    if (!email) {
+        authMessage.innerText = 'Please enter your email address first.';
+        return;
+    }
+    authMessage.style.color = 'orange';
+    authMessage.innerText = 'Sending reset link...';
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    if (error) {
+        authMessage.style.color = 'red';
+        authMessage.innerText = error.message;
+    } else {
+        authMessage.style.color = 'green';
+        authMessage.innerText = 'Password reset email sent. Check your inbox.';
+    }
+});
+
+async function handleLogin() {
+    const email = authEmail.value.trim();
+    const password = authPassword.value;
+    if (!email || !password) {
+        authMessage.innerText = 'Email and password required';
+        return;
+    }
+    authMessage.innerText = 'Logging in...';
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+        authMessage.innerText = error.message;
+        return;
+    }
+    currentSession = data.session;
+    userId = data.user.id;
+    localStorage.setItem('supabase_session', JSON.stringify(currentSession));
+    localStorage.setItem('user_id', userId);
+    modal.style.display = 'none';
+    document.getElementById('mainApp').style.display = 'block';
+    Portal.loadUserContext();
+    Portal.loadHistory();
+}
+
+async function handleSignup() {
+    const email = authEmail.value.trim();
+    const password = authPassword.value;
+    if (!email || !password) {
+        authMessage.innerText = 'Email and password required';
+        return;
+    }
+    authMessage.innerText = 'Creating account...';
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    if (error) {
+        authMessage.innerText = error.message;
+        return;
+    }
+    if (data.user && data.user.identities && data.user.identities.length === 0) {
+        authMessage.innerText = 'User already exists. Please log in.';
+    } else {
+        authMessage.style.color = 'green';
+        authMessage.innerText = 'Signup successful! Please verify your email (if required). You can now log in.';
+        if (data.session) {
+            // email confirmation disabled — auto login
+            currentSession = data.session;
+            userId = data.user.id;
+            localStorage.setItem('supabase_session', JSON.stringify(currentSession));
+            localStorage.setItem('user_id', userId);
+            modal.style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            Portal.loadUserContext();
+            Portal.loadHistory();
+        }
+    }
+}
+
+function handleGuest() {
+    userId = 'guest_' + Math.random().toString(36).substr(2, 8);
+    currentSession = null;
+    localStorage.removeItem('supabase_session');
+    localStorage.setItem('user_id', userId);
+    modal.style.display = 'none';
+    document.getElementById('mainApp').style.display = 'block';
+    Portal.loadUserContext();
+}
+
+async function logout() {
+    await supabase.auth.signOut();
+    localStorage.removeItem('supabase_session');
+    localStorage.removeItem('user_id');
+    currentSession = null;
+    userId = null;
+    location.reload();
+}
+
+loginBtn.onclick = handleLogin;
+signupBtn.onclick = handleSignup;
+guestBtn.onclick = handleGuest;
+closeModal.onclick = () => modal.style.display = 'none';
+window.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
+logoutBtn.onclick = logout;
+
+async function restoreSession() {
+    const storedSession = localStorage.getItem('supabase_session');
+    const storedUserId = localStorage.getItem('user_id');
+    if (storedSession && storedUserId) {
+        try {
+            const { data: { session }, error } = await supabase.auth.setSession(JSON.parse(storedSession));
+            if (error) throw error;
+            if (session) {
+                currentSession = session;
+                userId = session.user.id;
+                modal.style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                Portal.loadUserContext();
+                Portal.loadHistory();
+                return;
+            }
+        } catch(e) {
+            console.warn('Session restore failed:', e);
+        }
+    }
+    modal.style.display = 'flex';
+    document.getElementById('mainApp').style.display = 'none';
+}
+
+restoreSession();
 </script>
 </body>
 </html>
