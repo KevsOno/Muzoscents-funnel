@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Penafort Energy Member Portal</title>
+    <title>Kevs Digital Business Intelligence</title>
     <script src="https://cdn.tailwindcss.com/3.4.1"></script>
     <style>
         /* ── Scrollbar ── */
@@ -81,7 +81,7 @@
     <div class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-sm fade-in">
         <div class="text-center mb-6">
             <div class="text-2xl font-black text-blue-900 italic mb-1">
-                PENAFORT<span class="text-green-500">ENERGY</span>
+                Kevs<span class="text-green-500">Digital</span>
             </div>
             <p class="text-sm text-gray-500">Set up your intelligence session</p>
         </div>
@@ -122,45 +122,13 @@
      ══════════════════════════════════════════════ -->
 <nav class="max-w-4xl mx-auto mb-6 flex justify-between items-center">
     <div class="text-xl font-black text-blue-900 italic">
-        PENAFORT<span class="text-green-500">ENERGY</span>
+        Kevs<span class="text-green-500">Digital</span>
     </div>
     <div class="text-xs text-gray-400 flex items-center gap-1.5">
         <span class="live-dot w-2 h-2 rounded-full bg-green-400 inline-block"></span>
         <span id="headerUser">—</span>
     </div>
 </nav>
-
-<div class="max-w-md mx-auto space-y-5">
-
-    <!-- Member Search Card (unchanged from original) -->
-    <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100">
-        <h2 class="text-2xl font-bold text-slate-800 mb-6 text-center">Member Portal</h2>
-        <div class="space-y-4">
-            <input type="text" id="searchInput" placeholder="Search by ID, Email, Name or Phone"
-                   class="w-full p-4 bg-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-green-500 text-center font-bold">
-            <button onclick="Portal.search()" class="w-full bg-blue-900 text-white font-bold py-4 rounded-xl hover:bg-black transition-all">
-                Check Rewards
-            </button>
-        </div>
-        <div id="loader" class="hidden text-center mt-4 animate-pulse text-blue-900 font-bold text-xs">Connecting to Database...</div>
-        <div id="searchError" class="hidden mt-4 p-3 bg-red-50 text-red-600 rounded-lg text-center text-xs font-bold uppercase"></div>
-    </div>
-
-    <!-- Member Result Card (unchanged) -->
-    <div id="result" class="hidden bg-white rounded-3xl shadow-lg overflow-hidden border border-gray-100">
-        <div class="bg-blue-900 p-6 text-white text-center">
-            <div class="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-3">
-                <span id="resInitial" class="text-2xl font-black">P</span>
-            </div>
-            <h3 id="resName" class="text-xl font-bold uppercase">---</h3>
-            <p id="resID" class="text-xs opacity-60 mt-1">---</p>
-        </div>
-        <div class="p-8 text-center">
-            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Total Accrued Points</p>
-            <div id="resPoints" class="text-5xl font-black text-blue-900 my-2">0</div>
-            <p class="text-xs text-gray-400">Verified Member</p>
-        </div>
-    </div>
 
     <!-- ══════════════════════════════════════════
          AI INTELLIGENCE ENGINE
