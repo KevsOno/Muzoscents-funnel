@@ -81,7 +81,7 @@
             background: white;
             padding: 2rem;
             border-radius: 12px;
-            max-width: 400px;
+            max-width: 450px;
             width: 90%;
             text-align: left;
         }
@@ -100,17 +100,18 @@
             margin: 5px;
             border-radius: 4px;
             cursor: pointer;
+            font-weight: 600;
         }
         .auth-modal-content button:hover { background: #593b85; }
-        .auth-modal-container {
+        .name-row {
             display: flex;
-            gap: 8px;
-            margin-top: 8px;
+            gap: 10px;
         }
-        .guest-btn {
-            background: #6c757d !important;
-            width: 100%;
-            margin-top: 10px;
+        .name-row > div { flex: 1; }
+        .auth-close {
+            float: right;
+            cursor: pointer;
+            font-size: 1.5rem;
         }
         .auth-message {
             margin-top: 10px;
@@ -118,43 +119,71 @@
             font-weight: 500;
             transition: all 0.2s;
         }
-        .auth-close {
-            float: right;
+        .toggle-form {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.8rem;
+        }
+        .toggle-form a {
+            color: #6b4b9a;
             cursor: pointer;
-            font-size: 1.5rem;
+            text-decoration: underline;
         }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen p-4">
 
 <!-- ══════════════════════════════════════════════
-     AUTHENTICATION MODAL (user‑friendly)
+     AUTHENTICATION MODAL (no guest, name fields on signup)
      ══════════════════════════════════════════════ -->
 <div id="authModal" class="auth-modal">
     <div class="auth-modal-content">
         <span class="auth-close" id="modalClose">&times;</span>
         <h3 id="modalTitle" class="text-xl font-bold mb-4">Login</h3>
-        <input type="email" id="authEmail" placeholder="Email address" autocomplete="email">
-        <input type="password" id="authPassword" placeholder="Password" autocomplete="current-password">
-        <div style="margin: 5px 0;">
-            <label style="font-size: 0.8rem;">
-                <input type="checkbox" id="showPassword"> Show Password
-            </label>
+
+        <!-- Login form (always visible) -->
+        <div id="loginForm">
+            <input type="email" id="loginEmail" placeholder="Email address" autocomplete="email">
+            <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password">
+            <div style="margin: 5px 0;">
+                <label style="font-size: 0.8rem;">
+                    <input type="checkbox" id="showPasswordLogin"> Show Password
+                </label>
+            </div>
+            <div style="text-align: right; margin-top: 5px;">
+                <a href="#" id="forgotPasswordLink" style="font-size: 0.75rem; color: #6b4b9a;">Forgot password?</a>
+            </div>
+            <button id="doLoginBtn" style="width:100%; margin-top:15px;">Login</button>
         </div>
-        <div style="text-align: right; margin-top: 5px;">
-            <a href="#" id="forgotPasswordLink" style="font-size: 0.75rem; color: #6b4b9a;">Forgot password?</a>
+
+        <!-- Signup form (hidden initially) -->
+        <div id="signupForm" style="display: none;">
+            <div class="name-row">
+                <div><input type="text" id="signupFirstName" placeholder="First name *"></div>
+                <div><input type="text" id="signupLastName" placeholder="Last name *"></div>
+            </div>
+            <input type="email" id="signupEmail" placeholder="Email address *">
+            <input type="tel" id="signupPhone" placeholder="Phone (optional)">
+            <input type="password" id="signupPassword" placeholder="Password *">
+            <div style="margin: 5px 0;">
+                <label style="font-size: 0.8rem;">
+                    <input type="checkbox" id="showPasswordSignup"> Show Password
+                </label>
+            </div>
+            <button id="doSignupBtn" style="width:100%; margin-top:15px;">Create Account</button>
         </div>
-        <div class="auth-modal-container">
-            <button id="loginBtn" style="flex:1;">Login</button>
-            <button id="signupBtn" style="flex:1;">Sign Up</button>
+
+        <div class="toggle-form">
+            <span id="toggleLink">
+                <a id="showSignupLink">Don't have an account? Sign up</a>
+            </span>
         </div>
-        <button id="guestBtn" class="guest-btn">Continue as Guest</button>
         <div id="authMessage" class="auth-message"></div>
     </div>
 </div>
 
 <!-- ══════════════════════════════════════════════
-     MAIN APP (hidden until auth resolved)
+     MAIN APP (hidden until authenticated)
      ══════════════════════════════════════════════ -->
 <div id="mainApp" style="display: none;">
     <nav class="max-w-4xl mx-auto mb-6 flex justify-between items-center">
@@ -260,7 +289,7 @@
 
 <script>
 // ==================================================================
-// CONFIGURATION – NEW SUPABASE PROJECT (dedicated for BI)
+// CONFIGURATION – YOUR SUPABASE PROJECT (dedicated for BI)
 // ==================================================================
 const SUPABASE_URL = 'https://thzfuhbsieubjonggjxc.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoemZ1aGJzaWV1YmpvbmdnanhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxOTQzNzIsImV4cCI6MjA4Nzc3MDM3Mn0.-z1eFn6qGnwPMbO1_OFRSZ-bPTHZm28Wjq9602EP8Sg';
@@ -289,8 +318,6 @@ const Portal = {
     updateHeader() {
         if (userId && !userId.startsWith('guest_')) {
             document.getElementById("headerUser").innerText = userId.slice(0, 8) + "...";
-        } else if (userId && userId.startsWith('guest_')) {
-            document.getElementById("headerUser").innerText = "Guest";
         } else {
             document.getElementById("headerUser").innerText = "—";
         }
@@ -470,19 +497,34 @@ const Portal = {
 };
 
 // ==================================================================
-// AUTHENTICATION LOGIC – USER‑FRIENDLY FEEDBACK
+// AUTHENTICATION LOGIC – Login / Signup only (no guest)
 // ==================================================================
 const modal = document.getElementById('authModal');
 const closeModal = document.getElementById('modalClose');
-const loginBtn = document.getElementById('loginBtn');
-const signupBtn = document.getElementById('signupBtn');
-const guestBtn = document.getElementById('guestBtn');
-const authEmail = document.getElementById('authEmail');
-const authPassword = document.getElementById('authPassword');
+const loginForm = document.getElementById('loginForm');
+const signupForm = document.getElementById('signupForm');
+const toggleLink = document.getElementById('toggleLink');
+const showSignupLink = document.getElementById('showSignupLink');
+const doLoginBtn = document.getElementById('doLoginBtn');
+const doSignupBtn = document.getElementById('doSignupBtn');
 const authMessage = document.getElementById('authMessage');
-const showPasswordCheckbox = document.getElementById('showPassword');
-const forgotLink = document.getElementById('forgotPasswordLink');
 const logoutBtn = document.getElementById('logoutBtn');
+
+// Login form fields
+const loginEmail = document.getElementById('loginEmail');
+const loginPassword = document.getElementById('loginPassword');
+const showPasswordLogin = document.getElementById('showPasswordLogin');
+
+// Signup form fields
+const signupFirstName = document.getElementById('signupFirstName');
+const signupLastName = document.getElementById('signupLastName');
+const signupEmail = document.getElementById('signupEmail');
+const signupPhone = document.getElementById('signupPhone');
+const signupPassword = document.getElementById('signupPassword');
+const showPasswordSignup = document.getElementById('showPasswordSignup');
+
+// Forgot password link (shared)
+const forgotLink = document.getElementById('forgotPasswordLink');
 
 // Helper to show messages
 function showMessage(text, isError = true) {
@@ -499,17 +541,43 @@ function isValidEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-// Show/hide password
-if (showPasswordCheckbox) {
-    showPasswordCheckbox.addEventListener('change', function() {
-        authPassword.type = this.checked ? 'text' : 'password';
+// Toggle between login and signup forms
+let showingLogin = true;
+function toggleForms() {
+    showingLogin = !showingLogin;
+    if (showingLogin) {
+        loginForm.style.display = 'block';
+        signupForm.style.display = 'none';
+        document.getElementById('modalTitle').innerText = 'Login';
+        showSignupLink.innerText = "Don't have an account? Sign up";
+        authMessage.innerText = '';
+    } else {
+        loginForm.style.display = 'none';
+        signupForm.style.display = 'block';
+        document.getElementById('modalTitle').innerText = 'Create Account';
+        showSignupLink.innerText = 'Back to Login';
+        authMessage.innerText = '';
+    }
+}
+showSignupLink.onclick = toggleForms;
+// Also if user clicks the "Back to Login" link (same element)
+
+// Show/hide password for login
+if (showPasswordLogin) {
+    showPasswordLogin.addEventListener('change', function() {
+        loginPassword.type = this.checked ? 'text' : 'password';
+    });
+}
+if (showPasswordSignup) {
+    showPasswordSignup.addEventListener('change', function() {
+        signupPassword.type = this.checked ? 'text' : 'password';
     });
 }
 
 // Forgot password
 forgotLink.addEventListener('click', async (e) => {
     e.preventDefault();
-    const email = authEmail.value.trim();
+    const email = showingLogin ? loginEmail.value.trim() : signupEmail.value.trim();
     if (!email) {
         showMessage('Please enter your email address first.', true);
         return;
@@ -529,8 +597,8 @@ forgotLink.addEventListener('click', async (e) => {
 
 // Login handler
 async function handleLogin() {
-    const email = authEmail.value.trim();
-    const password = authPassword.value;
+    const email = loginEmail.value.trim();
+    const password = loginPassword.value;
     if (!email || !password) {
         showMessage('Both email and password are required.', true);
         return;
@@ -539,27 +607,18 @@ async function handleLogin() {
         showMessage('Please enter a valid email address.', true);
         return;
     }
-    // Disable buttons while processing
-    loginBtn.disabled = true;
-    signupBtn.disabled = true;
-    guestBtn.disabled = true;
-    authMessage.innerText = 'Logging in...';
-    authMessage.style.color = '#f59e0b';
+    doLoginBtn.disabled = true;
+    doLoginBtn.innerText = 'Logging in...';
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    loginBtn.disabled = false;
-    signupBtn.disabled = false;
-    guestBtn.disabled = false;
+    doLoginBtn.disabled = false;
+    doLoginBtn.innerText = 'Login';
     if (error) {
         let friendlyMsg = error.message;
-        if (error.message.includes('Invalid login credentials')) {
-            friendlyMsg = 'Incorrect email or password. Please try again.';
-        } else if (error.message.includes('Email not confirmed')) {
-            friendlyMsg = 'Please verify your email address before logging in. Check your inbox.';
-        }
+        if (error.message.includes('Invalid login credentials')) friendlyMsg = 'Incorrect email or password. Please try again.';
+        else if (error.message.includes('Email not confirmed')) friendlyMsg = 'Please verify your email address before logging in. Check your inbox.';
         showMessage(friendlyMsg, true);
         return;
     }
-    // Success
     currentSession = data.session;
     userId = data.user.id;
     localStorage.setItem('supabase_session', JSON.stringify(currentSession));
@@ -570,12 +629,16 @@ async function handleLogin() {
     Portal.loadHistory();
 }
 
-// Signup handler
+// Signup handler (saves name, phone to profiles table)
 async function handleSignup() {
-    const email = authEmail.value.trim();
-    const password = authPassword.value;
-    if (!email || !password) {
-        showMessage('Both email and password are required.', true);
+    const firstName = signupFirstName.value.trim();
+    const lastName = signupLastName.value.trim();
+    const email = signupEmail.value.trim();
+    const phone = signupPhone.value.trim();
+    const password = signupPassword.value;
+
+    if (!firstName || !lastName || !email || !password) {
+        showMessage('First name, last name, email, and password are required.', true);
         return;
     }
     if (!isValidEmail(email)) {
@@ -586,22 +649,15 @@ async function handleSignup() {
         showMessage('Password must be at least 6 characters long.', true);
         return;
     }
-    loginBtn.disabled = true;
-    signupBtn.disabled = true;
-    guestBtn.disabled = true;
-    authMessage.innerText = 'Creating account...';
-    authMessage.style.color = '#f59e0b';
+    doSignupBtn.disabled = true;
+    doSignupBtn.innerText = 'Creating account...';
     const { data, error } = await supabase.auth.signUp({ email, password });
-    loginBtn.disabled = false;
-    signupBtn.disabled = false;
-    guestBtn.disabled = false;
+    doSignupBtn.disabled = false;
+    doSignupBtn.innerText = 'Create Account';
     if (error) {
         let friendlyMsg = error.message;
-        if (error.message.includes('User already registered')) {
-            friendlyMsg = 'An account with this email already exists. Please log in instead.';
-        } else if (error.message.includes('Password should be at least')) {
-            friendlyMsg = 'Password is too weak. Use at least 6 characters.';
-        }
+        if (error.message.includes('User already registered')) friendlyMsg = 'An account with this email already exists. Please log in instead.';
+        else if (error.message.includes('Password should be at least')) friendlyMsg = 'Password is too weak. Use at least 6 characters.';
         showMessage(friendlyMsg, true);
         return;
     }
@@ -609,12 +665,31 @@ async function handleSignup() {
         showMessage('Email already registered. Please log in.', true);
         return;
     }
-    // Signup successful
+    // Now update the user_profiles table with name and phone (using service_role key on backend, but we can do it via the same authenticated session)
     if (data.session) {
-        // Email confirmation disabled – auto login
-        currentSession = data.session;
+        // User is automatically logged in after signup (if email confirmation disabled)
+        // We'll update profile using the same access token
+        const accessToken = data.session.access_token;
         userId = data.user.id;
-        localStorage.setItem('supabase_session', JSON.stringify(currentSession));
+        const profileUpdate = {
+            user_id: userId,
+            first_name: firstName,
+            last_name: lastName,
+            phone: phone || null,
+            location: Portal.location,
+            niche: Portal.niche,
+            budget: Portal.budget
+        };
+        // Send to our backend profile endpoint (which uses service role key)
+        try {
+            await fetch(BI_PROFILE_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(profileUpdate)
+            });
+        } catch(e) { console.warn("Profile update after signup failed", e); }
+        // Also store locally
+        localStorage.setItem('supabase_session', JSON.stringify(data.session));
         localStorage.setItem('user_id', userId);
         modal.style.display = 'none';
         document.getElementById('mainApp').style.display = 'block';
@@ -624,44 +699,31 @@ async function handleSignup() {
     } else {
         // Email confirmation required
         showMessage('Signup successful! Please check your email to confirm your account, then log in.', false);
-        authEmail.value = '';
-        authPassword.value = '';
+        // Clear fields for next attempt
+        signupFirstName.value = '';
+        signupLastName.value = '';
+        signupEmail.value = '';
+        signupPhone.value = '';
+        signupPassword.value = '';
+        // Switch back to login form after a short delay
+        setTimeout(() => {
+            if (!showingLogin) toggleForms();
+        }, 2000);
     }
 }
 
-// Guest handler
-function handleGuest() {
-    userId = 'guest_' + Math.random().toString(36).substr(2, 8);
-    currentSession = null;
-    localStorage.removeItem('supabase_session');
-    localStorage.setItem('user_id', userId);
-    modal.style.display = 'none';
-    document.getElementById('mainApp').style.display = 'block';
-    Portal.loadUserContext();
-    Portal.loadHistory();
-    // Optional: show a temporary welcome message in chat
-    setTimeout(() => {
-        Portal.addMessage('You are in guest mode. Your conversations will not be saved across sessions. Create an account to save your history.', 'ai');
-    }, 500);
-}
-
-// Logout
-async function logout() {
+doLoginBtn.onclick = handleLogin;
+doSignupBtn.onclick = handleSignup;
+closeModal.onclick = () => modal.style.display = 'none';
+window.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
+logoutBtn.onclick = async () => {
     await supabase.auth.signOut();
     localStorage.removeItem('supabase_session');
     localStorage.removeItem('user_id');
     currentSession = null;
     userId = null;
     location.reload();
-}
-
-// Attach event listeners
-loginBtn.onclick = handleLogin;
-signupBtn.onclick = handleSignup;
-guestBtn.onclick = handleGuest;
-closeModal.onclick = () => modal.style.display = 'none';
-window.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
-logoutBtn.onclick = logout;
+};
 
 // Session restore
 async function restoreSession() {
@@ -689,7 +751,6 @@ async function restoreSession() {
     modal.style.display = 'flex';
     document.getElementById('mainApp').style.display = 'none';
 }
-
 restoreSession();
 </script>
 </body>
