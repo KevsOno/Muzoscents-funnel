@@ -102,27 +102,40 @@
             cursor: pointer;
         }
         .auth-modal-content button:hover { background: #593b85; }
-        .auth-modal-close {
-            float: right;
-            cursor: pointer;
-            font-size: 1.5rem;
+        .auth-modal-container {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
         }
         .guest-btn {
             background: #6c757d !important;
             width: 100%;
             margin-top: 10px;
         }
+        .auth-message {
+            margin-top: 10px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .auth-close {
+            float: right;
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen p-4">
 
-<!-- AUTH MODAL -->
+<!-- ══════════════════════════════════════════════
+     AUTHENTICATION MODAL (user‑friendly)
+     ══════════════════════════════════════════════ -->
 <div id="authModal" class="auth-modal">
     <div class="auth-modal-content">
-        <span class="auth-modal-close" id="modalClose">&times;</span>
+        <span class="auth-close" id="modalClose">&times;</span>
         <h3 id="modalTitle" class="text-xl font-bold mb-4">Login</h3>
-        <input type="email" id="authEmail" placeholder="Email">
-        <input type="password" id="authPassword" placeholder="Password">
+        <input type="email" id="authEmail" placeholder="Email address" autocomplete="email">
+        <input type="password" id="authPassword" placeholder="Password" autocomplete="current-password">
         <div style="margin: 5px 0;">
             <label style="font-size: 0.8rem;">
                 <input type="checkbox" id="showPassword"> Show Password
@@ -131,16 +144,18 @@
         <div style="text-align: right; margin-top: 5px;">
             <a href="#" id="forgotPasswordLink" style="font-size: 0.75rem; color: #6b4b9a;">Forgot password?</a>
         </div>
-        <div>
-            <button id="loginBtn">Login</button>
-            <button id="signupBtn">Sign Up</button>
+        <div class="auth-modal-container">
+            <button id="loginBtn" style="flex:1;">Login</button>
+            <button id="signupBtn" style="flex:1;">Sign Up</button>
         </div>
         <button id="guestBtn" class="guest-btn">Continue as Guest</button>
-        <div id="authMessage" style="margin-top: 10px; font-size: 0.8rem; color: red;"></div>
+        <div id="authMessage" class="auth-message"></div>
     </div>
 </div>
 
-<!-- MAIN APP (hidden until auth resolved) -->
+<!-- ══════════════════════════════════════════════
+     MAIN APP (hidden until auth resolved)
+     ══════════════════════════════════════════════ -->
 <div id="mainApp" style="display: none;">
     <nav class="max-w-4xl mx-auto mb-6 flex justify-between items-center">
         <div class="text-xl font-black text-blue-900 italic">
@@ -250,7 +265,7 @@
 const SUPABASE_URL = 'https://thzfuhbsieubjonggjxc.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoemZ1aGJzaWV1YmpvbmdnanhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxOTQzNzIsImV4cCI6MjA4Nzc3MDM3Mn0.-z1eFn6qGnwPMbO1_OFRSZ-bPTHZm28Wjq9602EP8Sg';
 
-// BI backend endpoints (Netlify functions) – these stay the same
+// BI backend endpoints (Netlify functions)
 const BI_AI_URL = '/.netlify/functions/chat-proxy';
 const BI_HISTORY_URL = '/.netlify/functions/history-proxy';
 const BI_PROFILE_URL = '/.netlify/functions/profile-proxy';
@@ -261,7 +276,7 @@ let currentSession = null;
 let userId = null;
 
 // ==================================================================
-// PORTAL OBJECT (BI logic) – unchanged
+// PORTAL OBJECT (BI logic)
 // ==================================================================
 const Portal = {
     location: "Lagos, Nigeria",
@@ -455,7 +470,7 @@ const Portal = {
 };
 
 // ==================================================================
-// AUTHENTICATION LOGIC (using new Supabase project)
+// AUTHENTICATION LOGIC – USER‑FRIENDLY FEEDBACK
 // ==================================================================
 const modal = document.getElementById('authModal');
 const closeModal = document.getElementById('modalClose');
@@ -469,44 +484,82 @@ const showPasswordCheckbox = document.getElementById('showPassword');
 const forgotLink = document.getElementById('forgotPasswordLink');
 const logoutBtn = document.getElementById('logoutBtn');
 
+// Helper to show messages
+function showMessage(text, isError = true) {
+    authMessage.innerText = text;
+    authMessage.style.color = isError ? '#dc2626' : '#16a34a';
+    authMessage.style.fontWeight = '500';
+    setTimeout(() => {
+        if (authMessage.innerText === text) authMessage.innerText = '';
+    }, 5000);
+}
+
+// Validate email format
+function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+// Show/hide password
 if (showPasswordCheckbox) {
     showPasswordCheckbox.addEventListener('change', function() {
         authPassword.type = this.checked ? 'text' : 'password';
     });
 }
 
+// Forgot password
 forgotLink.addEventListener('click', async (e) => {
     e.preventDefault();
     const email = authEmail.value.trim();
     if (!email) {
-        authMessage.innerText = 'Please enter your email address first.';
+        showMessage('Please enter your email address first.', true);
         return;
     }
-    authMessage.style.color = 'orange';
-    authMessage.innerText = 'Sending reset link...';
+    if (!isValidEmail(email)) {
+        showMessage('Please enter a valid email address.', true);
+        return;
+    }
+    showMessage('Sending reset link...', false);
     const { error } = await supabase.auth.resetPasswordForEmail(email);
     if (error) {
-        authMessage.style.color = 'red';
-        authMessage.innerText = error.message;
+        showMessage(error.message, true);
     } else {
-        authMessage.style.color = 'green';
-        authMessage.innerText = 'Password reset email sent. Check your inbox.';
+        showMessage('Password reset email sent. Check your inbox (and spam folder).', false);
     }
 });
 
+// Login handler
 async function handleLogin() {
     const email = authEmail.value.trim();
     const password = authPassword.value;
     if (!email || !password) {
-        authMessage.innerText = 'Email and password required';
+        showMessage('Both email and password are required.', true);
         return;
     }
+    if (!isValidEmail(email)) {
+        showMessage('Please enter a valid email address.', true);
+        return;
+    }
+    // Disable buttons while processing
+    loginBtn.disabled = true;
+    signupBtn.disabled = true;
+    guestBtn.disabled = true;
     authMessage.innerText = 'Logging in...';
+    authMessage.style.color = '#f59e0b';
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    loginBtn.disabled = false;
+    signupBtn.disabled = false;
+    guestBtn.disabled = false;
     if (error) {
-        authMessage.innerText = error.message;
+        let friendlyMsg = error.message;
+        if (error.message.includes('Invalid login credentials')) {
+            friendlyMsg = 'Incorrect email or password. Please try again.';
+        } else if (error.message.includes('Email not confirmed')) {
+            friendlyMsg = 'Please verify your email address before logging in. Check your inbox.';
+        }
+        showMessage(friendlyMsg, true);
         return;
     }
+    // Success
     currentSession = data.session;
     userId = data.user.id;
     localStorage.setItem('supabase_session', JSON.stringify(currentSession));
@@ -517,38 +570,66 @@ async function handleLogin() {
     Portal.loadHistory();
 }
 
+// Signup handler
 async function handleSignup() {
     const email = authEmail.value.trim();
     const password = authPassword.value;
     if (!email || !password) {
-        authMessage.innerText = 'Email and password required';
+        showMessage('Both email and password are required.', true);
         return;
     }
+    if (!isValidEmail(email)) {
+        showMessage('Please enter a valid email address.', true);
+        return;
+    }
+    if (password.length < 6) {
+        showMessage('Password must be at least 6 characters long.', true);
+        return;
+    }
+    loginBtn.disabled = true;
+    signupBtn.disabled = true;
+    guestBtn.disabled = true;
     authMessage.innerText = 'Creating account...';
+    authMessage.style.color = '#f59e0b';
     const { data, error } = await supabase.auth.signUp({ email, password });
+    loginBtn.disabled = false;
+    signupBtn.disabled = false;
+    guestBtn.disabled = false;
     if (error) {
-        authMessage.innerText = error.message;
+        let friendlyMsg = error.message;
+        if (error.message.includes('User already registered')) {
+            friendlyMsg = 'An account with this email already exists. Please log in instead.';
+        } else if (error.message.includes('Password should be at least')) {
+            friendlyMsg = 'Password is too weak. Use at least 6 characters.';
+        }
+        showMessage(friendlyMsg, true);
         return;
     }
     if (data.user && data.user.identities && data.user.identities.length === 0) {
-        authMessage.innerText = 'User already exists. Please log in.';
+        showMessage('Email already registered. Please log in.', true);
+        return;
+    }
+    // Signup successful
+    if (data.session) {
+        // Email confirmation disabled – auto login
+        currentSession = data.session;
+        userId = data.user.id;
+        localStorage.setItem('supabase_session', JSON.stringify(currentSession));
+        localStorage.setItem('user_id', userId);
+        modal.style.display = 'none';
+        document.getElementById('mainApp').style.display = 'block';
+        Portal.loadUserContext();
+        Portal.loadHistory();
+        showMessage('Account created and logged in!', false);
     } else {
-        authMessage.style.color = 'green';
-        authMessage.innerText = 'Signup successful! Please verify your email (if required). You can now log in.';
-        if (data.session) {
-            // email confirmation disabled — auto login
-            currentSession = data.session;
-            userId = data.user.id;
-            localStorage.setItem('supabase_session', JSON.stringify(currentSession));
-            localStorage.setItem('user_id', userId);
-            modal.style.display = 'none';
-            document.getElementById('mainApp').style.display = 'block';
-            Portal.loadUserContext();
-            Portal.loadHistory();
-        }
+        // Email confirmation required
+        showMessage('Signup successful! Please check your email to confirm your account, then log in.', false);
+        authEmail.value = '';
+        authPassword.value = '';
     }
 }
 
+// Guest handler
 function handleGuest() {
     userId = 'guest_' + Math.random().toString(36).substr(2, 8);
     currentSession = null;
@@ -557,8 +638,14 @@ function handleGuest() {
     modal.style.display = 'none';
     document.getElementById('mainApp').style.display = 'block';
     Portal.loadUserContext();
+    Portal.loadHistory();
+    // Optional: show a temporary welcome message in chat
+    setTimeout(() => {
+        Portal.addMessage('You are in guest mode. Your conversations will not be saved across sessions. Create an account to save your history.', 'ai');
+    }, 500);
 }
 
+// Logout
 async function logout() {
     await supabase.auth.signOut();
     localStorage.removeItem('supabase_session');
@@ -568,6 +655,7 @@ async function logout() {
     location.reload();
 }
 
+// Attach event listeners
 loginBtn.onclick = handleLogin;
 signupBtn.onclick = handleSignup;
 guestBtn.onclick = handleGuest;
@@ -575,6 +663,7 @@ closeModal.onclick = () => modal.style.display = 'none';
 window.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
 logoutBtn.onclick = logout;
 
+// Session restore
 async function restoreSession() {
     const storedSession = localStorage.getItem('supabase_session');
     const storedUserId = localStorage.getItem('user_id');
@@ -593,6 +682,8 @@ async function restoreSession() {
             }
         } catch(e) {
             console.warn('Session restore failed:', e);
+            localStorage.removeItem('supabase_session');
+            localStorage.removeItem('user_id');
         }
     }
     modal.style.display = 'flex';
