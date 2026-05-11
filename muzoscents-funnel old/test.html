@@ -6,398 +6,661 @@
     <title>Penafort Energy Member Portal</title>
     <script src="https://cdn.tailwindcss.com/3.4.1"></script>
     <style>
+        /* ── Scrollbar ── */
         .chat-messages::-webkit-scrollbar { width: 4px; }
         .chat-messages::-webkit-scrollbar-track { background: transparent; }
         .chat-messages::-webkit-scrollbar-thumb { background: #BFDBFE; border-radius: 4px; }
-        .msg-ai { background: #fff; border: 0.5px solid #BFDBFE; color: #1E3A5F; align-self: flex-start; border-bottom-left-radius: 3px; }
-        .msg-user { background: #1E3A5F; color: #fff; align-self: flex-end; border-bottom-right-radius: 3px; }
+
+        /* ── Bubbles ── */
+        .msg-ai {
+            background: #fff;
+            border: 0.5px solid #BFDBFE;
+            color: #1E3A5F;
+            align-self: flex-start;
+            border-bottom-left-radius: 3px;
+            line-height: 1.6;
+        }
+        .msg-user {
+            background: #1E3A5F;
+            color: #fff;
+            align-self: flex-end;
+            border-bottom-right-radius: 3px;
+        }
+
+        /* ── Typing indicator ── */
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
         .typing-dot { animation: blink 1.2s infinite; display: inline-block; }
         .typing-dot:nth-child(2) { animation-delay: 0.2s; }
         .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        /* ── Pillar buttons ── */
         .pillar-btn { transition: all 0.2s ease; }
-        .pillar-active { background-color: #1E3A5F !important; color: white !important; }
+        .pillar-active   { background-color: #1E3A5F !important; color: white !important; }
         .pillar-inactive { background-color: #e5e7eb !important; color: #374151 !important; }
-        .framework-tag {
-            display: inline-block;
-            background: #EFF6FF;
-            color: #1E40AF;
-            border: 1px solid #BFDBFE;
-            border-radius: 999px;
-            padding: 2px 10px;
-            font-size: 10px;
-            font-weight: 700;
+
+        /* ── Usage bar ── */
+        #usageBarFill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease, background-color 0.3s;
         }
-        .framework-tag.live { background: #DCFCE7; color: #166534; border-color: #86EFAC; }
+
+        /* ── Animations ── */
         @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
         .fade-in { animation: fadeIn 0.3s ease forwards; }
+
+        /* ── Onboarding overlay ── */
+        #onboardingOverlay {
+            position: fixed; inset: 0;
+            background: rgba(15,23,42,0.75);
+            backdrop-filter: blur(4px);
+            z-index: 50;
+            display: flex; align-items: center; justify-content: center;
+            padding: 16px;
+        }
+
+        /* ── Tab underline ── */
+        .tab-btn { border-bottom: 2px solid transparent; transition: all 0.15s; }
+        .tab-btn.tab-active { border-color: #1E3A5F; color: #1E3A5F; font-weight: 700; }
+
+        /* ── History item ── */
+        .history-item { border-bottom: 1px solid #F1F5F9; }
+        .history-item:last-child { border-bottom: none; }
+
+        /* ── Pulse dot ── */
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+        .live-dot { animation: pulse 2s infinite; }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen p-4">
 
-    <nav class="max-w-4xl mx-auto mb-10 flex justify-between items-center">
-        <div class="text-xl font-black text-blue-900 italic">PENAFORT<span class="text-green-500">ENERGY</span></div>
-    </nav>
-
-    <div class="max-w-md mx-auto space-y-6">
-
-        <!-- Member Search Card -->
-        <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100">
-            <h2 class="text-2xl font-bold text-slate-800 mb-6 text-center">Member Portal</h2>
-            <div class="space-y-4">
-                <input type="text" id="searchInput" placeholder="Search by ID, Email, Name or Phone"
-                       class="w-full p-4 bg-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-green-500 text-center font-bold">
-                <button onclick="Portal.search()" class="w-full bg-blue-900 text-white font-bold py-4 rounded-xl hover:bg-black transition-all">
-                    Check Rewards
-                </button>
+<!-- ══════════════════════════════════════════════
+     ONBOARDING OVERLAY — collect per-user context
+     ══════════════════════════════════════════════ -->
+<div id="onboardingOverlay">
+    <div class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-sm fade-in">
+        <div class="text-center mb-6">
+            <div class="text-2xl font-black text-blue-900 italic mb-1">
+                PENAFORT<span class="text-green-500">ENERGY</span>
             </div>
-            <div id="loader" class="hidden text-center mt-4 animate-pulse text-blue-900 font-bold text-xs">Connecting to Database...</div>
-            <div id="error" class="hidden mt-4 p-3 bg-red-50 text-red-600 rounded-lg text-center text-xs font-bold uppercase"></div>
+            <p class="text-sm text-gray-500">Set up your intelligence session</p>
         </div>
 
-        <!-- Member Result Card -->
-        <div id="result" class="hidden bg-white rounded-3xl shadow-lg overflow-hidden border border-gray-100">
-            <div class="bg-blue-900 p-6 text-white text-center">
-                <div class="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-3">
-                    <span id="resInitial" class="text-2xl font-black">P</span>
-                </div>
-                <h3 id="resName" class="text-xl font-bold uppercase">---</h3>
-                <p id="resID" class="text-xs opacity-60 mt-1">---</p>
+        <div class="space-y-3">
+            <div>
+                <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">Your Name / User ID</label>
+                <input id="onbUserId" type="text" placeholder="e.g. john_doe or biz_001"
+                    class="mt-1 w-full p-3 bg-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-900 text-sm font-medium">
             </div>
-            <div class="p-8 text-center">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Total Accrued Points</p>
-                <div id="resPoints" class="text-5xl font-black text-blue-900 my-2">0</div>
-                <p class="text-xs text-gray-400">Verified Member</p>
+            <div>
+                <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">Your Location</label>
+                <input id="onbLocation" type="text" placeholder="e.g. Lagos, Abuja, Port Harcourt"
+                    class="mt-1 w-full p-3 bg-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-900 text-sm">
+            </div>
+            <div>
+                <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">Your Industry / Niche</label>
+                <input id="onbNiche" type="text" placeholder="e.g. student fragrance, fintech, agro"
+                    class="mt-1 w-full p-3 bg-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-900 text-sm">
+            </div>
+            <div>
+                <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">Monthly Budget (₦)</label>
+                <input id="onbBudget" type="number" placeholder="e.g. 500000"
+                    class="mt-1 w-full p-3 bg-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-900 text-sm">
             </div>
         </div>
 
-        <!-- AI Chat Assistant -->
-        <div class="bg-blue-50/50 border border-blue-100 rounded-2xl overflow-hidden">
+        <button onclick="Portal.completeOnboarding()"
+            class="mt-6 w-full bg-blue-900 text-white font-bold py-4 rounded-xl hover:bg-black transition-all">
+            Start My Session →
+        </button>
+        <p class="text-center text-xs text-gray-400 mt-3">15 free analyses included · No card required</p>
+    </div>
+</div>
 
-            <!-- Chat Header -->
-            <div class="bg-blue-900 px-5 py-3 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <span class="w-2 h-2 bg-green-400 rounded-full" style="animation: blink 2s infinite;"></span>
-                    <span class="text-xs font-black text-white uppercase tracking-widest">AI Strategy Assistant</span>
-                </div>
-                <div class="text-xs text-white/70 font-bold" id="pillarBadge">
-                    🔗 Pillar 3 — Internal Capability
-                </div>
+<!-- ══════════════════════════════════════════════
+     MAIN LAYOUT
+     ══════════════════════════════════════════════ -->
+<nav class="max-w-4xl mx-auto mb-6 flex justify-between items-center">
+    <div class="text-xl font-black text-blue-900 italic">
+        PENAFORT<span class="text-green-500">ENERGY</span>
+    </div>
+    <div class="text-xs text-gray-400 flex items-center gap-1.5">
+        <span class="live-dot w-2 h-2 rounded-full bg-green-400 inline-block"></span>
+        <span id="headerUser">—</span>
+    </div>
+</nav>
+
+<div class="max-w-md mx-auto space-y-5">
+
+    <!-- Member Search Card (unchanged from original) -->
+    <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100">
+        <h2 class="text-2xl font-bold text-slate-800 mb-6 text-center">Member Portal</h2>
+        <div class="space-y-4">
+            <input type="text" id="searchInput" placeholder="Search by ID, Email, Name or Phone"
+                   class="w-full p-4 bg-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-green-500 text-center font-bold">
+            <button onclick="Portal.search()" class="w-full bg-blue-900 text-white font-bold py-4 rounded-xl hover:bg-black transition-all">
+                Check Rewards
+            </button>
+        </div>
+        <div id="loader" class="hidden text-center mt-4 animate-pulse text-blue-900 font-bold text-xs">Connecting to Database...</div>
+        <div id="searchError" class="hidden mt-4 p-3 bg-red-50 text-red-600 rounded-lg text-center text-xs font-bold uppercase"></div>
+    </div>
+
+    <!-- Member Result Card (unchanged) -->
+    <div id="result" class="hidden bg-white rounded-3xl shadow-lg overflow-hidden border border-gray-100">
+        <div class="bg-blue-900 p-6 text-white text-center">
+            <div class="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-3">
+                <span id="resInitial" class="text-2xl font-black">P</span>
             </div>
+            <h3 id="resName" class="text-xl font-bold uppercase">---</h3>
+            <p id="resID" class="text-xs opacity-60 mt-1">---</p>
+        </div>
+        <div class="p-8 text-center">
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Total Accrued Points</p>
+            <div id="resPoints" class="text-5xl font-black text-blue-900 my-2">0</div>
+            <p class="text-xs text-gray-400">Verified Member</p>
+        </div>
+    </div>
 
-            <!-- 4-Pillar Mode Selector -->
+    <!-- ══════════════════════════════════════════
+         AI INTELLIGENCE ENGINE
+         ══════════════════════════════════════════ -->
+    <div class="bg-blue-50/50 border border-blue-100 rounded-2xl overflow-hidden">
+
+        <!-- Header -->
+        <div class="bg-blue-900 px-5 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <span class="live-dot w-2 h-2 bg-green-400 rounded-full"></span>
+                <span class="text-xs font-black text-white uppercase tracking-widest">Intelligence Engine</span>
+            </div>
+            <span id="modelBadge" class="text-xs text-white/50 font-mono">—</span>
+        </div>
+
+        <!-- Tabs: Analysis · History · Profile -->
+        <div class="flex bg-white border-b border-blue-100 px-4">
+            <button onclick="Portal.switchTab('analysis')" id="tabAnalysis"
+                class="tab-btn tab-active text-sm font-medium text-gray-600 py-3 mr-5">
+                Analysis
+            </button>
+            <button onclick="Portal.switchTab('history')" id="tabHistory"
+                class="tab-btn text-sm font-medium text-gray-500 py-3 mr-5">
+                History
+            </button>
+            <button onclick="Portal.switchTab('profile')" id="tabProfile"
+                class="tab-btn text-sm font-medium text-gray-500 py-3">
+                Profile
+            </button>
+        </div>
+
+        <!-- ── ANALYSIS TAB ─────────────────────────── -->
+        <div id="panelAnalysis">
+
+            <!-- Pillar selector — intent signals only, no framework names -->
             <div class="p-4 border-b border-blue-100 bg-white/60">
-                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">🧠 Analysis Pillar</p>
+                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Analysis Focus</p>
                 <div class="grid grid-cols-2 gap-2">
-                    <button onclick="Portal.setPillar(1)"
-                            id="pillar1Btn"
-                            class="pillar-btn pillar-inactive px-3 py-2 rounded-lg text-xs font-bold text-left">
-                        👥 Customer Intelligence
+                    <button onclick="Portal.setPillar(1)" id="pillar1Btn"
+                        class="pillar-btn pillar-inactive px-3 py-2.5 rounded-lg text-xs font-bold text-left">
+                        👥 Customer
                     </button>
-                    <button onclick="Portal.setPillar(2)"
-                            id="pillar2Btn"
-                            class="pillar-btn pillar-inactive px-3 py-2 rounded-lg text-xs font-bold text-left">
-                        🏪 Market & Competition
+                    <button onclick="Portal.setPillar(2)" id="pillar2Btn"
+                        class="pillar-btn pillar-inactive px-3 py-2.5 rounded-lg text-xs font-bold text-left">
+                        🏪 Market
                     </button>
-                    <button onclick="Portal.setPillar(3)"
-                            id="pillar3Btn"
-                            class="pillar-btn pillar-active px-3 py-2 rounded-lg text-xs font-bold text-left">
-                        ⚙️ Internal Capability
+                    <button onclick="Portal.setPillar(3)" id="pillar3Btn"
+                        class="pillar-btn pillar-active px-3 py-2.5 rounded-lg text-xs font-bold text-left">
+                        ⚙️ Capability
                     </button>
-                    <button onclick="Portal.setPillar(4)"
-                            id="pillar4Btn"
-                            class="pillar-btn pillar-inactive px-3 py-2 rounded-lg text-xs font-bold text-left">
-                        📈 Financial & Growth
+                    <button onclick="Portal.setPillar(4)" id="pillar4Btn"
+                        class="pillar-btn pillar-inactive px-3 py-2.5 rounded-lg text-xs font-bold text-left">
+                        📈 Growth
                     </button>
                 </div>
+                <!-- No framework tags, no engine mode label, no "Active Frameworks" row -->
+            </div>
 
-                <!-- Live framework tags — updated from API response -->
-                <div class="mt-3">
-                    <p class="text-xs text-gray-400 mb-1">Active Frameworks:</p>
-                    <div id="frameworkTags" class="flex flex-wrap gap-1">
-                        <span class="framework-tag">VRIO</span>
-                        <span class="framework-tag">Core Competencies</span>
-                        <span class="framework-tag">Value Chain</span>
-                    </div>
+            <!-- Usage bar + upgrade nudge -->
+            <div class="px-4 pt-3 pb-1 bg-white/40">
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-xs text-gray-400">Free analyses</span>
+                    <span id="usageLabel" class="text-xs font-bold text-gray-600 font-mono">— / 15</span>
                 </div>
-
-                <!-- Status row -->
-                <div class="flex justify-between items-center mt-2">
-                    <p class="text-xs text-gray-400">
-                        Engine: <span id="engineMode" class="font-bold text-blue-900">CAPABILITY_AUDIT</span>
-                    </p>
-                    <p id="dataStatus" class="text-xs text-green-600 font-medium">✅ System Ready</p>
+                <div class="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                    <div id="usageBarFill" style="width:0%; background:#22c55e;"></div>
+                </div>
+                <!-- Upgrade banner — hidden until near limit -->
+                <div id="upgradeBanner" class="hidden mt-3 p-3 bg-blue-900 text-white rounded-xl text-center">
+                    <p class="text-xs font-bold mb-1">🚀 Upgrade for unlimited analyses</p>
+                    <p class="text-xs text-white/70">PDF exports · Priority routing · Full history</p>
                 </div>
             </div>
 
-            <!-- Chat Messages -->
+            <!-- Chat messages -->
             <div class="chat-messages flex flex-col gap-3 p-4 overflow-y-auto" id="chatMessages" style="height: 280px;">
                 <div class="msg-ai self-start max-w-xs text-sm px-4 py-3 rounded-xl rounded-bl-sm fade-in">
-                    Hi! I'm your Penafort AI advisor. Select a pillar above — or just ask a question and I'll auto-detect the best framework.
+                    Welcome. I'm your business intelligence advisor. Select a focus area above, then ask anything about your market, customers, operations, or growth.
                 </div>
             </div>
 
-            <!-- Quick Prompts -->
+            <!-- Quick prompts (no framework names in labels) -->
             <div class="flex gap-2 px-4 pb-3 flex-wrap">
-                <button onclick="Portal.quickAsk('Who are our primary customers and what do they need?')"
+                <button onclick="Portal.quickAsk('Who are our best customers and what drives them to buy?')"
                     class="text-xs bg-white border border-blue-200 text-blue-800 px-3 py-1.5 rounded-full hover:bg-blue-50 transition-all">
-                    👥 Who are our customers?
+                    👥 Who buys from us?
                 </button>
-                <button onclick="Portal.quickAsk('How do we beat our competitors in the market?')"
+                <button onclick="Portal.quickAsk('How do we outposition our competitors right now?')"
                     class="text-xs bg-white border border-blue-200 text-blue-800 px-3 py-1.5 rounded-full hover:bg-blue-50 transition-all">
-                    🏪 Competitive analysis
+                    🏪 Beat competitors
                 </button>
-                <button onclick="Portal.quickAsk('What internal capabilities give us a strategic advantage?')"
+                <button onclick="Portal.quickAsk('What is our strongest internal advantage we should double down on?')"
                     class="text-xs bg-white border border-blue-200 text-blue-800 px-3 py-1.5 rounded-full hover:bg-blue-50 transition-all">
-                    ⚙️ Capability audit
+                    ⚙️ Our strengths
                 </button>
-                <button onclick="Portal.quickAsk('What are our unit economics, CAC and CLV metrics?')"
+                <button onclick="Portal.quickAsk('What are our real unit economics and how do we improve CAC?')"
                     class="text-xs bg-white border border-blue-200 text-blue-800 px-3 py-1.5 rounded-full hover:bg-blue-50 transition-all">
                     📈 Unit economics
                 </button>
             </div>
 
-            <!-- Chat Input -->
+            <!-- Chat input -->
             <div class="flex gap-2 px-4 pb-4">
                 <input type="text" id="chatInput"
-                    placeholder="Ask the strategy engine..."
-                    class="flex-1 px-4 py-3 rounded-xl border border-blue-200 bg-white text-sm text-blue-900 outline-none focus:ring-2 focus:ring-blue-400"
+                    placeholder="Ask your intelligence engine..."
+                    class="flex-1 px-4 py-3 rounded-xl border border-blue-200 bg-white text-sm text-blue-900 outline-none focus:ring-2 focus:ring-blue-900"
                     onkeydown="if(event.key==='Enter') Portal.sendMessage()">
-                <button onclick="Portal.sendMessage()"
+                <button onclick="Portal.sendMessage()" id="sendBtn"
                     class="bg-blue-900 text-white font-bold px-5 py-3 rounded-xl hover:bg-black transition-all text-sm">
                     Send
                 </button>
             </div>
         </div>
 
+        <!-- ── HISTORY TAB ───────────────────────────── -->
+        <div id="panelHistory" class="hidden p-4">
+            <div class="flex justify-between items-center mb-4">
+                <p class="text-sm font-bold text-gray-700">Past Analyses</p>
+                <button onclick="Portal.loadHistory()"
+                    class="text-xs text-blue-900 font-bold hover:underline">Refresh</button>
+            </div>
+            <div id="historyList" class="overflow-y-auto space-y-0 rounded-xl border border-blue-100 bg-white"
+                style="max-height: 320px;">
+                <p class="text-xs text-gray-400 text-center py-10">No history yet. Start an analysis.</p>
+            </div>
+        </div>
+
+        <!-- ── PROFILE TAB ───────────────────────────── -->
+        <div id="panelProfile" class="hidden p-4">
+            <p class="text-sm font-bold text-gray-700 mb-4">Your Business Context</p>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">Location</label>
+                    <input id="profLocation" type="text" placeholder="e.g. Lagos, Nigeria"
+                        class="mt-1 w-full p-3 bg-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-900 text-sm">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">Industry / Niche</label>
+                    <input id="profNiche" type="text" placeholder="e.g. student fragrance market"
+                        class="mt-1 w-full p-3 bg-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-900 text-sm">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">Monthly Budget (₦)</label>
+                    <input id="profBudget" type="number" placeholder="e.g. 500000"
+                        class="mt-1 w-full p-3 bg-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-900 text-sm">
+                </div>
+                <button onclick="Portal.saveProfile()"
+                    class="w-full bg-blue-900 text-white font-bold py-3 rounded-xl hover:bg-black transition-all text-sm">
+                    Save Context
+                </button>
+                <div id="profileMsg" class="hidden text-center text-xs text-green-600 font-bold pt-1"></div>
+            </div>
+        </div>
+
     </div>
+</div>
 
-    <script>
-    const PILLAR_DEFAULTS = {
-        1: { label: "Customer Intelligence", icon: "👥", mode: "CUSTOMER_INTELLIGENCE",  frameworks: ["Audience Segmentation", "JTBD", "Value Prop Canvas"] },
-        2: { label: "Market & Competition",  icon: "🏪", mode: "MARKET_COMPETITION",     frameworks: ["SWOT", "PESTLE", "Porter's Five Forces"] },
-        3: { label: "Internal Capability",   icon: "⚙️", mode: "CAPABILITY_AUDIT",       frameworks: ["VRIO", "Core Competencies", "Value Chain"] },
-        4: { label: "Financial & Growth",    icon: "📈", mode: "FINANCIAL_GROWTH",        frameworks: ["Unit Economics & CLV", "TAM-SAM-SOM", "Balanced Scorecard"] },
-    };
+<script>
+const Portal = {
+    SHEET_URL:    "https://sheetdb.io/api/v1/a4z6gyofxc4lo",
+    AI_URL:       "/.netlify/functions/chat-proxy",
+    HISTORY_URL:  "/.netlify/functions/history-proxy",
+    PROFILE_URL:  "/.netlify/functions/profile-proxy",
 
-    const Portal = {
-        SHEET_URL: "https://sheetdb.io/api/v1/a4z6gyofxc4lo",
-        AI_URL: "/.netlify/functions/chat-proxy",
-        activePillar: 3,
-        chatHistory: [],
+    // Session state
+    userId:       "anonymous",
+    location:     null,
+    niche:        null,
+    budget:       null,
+    activePillar: 3,
+    chatHistory:  [],
+    currentTab:   "analysis",
 
-        init() {
-            this.setPillar(3, false); // default pillar, no system message on load
-        },
+    // ── Onboarding ──────────────────────────────────────────────────
+    completeOnboarding() {
+        const userId = document.getElementById("onbUserId").value.trim();
+        if (!userId) { alert("Please enter your name or user ID."); return; }
 
-        // ── Pillar selection ──────────────────────────────────────────
-        setPillar(num, announce = true) {
-            this.activePillar = num;
-            const cfg = PILLAR_DEFAULTS[num];
+        this.userId   = userId.toLowerCase().replace(/\s+/g, "_");
+        this.location = document.getElementById("onbLocation").value.trim() || "Lagos, Nigeria";
+        this.niche    = document.getElementById("onbNiche").value.trim()    || "local SME market";
+        this.budget   = parseInt(document.getElementById("onbBudget").value) || 500000;
 
-            // Update header badge
-            document.getElementById('pillarBadge').textContent =
-                `${cfg.icon} Pillar ${num} — ${cfg.label}`;
+        // Persist locally
+        localStorage.setItem("pf_session", JSON.stringify({
+            userId:   this.userId,
+            location: this.location,
+            niche:    this.niche,
+            budget:   this.budget,
+        }));
 
-            // Update engine mode label
-            document.getElementById('engineMode').textContent = cfg.mode;
+        document.getElementById("onboardingOverlay").style.display = "none";
+        document.getElementById("headerUser").textContent = this.userId;
 
-            // Update framework tags (default until API responds)
-            this.renderFrameworkTags(cfg.frameworks, false);
+        // Pre-fill profile tab
+        document.getElementById("profLocation").value = this.location;
+        document.getElementById("profNiche").value    = this.niche;
+        document.getElementById("profBudget").value   = this.budget;
 
-            // Update button styles
-            for (let i = 1; i <= 4; i++) {
-                const btn = document.getElementById(`pillar${i}Btn`);
-                btn.className = `pillar-btn ${i === num ? 'pillar-active' : 'pillar-inactive'} px-3 py-2 rounded-lg text-xs font-bold text-left`;
-            }
+        // Save to backend silently
+        this._saveProfileToBackend();
+    },
 
-            if (announce) {
-                this.addSystemMessage(
-                    `Switched to Pillar ${num}: ${cfg.label}. Active frameworks: ${cfg.frameworks.join(', ')}.`
-                );
-            }
-        },
+    restoreSession() {
+        const saved = localStorage.getItem("pf_session");
+        if (!saved) return false;
+        const d = JSON.parse(saved);
+        this.userId   = d.userId;
+        this.location = d.location;
+        this.niche    = d.niche;
+        this.budget   = d.budget;
+        document.getElementById("onboardingOverlay").style.display = "none";
+        document.getElementById("headerUser").textContent = this.userId;
+        document.getElementById("profLocation").value = this.location || "";
+        document.getElementById("profNiche").value    = this.niche    || "";
+        document.getElementById("profBudget").value   = this.budget   || "";
+        return true;
+    },
 
-        // ── Framework tag renderer ────────────────────────────────────
-        renderFrameworkTags(frameworks, live = false) {
-            const container = document.getElementById('frameworkTags');
-            container.innerHTML = frameworks
-                .map(f => `<span class="framework-tag ${live ? 'live' : ''}">${f}</span>`)
-                .join('');
-        },
+    // ── Tab switching ────────────────────────────────────────────────
+    switchTab(tab) {
+        this.currentTab = tab;
+        ["analysis","history","profile"].forEach(t => {
+            document.getElementById(`panel${t.charAt(0).toUpperCase()+t.slice(1)}`)
+                    .classList.toggle("hidden", t !== tab);
+            const btn = document.getElementById(`tab${t.charAt(0).toUpperCase()+t.slice(1)}`);
+            btn.classList.toggle("tab-active", t === tab);
+        });
+        if (tab === "history") this.loadHistory();
+    },
 
-        // ── Update UI from API response ───────────────────────────────
-        syncFromResponse(data) {
-            // Sync pillar button to what backend actually chose
-            if (data.pillar && data.pillar !== this.activePillar) {
-                this.activePillar = data.pillar;
-                for (let i = 1; i <= 4; i++) {
-                    const btn = document.getElementById(`pillar${i}Btn`);
-                    btn.className = `pillar-btn ${i === data.pillar ? 'pillar-active' : 'pillar-inactive'} px-3 py-2 rounded-lg text-xs font-bold text-left`;
-                }
-            }
-
-            // Update header badge
-            if (data.pillar_label) {
-                const cfg = PILLAR_DEFAULTS[data.pillar] || {};
-                document.getElementById('pillarBadge').textContent =
-                    `${cfg.icon || '🔗'} Pillar ${data.pillar} — ${data.pillar_label}`;
-            }
-
-            // Update engine mode
-            if (data.framework_used) {
-                document.getElementById('engineMode').textContent = data.framework_used;
-            }
-
-            // Update framework tags with LIVE data from API
-            if (data.active_frameworks && data.active_frameworks.length) {
-                this.renderFrameworkTags(data.active_frameworks, true);
-            }
-
-            // Data quality badge
-            const statusEl = document.getElementById('dataStatus');
-            const quality = data.data_quality;
-            if (quality === 'HIGH' || data.data_status === 'READY') {
-                statusEl.innerHTML = '✅ High Quality Data';
-                statusEl.className = 'text-xs text-green-600 font-medium';
-            } else if (quality === 'MEDIUM' || data.data_status === 'PARTIAL') {
-                statusEl.innerHTML = '⚠️ Partial Data';
-                statusEl.className = 'text-xs text-yellow-600 font-medium';
-            } else if (data.data_status === 'DATA_MISSING') {
-                statusEl.innerHTML = '🔴 Data Missing';
-                statusEl.className = 'text-xs text-red-500 font-medium';
-            }
-        },
-
-        // ── Member search ─────────────────────────────────────────────
-        async search() {
-            const query = document.getElementById('searchInput').value.trim().toLowerCase();
-            const loader = document.getElementById('loader');
-            const error  = document.getElementById('error');
-            const result = document.getElementById('result');
-            if (!query) return;
-
-            loader.classList.remove('hidden');
-            error.classList.add('hidden');
-            result.classList.add('hidden');
-
-            try {
-                const response = await fetch(this.SHEET_URL);
-                const data = await response.json();
-                const user = data.find(row =>
-                    Object.values(row).some(v => v?.toString().toLowerCase().includes(query))
-                );
-                if (!user) throw new Error("Member not found. Check your details and try again.");
-
-                const name = user.NAME || user.Name || "Member";
-                document.getElementById('resName').innerText = name;
-                document.getElementById('resInitial').innerText = name.charAt(0).toUpperCase();
-                document.getElementById('resID').innerText = `ID: ${user['PENAFORT ID'] || 'N/A'}`;
-                document.getElementById('resPoints').innerText = Number(user.POINTS || 0).toLocaleString();
-                result.classList.remove('hidden');
-            } catch (e) {
-                error.innerText = e.message;
-                error.classList.remove('hidden');
-            } finally {
-                loader.classList.add('hidden');
-            }
-        },
-
-        // ── Chat helpers ──────────────────────────────────────────────
-        addMessage(text, role) {
-            const container = document.getElementById('chatMessages');
-            const div = document.createElement('div');
-            div.className = role === 'user'
-                ? 'msg-user self-end max-w-xs text-sm px-4 py-3 rounded-xl rounded-br-sm fade-in'
-                : 'msg-ai self-start max-w-xs text-sm px-4 py-3 rounded-xl rounded-bl-sm fade-in';
-            div.textContent = text;
-            container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
-            return div;
-        },
-
-        addSystemMessage(text) {
-            const container = document.getElementById('chatMessages');
-            const div = document.createElement('div');
-            div.className = 'self-center text-xs text-gray-400 italic fade-in';
-            div.textContent = `— ${text} —`;
-            container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
-        },
-
-        addTyping() {
-            const container = document.getElementById('chatMessages');
-            const div = document.createElement('div');
-            div.className = 'msg-ai self-start px-4 py-3 rounded-xl rounded-bl-sm text-blue-400 text-sm italic';
-            div.id = 'typingIndicator';
-            div.innerHTML = '<span class="typing-dot">●</span> <span class="typing-dot">●</span> <span class="typing-dot">●</span>';
-            container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
-        },
-
-        removeTyping() {
-            const el = document.getElementById('typingIndicator');
-            if (el) el.remove();
-        },
-
-        quickAsk(text) {
-            document.getElementById('chatInput').value = text;
-            this.sendMessage();
-        },
-
-        // ── Main send ─────────────────────────────────────────────────
-        async sendMessage() {
-            const input = document.getElementById('chatInput');
-            const text = input.value.trim();
-            if (!text) return;
-            input.value = '';
-
-            this.addMessage(text, 'user');
-            this.chatHistory.push({ role: 'user', content: text });
-            this.addTyping();
-
-            try {
-                const res = await fetch(this.AI_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        message: text,
-                        history: this.chatHistory.slice(-6),
-                        force_pillar: this.activePillar,   // ← sent to backend
-                        location: "Lagos, LASU",
-                        niche: "student fragrance market"
-                    })
-                });
-
-                if (res.status === 401) throw new Error('Authentication failed. Please contact support.');
-                if (res.status === 429) throw new Error('Rate limit hit. Please wait 60 seconds.');
-                if (!res.ok)           throw new Error(`Service error (${res.status})`);
-
-                const data = await res.json();
-                this.removeTyping();
-
-                // Sync pillar UI from what the engine actually used
-                this.syncFromResponse(data);
-
-                this.addMessage(data.response || 'No response received.', 'ai');
-                this.chatHistory.push({ role: 'assistant', content: data.response });
-
-            } catch (err) {
-                this.removeTyping();
-                let msg = err.message;
-                if (msg.includes('Failed to fetch')) {
-                    msg = 'Cannot reach the service — it may be waking up. Try again in 30 seconds.';
-                }
-                this.addMessage(msg, 'ai');
-            }
-
-            if (this.chatHistory.length > 20) {
-                this.chatHistory = this.chatHistory.slice(-20);
-            }
+    // ── Pillar selection — intent only, no names shown ───────────────
+    setPillar(num) {
+        this.activePillar = num;
+        for (let i = 1; i <= 4; i++) {
+            document.getElementById(`pillar${i}Btn`).className =
+                `pillar-btn ${i === num ? "pillar-active" : "pillar-inactive"} px-3 py-2.5 rounded-lg text-xs font-bold text-left`;
         }
-    };
+    },
 
-    document.addEventListener('DOMContentLoaded', () => Portal.init());
-    </script>
+    // ── Usage bar ────────────────────────────────────────────────────
+    updateUsage(usage) {
+        if (!usage) return;
+        const { requests_used, remaining, is_premium, limit } = usage;
+        const label = document.getElementById("usageLabel");
+        const bar   = document.getElementById("usageBarFill");
+        const pct   = Math.min(100, Math.round((requests_used / limit) * 100));
+
+        label.textContent = is_premium ? "∞ (Premium)" : `${requests_used} / ${limit}`;
+        bar.style.width   = `${pct}%`;
+
+        if (pct >= 80) {
+            bar.style.background = "#EF4444";
+            document.getElementById("upgradeBanner").classList.remove("hidden");
+        } else if (pct >= 60) {
+            bar.style.background = "#F59E0B";
+        } else {
+            bar.style.background = "#22C55E";
+        }
+    },
+
+    // ── Member search (unchanged from original) ──────────────────────
+    async search() {
+        const query  = document.getElementById("searchInput").value.trim().toLowerCase();
+        const loader = document.getElementById("loader");
+        const error  = document.getElementById("searchError");
+        const result = document.getElementById("result");
+        if (!query) return;
+
+        loader.classList.remove("hidden");
+        error.classList.add("hidden");
+        result.classList.add("hidden");
+
+        try {
+            const response = await fetch(this.SHEET_URL);
+            const data     = await response.json();
+            const user     = data.find(row =>
+                Object.values(row).some(v => v?.toString().toLowerCase().includes(query))
+            );
+            if (!user) throw new Error("Member not found. Check your details and try again.");
+
+            const name = user.NAME || user.Name || "Member";
+            document.getElementById("resName").innerText    = name;
+            document.getElementById("resInitial").innerText = name.charAt(0).toUpperCase();
+            document.getElementById("resID").innerText      = `ID: ${user["PENAFORT ID"] || "N/A"}`;
+            document.getElementById("resPoints").innerText  = Number(user.POINTS || 0).toLocaleString();
+            result.classList.remove("hidden");
+        } catch (e) {
+            error.innerText = e.message;
+            error.classList.remove("hidden");
+        } finally {
+            loader.classList.add("hidden");
+        }
+    },
+
+    // ── Chat helpers ─────────────────────────────────────────────────
+    addMessage(text, role) {
+        const container = document.getElementById("chatMessages");
+        const div       = document.createElement("div");
+        div.className   = role === "user"
+            ? "msg-user self-end max-w-xs text-sm px-4 py-3 rounded-xl rounded-br-sm fade-in"
+            : "msg-ai self-start max-w-xs text-sm px-4 py-3 rounded-xl rounded-bl-sm fade-in";
+        div.textContent = text;
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+    },
+
+    addSystemMsg(text) {
+        const container = document.getElementById("chatMessages");
+        const div       = document.createElement("div");
+        div.className   = "self-center text-xs text-gray-400 italic fade-in";
+        div.textContent = `— ${text} —`;
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+    },
+
+    addTyping() {
+        const container = document.getElementById("chatMessages");
+        const div       = document.createElement("div");
+        div.id          = "typingIndicator";
+        div.className   = "msg-ai self-start px-4 py-3 rounded-xl rounded-bl-sm text-blue-300 text-sm italic";
+        div.innerHTML   = '<span class="typing-dot">●</span> <span class="typing-dot">●</span> <span class="typing-dot">●</span>';
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+    },
+
+    removeTyping() {
+        const el = document.getElementById("typingIndicator");
+        if (el) el.remove();
+    },
+
+    quickAsk(text) {
+        document.getElementById("chatInput").value = text;
+        this.sendMessage();
+    },
+
+    // ── Main send ────────────────────────────────────────────────────
+    async sendMessage() {
+        const input = document.getElementById("chatInput");
+        const text  = input.value.trim();
+        if (!text) return;
+        input.value = "";
+
+        this.addMessage(text, "user");
+        this.chatHistory.push({ role: "user", content: text });
+        this.addTyping();
+
+        // Disable send while waiting
+        document.getElementById("sendBtn").disabled = true;
+
+        try {
+            const res = await fetch(this.AI_URL, {
+                method:  "POST",
+                headers: { "Content-Type": "application/json" },
+                body:    JSON.stringify({
+                    message:      text,
+                    history:      this.chatHistory.slice(-6),
+                    user_id:      this.userId,
+                    location:     this.location,
+                    niche:        this.niche,
+                    budget:       this.budget,
+                    force_pillar: this.activePillar,
+                }),
+            });
+
+            this.removeTyping();
+
+            if (res.status === 401) throw new Error("Authentication failed. Please contact support.");
+            if (res.status === 429) throw new Error("Too many requests. Please wait 60 seconds.");
+            if (res.status === 402) throw new Error(
+                "You've used all 15 free analyses. Upgrade to continue."
+            );
+            if (!res.ok) throw new Error(`Service error (${res.status})`);
+
+            const data = await res.json();
+
+            // Update model badge (internal — not framework name)
+            if (data.meta?.model) {
+                document.getElementById("modelBadge").textContent = data.meta.model;
+            }
+
+            // Update usage bar
+            this.updateUsage(data.usage);
+
+            // Display response — no framework prefix
+            this.addMessage(data.response || "No response received.", "ai");
+            this.chatHistory.push({ role: "assistant", content: data.response });
+
+        } catch (err) {
+            this.removeTyping();
+            let msg = err.message;
+            if (msg.includes("Failed to fetch")) {
+                msg = "Cannot reach the service — it may be waking up. Try again in 30 seconds.";
+            }
+            this.addMessage(msg, "ai");
+        }
+
+        document.getElementById("sendBtn").disabled = false;
+
+        // Keep history bounded
+        if (this.chatHistory.length > 20) {
+            this.chatHistory = this.chatHistory.slice(-20);
+        }
+    },
+
+    // ── History dashboard ────────────────────────────────────────────
+    async loadHistory() {
+        const list = document.getElementById("historyList");
+        list.innerHTML = '<p class="text-xs text-gray-400 text-center py-6 animate-pulse">Loading history...</p>';
+
+        try {
+            const res  = await fetch(`${this.HISTORY_URL}?user_id=${encodeURIComponent(this.userId)}`, {
+                headers: { "Content-Type": "application/json" },
+            });
+            const data = await res.json();
+
+            if (!data.history || data.history.length === 0) {
+                list.innerHTML = '<p class="text-xs text-gray-400 text-center py-10">No history yet. Start an analysis.</p>';
+                return;
+            }
+
+            const PILLAR_LABELS = {1:"👥 Customer", 2:"🏪 Market", 3:"⚙️ Capability", 4:"📈 Growth"};
+
+            list.innerHTML = data.history.map(h => {
+                const date  = new Date(h.timestamp).toLocaleString("en-NG", {
+                    day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit"
+                });
+                const label = PILLAR_LABELS[h.pillar] || "🔗 Analysis";
+                const preview = h.response?.substring(0, 120) + (h.response?.length > 120 ? "..." : "");
+
+                return `
+                <div class="history-item p-4 cursor-pointer hover:bg-blue-50 transition-all"
+                     onclick="Portal.replayHistory('${encodeURIComponent(h.query)}')">
+                    <div class="flex justify-between items-start mb-1">
+                        <span class="text-xs font-bold text-blue-900">${label}</span>
+                        <span class="text-xs text-gray-400">${date}</span>
+                    </div>
+                    <p class="text-xs font-medium text-gray-700 mb-1 truncate">${h.query}</p>
+                    <p class="text-xs text-gray-400 leading-relaxed">${preview}</p>
+                </div>`;
+            }).join("");
+
+        } catch (e) {
+            list.innerHTML = '<p class="text-xs text-red-400 text-center py-6">Could not load history.</p>';
+        }
+    },
+
+    replayHistory(encodedQuery) {
+        this.switchTab("analysis");
+        document.getElementById("chatInput").value = decodeURIComponent(encodedQuery);
+    },
+
+    // ── Profile ──────────────────────────────────────────────────────
+    async saveProfile() {
+        this.location = document.getElementById("profLocation").value.trim() || this.location;
+        this.niche    = document.getElementById("profNiche").value.trim()    || this.niche;
+        this.budget   = parseInt(document.getElementById("profBudget").value) || this.budget;
+
+        localStorage.setItem("pf_session", JSON.stringify({
+            userId: this.userId, location: this.location,
+            niche:  this.niche,  budget:   this.budget,
+        }));
+
+        const msg = document.getElementById("profileMsg");
+        try {
+            await this._saveProfileToBackend();
+            msg.textContent = "✅ Context saved.";
+        } catch (_) {
+            msg.textContent = "✅ Saved locally.";
+        }
+        msg.classList.remove("hidden");
+        setTimeout(() => msg.classList.add("hidden"), 3000);
+    },
+
+    async _saveProfileToBackend() {
+        try {
+            await fetch(this.PROFILE_URL, {
+                method:  "POST",
+                headers: { "Content-Type": "application/json" },
+                body:    JSON.stringify({
+                    user_id:  this.userId,
+                    location: this.location,
+                    niche:    this.niche,
+                    budget:   this.budget,
+                }),
+            });
+        } catch (_) { /* silent — local save already done */ }
+    },
+
+    // ── Init ─────────────────────────────────────────────────────────
+    init() {
+        if (!this.restoreSession()) {
+            // Show onboarding if no saved session
+            document.getElementById("onboardingOverlay").style.display = "flex";
+        }
+        this.setPillar(3); // default active pillar
+    },
+};
+
+document.addEventListener("DOMContentLoaded", () => Portal.init());
+</script>
 </body>
 </html>
