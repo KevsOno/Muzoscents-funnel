@@ -3,6 +3,12 @@
 ### 🚀 Quick Access Links
 * **📺 Video Demo:** [Watch the 3-Minute Loom Walkthrough](http://www.videoloom.com)
 * **🌐 Live Production Deployment:** [Interactive Dashboard Frontend](https://mzfunnel.netlify.app/bizintel)
+* ### 🔐 Quick Onboarding (No Signup Required)
+To evaluate the live dashboard environment with pre-loaded sample datasets, you can either:
+1. **Instant Entry:** Click the **"One-Click Demo Access"** button directly on the live login landing page to automatically authenticate via our backend API token vault.
+2. **Manual Entry:** Use the credentials below if you prefer standard manual authentication processing:
+   * **Username / Email:** `demo@kevsdigital.com`
+   * **Password:** `KevsDemo2026!`
 
 ### 🔐 Demo Sandbox Credentials
 To evaluate the live system without creating a new organization, use the following pre-loaded sandbox account:
