@@ -2,7 +2,12 @@
 
 ### 🚀 Quick Access Links
 * **📺 Video Demo:** [Watch the 3-Minute Loom Walkthrough](http://www.videoloom.com)
-* **🌐 Live Production Deployment:** [Interactive Dashboard Frontend](https://mzfunnel.netlify.app/)
+* **🌐 Live Production Deployment:** [Interactive Dashboard Frontend](https://mzfunnel.netlify.app/bizintel)
+
+### 🔐 Demo Sandbox Credentials
+To evaluate the live system without creating a new organization, use the following pre-loaded sandbox account:
+* **Username / Email:** `demo@kevsdigital.com`
+* **Password:** `KevsDemo2026!`
 
 ---
 
