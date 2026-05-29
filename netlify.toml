@@ -1,12 +1,11 @@
 [build]
   command = "cd netlify/functions && npm install || echo 'No dependencies to install'"
-  publish = "."
+  publish = "muzoscents-funnel"
 
 [functions]
   node_bundler = "esbuild"
   directory = "netlify/functions"
 
-# Security headers
 [[headers]]
   for = "/*"
   [headers.values]
@@ -14,13 +13,11 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
 
-# Rewrite root to bisignin.html
 [[redirects]]
   from = "/"
   to = "/bisignin.html"
   status = 200
 
-# Rewrite /bizintel to bizintel.html (this is what you need)
 [[redirects]]
   from = "/bizintel"
   to = "/bizintel.html"
