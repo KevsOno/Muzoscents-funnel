@@ -7,7 +7,7 @@
 ---
 
 [![System Walkthrough](https://img.shields.io/badge/Loom-Video_Walkthrough-blueviolet?style=for-the-badge&logo=loom)](http://www.videoloom.com)
-[![Live Demo](https://img.shields.io/badge/Netlify-Live_Production_Demo-success?style=for-the-badge&logo=netlify)](https://mzfunnel.netlify.app/bizintel)
+[![Live Demo](https://img.shields.io/badge/Netlify-Live_Production_Demo-success?style=for-the-badge&logo=netlify)](https://mzfunnel.netlify.app/)
 
 An enterprise-grade, single-instance business systems engineering platform designed to optimize customer acquisition pipelines, calculate unit economics in real time, and automate data-driven operational decision-making[cite: 3]. 
 
