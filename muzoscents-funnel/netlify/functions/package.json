@@ -1,0 +1,18 @@
+{
+  "name": "netlify-email-function",
+  "version": "1.0.0",
+  "description": "Netlify function for email subscription",
+  "main": "subscribe.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "node-fetch": "^2.6.1",
+    "@getbrevo/brevo": "^1.0.1",
+    "mongodb": "^6.3.0",
+    "@supabase/supabase-js": "^2.39.0"
+  }
+}
