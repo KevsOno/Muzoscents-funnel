@@ -14,8 +14,14 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
 
-# Rewrite / to /bisignin.html (keep URL as /)
+# Rewrite root to bisignin.html
 [[redirects]]
   from = "/"
   to = "/bisignin.html"
+  status = 200
+
+# Rewrite /bizintel to bizintel.html (this is what you need)
+[[redirects]]
+  from = "/bizintel"
+  to = "/bizintel.html"
   status = 200
