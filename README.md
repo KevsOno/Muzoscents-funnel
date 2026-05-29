@@ -2,7 +2,7 @@
 
 ### 🚀 Quick Access Links
 * **📺 Video Demo:** [Watch the 3-Minute Loom Walkthrough](http://www.videoloom.com)
-* **🌐 Live Production Deployment:** [Interactive Dashboard Frontend](https://mzfunnel.netlify.app/bizintel)
+* **🌐 Live Production Deployment:** [Interactive Dashboard Frontend](https://mzfunnel.netlify.app/)
 
 ---
 
