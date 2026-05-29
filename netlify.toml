@@ -13,3 +13,9 @@
     X-Frame-Options = "DENY"
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
+
+# Rewrite / to /bisignin.html (keep URL as /)
+[[redirects]]
+  from = "/"
+  to = "/bisignin.html"
+  status = 200
