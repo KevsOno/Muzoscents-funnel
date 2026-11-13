@@ -1,6 +1,9 @@
 [build]
+  # Change the publish directory to point to the new website folder
+  publish = "KevsDigital"
+  # If you don't need the old function build anymore, you can remove the command line below.
+  # If you do, leave it as is.
   command = "cd netlify/functions && npm install || echo 'No dependencies to install'"
-  publish = "muzoscents-funnel"
 
 [functions]
   node_bundler = "esbuild"
@@ -13,10 +16,8 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
 
-[[redirects]]
-  from = "/"
-  to = "/bisignin.html"
-  status = 200
+# IMPORTANT: We removed the redirect that sent "/" to "/bisignin.html".
+# Now, when someone visits the site root, Netlify will correctly serve "KevsDigital/index.html".
 
 [[redirects]]
   from = "/bizintel"
