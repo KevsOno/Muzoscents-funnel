@@ -1,8 +1,7 @@
 [build]
-  # Change the publish directory to point to the new website folder
+  # Publish directory pointing to the website folder
   publish = "KevsDigital"
-  # If you don't need the old function build anymore, you can remove the command line below.
-  # If you do, leave it as is.
+  # Install Netlify function dependencies (safe no-op if none exist)
   command = "cd netlify/functions && npm install || echo 'No dependencies to install'"
 
 [functions]
@@ -15,6 +14,10 @@
     X-Frame-Options = "DENY"
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
+    # Added CSP, COOP, and CORP for A+ Security
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self';"
+    Cross-Origin-Opener-Policy = "same-origin"
+    Cross-Origin-Resource-Policy = "same-origin"
 
 # IMPORTANT: We removed the redirect that sent "/" to "/bisignin.html".
 # Now, when someone visits the site root, Netlify will correctly serve "KevsDigital/index.html".
