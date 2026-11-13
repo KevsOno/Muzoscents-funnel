@@ -292,3 +292,59 @@ textarea{resize:vertical;min-height:120px}
 @media (prefers-reduced-motion:reduce){
   *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 }
+/* ---------- Real Screenshots & Gallery ---------- */
+.screenshot-frame {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  position: relative;
+}
+
+.screenshot-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  object-fit: cover;
+}
+
+.gallery-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  transition: transform .2s, box-shadow .2s;
+}
+
+.gallery-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.gallery-card .screenshot-frame {
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.gallery-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 8px;
+}
+
+.gallery-desc {
+  font-size: .92rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* Adjust hero image frame for mobile */
+@media (max-width: 860px) {
+  .mockup-wrap {
+    margin-top: 20px;
+  }
+}
