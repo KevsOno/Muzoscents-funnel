@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Case Study — Finding ₦56M of At-Risk Stock | Kevs Digital</title>
+<meta name="description" content="How a large-format supermarket used Kevs bOS to identify ₦56 million in at-risk inventory across 15,000+ SKUs before it expired." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header">
+  <div class="container nav">
+    <a href="index.html" class="logo" aria-label="Kevs Digital home">
+      <span class="logo-mark">K</span>
+      <span>Kevs Digital<small>Business Systems</small></span>
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="index.html">Home</a>
+      <a href="kevs-bos.html">Kevs bOS</a>
+      <a href="solutions.html">Solutions</a>
+      <a href="implementation.html">Implementation</a>
+      <a href="about.html">About</a>
+    </nav>
+    <div class="nav-actions">
+      <a href="contact.html" class="btn btn-secondary">Contact</a>
+      <a href="contact.html" class="btn btn-primary">Book a Demo</a>
+    </div>
+    <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="main-content">
+
+  <style>
+    .kd-cs {
+      --cs-ink: #0f1b2d;
+      --cs-muted: #56667c;
+      --cs-line: #dde4ee;
+      --cs-panel: #f5f8fc;
+      --cs-navy: #0f1f3a;
+      --cs-accent: #1f4280;
+      --cs-expired: #b8412f;
+      --cs-critical: #e8a33d;
+      --cs-high: #f2cf8c;
+      font-family: inherit;
+      color: var(--cs-ink);
+      padding: clamp(2.5rem, 6vw, 4.5rem) 1.25rem;
+      line-height: 1.65;
+      background: #fff;
+    }
+    .kd-cs * { box-sizing: border-box; }
+    .kd-cs .cs-wrap { max-width: 760px; margin: 0 auto; }
+
+    .kd-cs .cs-kicker { color: var(--cs-accent); font-weight: 600; font-size: 0.95rem; margin: 0; text-transform: uppercase; letter-spacing: 0.05em; }
+    .kd-cs h1 { font-size: clamp(1.8rem, 4.6vw, 2.6rem); line-height: 1.2; margin: 0.4rem 0 1rem; color: var(--navy); letter-spacing: -.02em; }
+    .kd-cs .cs-lede { font-size: 1.12rem; margin: 0 0 1.8rem; color: var(--text-muted); }
+
+    .kd-cs .cs-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem 1.5rem; margin: 0 0 1.8rem; padding: 1.1rem 0; border-top: 1px solid var(--cs-line); border-bottom: 1px solid var(--cs-line); }
+    .kd-cs .cs-facts dt { color: var(--cs-muted); font-size: 0.85rem; margin: 0; }
+    .kd-cs .cs-facts dd { margin: 0.1rem 0 0; font-weight: 600; }
+
+    .kd-cs .cs-readout { background: var(--cs-navy); color: #fff; border-radius: 14px; padding: 1.4rem 1.5rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 0 0 0.6rem; }
+    .kd-cs .cs-stat strong { display: block; font-size: clamp(1.5rem, 4.4vw, 2.1rem); line-height: 1.1; font-variant-numeric: tabular-nums; color: #fff; }
+    .kd-cs .cs-stat span { display: block; font-size: 0.85rem; color: #b9c6da; margin-top: 0.3rem; line-height: 1.4; }
+    .kd-cs .cs-source { font-size: 0.85rem; color: var(--cs-muted); margin: 0 0 2rem; }
+
+    .kd-cs h2 { font-size: 1.35rem; line-height: 1.3; margin: 2.4rem 0 0.6rem; color: var(--navy); }
+    .kd-cs p { margin: 0 0 1rem; }
+    .kd-cs ul { margin: 0 0 1rem; padding-left: 1.2rem; }
+    .kd-cs li { margin-bottom: 0.4rem; }
+
+    .kd-cs .cs-bar { display: flex; height: 14px; border-radius: 7px; overflow: hidden; margin: 1rem 0 0.4rem; }
+    .kd-cs .cs-bar span { display: block; height: 100%; }
+    .kd-cs .cs-bar .b-expired { background: var(--cs-expired); }
+    .kd-cs .cs-bar .b-critical { background: var(--cs-critical); }
+    .kd-cs .cs-bar .b-high { background: var(--cs-high); }
+    .kd-cs .cs-bar-note { font-size: 0.85rem; color: var(--cs-muted); margin: 0 0 1rem; }
+
+    .kd-cs .cs-table-wrap { overflow-x: auto; border: 1px solid var(--cs-line); border-radius: 10px; margin: 0 0 1rem; }
+    .kd-cs table { width: 100%; border-collapse: collapse; font-size: 0.95rem; min-width: 460px; }
+    .kd-cs th, .kd-cs td { padding: 0.7rem 0.9rem; text-align: left; }
+    .kd-cs thead th { background: var(--cs-panel); font-weight: 600; }
+    .kd-cs tbody td { border-top: 1px solid var(--cs-line); }
+    .kd-cs .num { text-align: right; font-variant-numeric: tabular-nums; }
+    .kd-cs tfoot td { border-top: 2px solid var(--cs-line); font-weight: 700; }
+
+    .kd-cs .cs-limits { background: var(--cs-panel); border-left: 4px solid var(--cs-accent); border-radius: 0 10px 10px 0; padding: 1rem 1.2rem; margin: 0 0 1rem; }
+    .kd-cs .cs-limits p:last-child { margin-bottom: 0; }
+
+    .kd-cs .cs-cta { margin-top: 2.6rem; padding-top: 1.8rem; border-top: 1px solid var(--cs-line); }
+    .kd-cs .cs-cta h2 { margin-top: 0; }
+    .kd-cs .cs-btn { display: inline-block; background: var(--cs-accent); color: #fff; text-decoration: none; font-weight: 600; padding: 0.8rem 1.6rem; border-radius: 10px; min-height: 44px; transition: background 0.2s; }
+    .kd-cs .cs-btn:hover { background: var(--blue-electric); }
+
+    @media (max-width: 560px) {
+      .kd-cs .cs-facts { grid-template-columns: 1fr; }
+      .kd-cs .cs-readout { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+
+  <section class="kd-cs" aria-labelledby="cs-title">
+    <div class="cs-wrap">
+
+      <p class="cs-kicker">Case study · Large-format supermarket</p>
+      <h1 id="cs-title">Finding ₦56 million of at-risk stock before it expired</h1>
+      <p class="cs-lede">A supermarket with more than 15,000 active products ran the Kevs bOS expiry report on its live stock. In a single report, the system surfaced every batch nearing expiry, with a combined value of ₦56 million. 98.8% of that value had not yet expired when it was flagged.</p>
+
+      <dl class="cs-facts">
+        <div><dt>Business</dt><dd>Large-format supermarket, Nigeria</dd></div>
+        <div><dt>Catalogue</dt><dd>More than 15,000 active products</dd></div>
+        <div><dt>Deployment</dt><dd>Live, in daily use</dd></div>
+        <div><dt>Capability shown</dt><dd>Batch-level expiry intelligence</dd></div>
+      </dl>
+
+      <div class="cs-readout">
+        <div class="cs-stat"><strong>₦56.0M</strong><span>of stock flagged as at risk</span></div>
+        <div class="cs-stat"><strong>98.8%</strong><span>of that value not yet expired when flagged</span></div>
+        <div class="cs-stat"><strong>830</strong><span>items flagged in one report</span></div>
+      </div>
+      <p class="cs-source">One automated report from a live deployment. Client name withheld.</p>
+
+      <h2>The situation</h2>
+      <p>With more than 15,000 active products, nobody can track expiry dates by eye. Tracking expiry at product level, or in a spreadsheet, hides the batch that matters: the delivery that arrived last quarter and will expire before the shelf rotates through it.</p>
+
+      <h2>What bOS did</h2>
+      <ul>
+        <li>Tracked expiry per batch, not just per product.</li>
+        <li>Scanned every batch within 150 days of expiry and grouped them into three tiers: expired, critical and high risk.</li>
+        <li>Showed days to expiry and the naira value at risk for each item.</li>
+        <li>Recommended which batch to sell first (FEFO), and kept a timestamped record of each alert and action.</li>
+      </ul>
+
+      <h2>What the report found</h2>
+      <div class="cs-table-wrap">
+        <table>
+          <thead>
+            <tr><th>Risk tier</th><th class="num">Items</th><th class="num">Value at risk</th><th class="num">Share of value</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Already expired</td><td class="num">23</td><td class="num">₦0.67M</td><td class="num">1.2%</td></tr>
+            <tr><td>Critical</td><td class="num">431</td><td class="num">₦30.11M</td><td class="num">53.8%</td></tr>
+            <tr><td>High</td><td class="num">376</td><td class="num">₦25.22M</td><td class="num">45.0%</td></tr>
+          </tbody>
+          <tfoot>
+            <tr><td>Total flagged</td><td class="num">830</td><td class="num">₦56.00M</td><td class="num">100%</td></tr>
+          </tfoot>
+        </table>
+      </div>
+      <div class="cs-bar" role="img" aria-label="Share of flagged value: 1.2% expired, 53.8% critical, 45.0% high risk">
+        <span class="b-expired" style="width:1.2%"></span>
+        <span class="b-critical" style="width:53.8%"></span>
+        <span class="b-high" style="width:45%"></span>
+      </div>
+      <p class="cs-bar-note">Dark red: already expired. Amber: critical. Light amber: high risk.</p>
+      <p>Only ₦0.67M of the flagged value had already expired. The other ₦55.3M was still on the shelf and within its date, which is the point of an early warning: the team had time to act instead of writing it off afterwards.</p>
+
+      <h2>What the team can do with that time</h2>
+      <ul>
+        <li>Rotate stock so the earliest-expiry batch sells first.</li>
+        <li>Return stock to suppliers where return terms allow.</li>
+        <li>Transfer stock to a location that sells it faster.</li>
+        <li>Mark down the batches that will not sell through in time.</li>
+      </ul>
+      <p>Each action is logged with a timestamp, so there is a record of what was flagged, what was done and when.</p>
+
+      <h2>Outcome</h2>
+      <p>Within 60 days of running the report, the operational impact went beyond just identifying expired stock:</p>
+      <ul>
+        <li><strong>Deeper operational awareness:</strong> Staff shifted from reactive checking to proactive management, knowing exactly which batches were nearing expiry.</li>
+        <li><strong>Disciplined shelving:</strong> The FEFO recommendations were actively used to rotate stock, ensuring older batches moved to the front.</li>
+        <li><strong>Compliance confidence:</strong> The fear of regulatory fines or penalties associated with expired products on the shelf was significantly reduced, backed by the system's timestamped audit trail.</li>
+        <li><strong>Smarter procurement:</strong> Buying decisions became data-driven, reducing the over-ordering of short-dated stock.</li>
+        <li><strong>Stronger vendor agreements:</strong> Armed with precise at-risk inventory data, management was able to negotiate better return terms and delivery schedules with suppliers.</li>
+      </ul>
+
+      <h2>What this case study does and does not show</h2>
+      <div class="cs-limits">
+        <p>It shows that bOS can find expiry risk early across a very large catalogue, and put a naira value on it.</p>
+        <p>It does not claim that ₦56 million was saved. Flagged value is stock at risk, not money recovered, and this is one report from one business.</p>
+      </div>
+
+      <div class="cs-cta">
+        <h2>See what your own stock would show</h2>
+        <p>Talk to us about how the expiry report would work on your catalogue.</p>
+        <a class="cs-btn" href="contact.html">Request a demonstration</a>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<!-- ===== FOOTER ===== -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="logo"><span class="logo-mark">K</span><span>Kevs Digital<small>Business Systems</small></span></a>
+        <p>An engineering-led technology company. We design, build and operate intelligent business systems — including our flagship product, Kevs bOS.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="kevs-bos.html">Kevs bOS overview</a>
+        <a href="kevs-bos.html#modules">Platform modules</a>
+        <a href="kevs-bos.html#inventory">Inventory intelligence</a>
+        <a href="kevs-bos.html#security">Security</a>
+      </div>
+      <div class="footer-col">
+        <h4>Solutions</h4>
+        <a href="solutions.html#supermarkets">Supermarkets</a>
+        <a href="solutions.html#pharmacies">Pharmacies</a>
+        <a href="solutions.html#foodservice">Food service</a>
+        <a href="solutions.html#multibranch">Multi-branch retail</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="about.html">About Kevs Digital</a>
+        <a href="implementation.html">Implementation</a>
+        <a href="case-study.html">Case Study</a>
+        <a href="contact.html">Contact</a>
+        <a href="contact.html">Book a demo</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>&copy; <span id="year">2026</span> Kevs Digital. All rights reserved.</div>
+      <div><a href="privacy.html">Privacy Notice</a> &nbsp;·&nbsp; <a href="terms.html">Terms of Service</a></div>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/main.js"></script>
+<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>
