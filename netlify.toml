@@ -14,10 +14,12 @@
     X-Frame-Options = "DENY"
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
-    # Added CSP, COOP, and CORP for A+ Security
+    # Added CSP, COOP, CORP, Referrer-Policy, and Permissions-Policy for A+ Security
     Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self';"
     Cross-Origin-Opener-Policy = "same-origin"
     Cross-Origin-Resource-Policy = "same-origin"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
 
 # IMPORTANT: We removed the redirect that sent "/" to "/bisignin.html".
 # Now, when someone visits the site root, Netlify will correctly serve "KevsDigital/index.html".
