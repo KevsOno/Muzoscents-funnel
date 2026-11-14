@@ -425,7 +425,7 @@
         if (!content) content = '(empty message)';
         const div = document.createElement('div');
         div.className = `p-2 rounded-lg ${role === 'user' ? 'bg-blue-100 text-right ml-8' : 'bg-gray-100 mr-8'}`;
-        let html = `<strong class="text-sm">${role === 'user' ? 'You' : 'Kevs AI'}</strong>
+        let html = `<strong class="text-sm">${role === 'user' ? 'You' : 'Assistant'}</strong>
                     <div class="text-sm mt-1">${escapeHtml(content).replace(/\n/g, '<br/>')}</div>`;
         if (role === 'assistant' && pillarInfo && pillarInfo.pillar_name) {
             html += `<div class="text-xs text-gray-400 mt-1 pt-1 border-t border-gray-200">🧠 Lens: ${pillarInfo.pillar_name}</div>`;
