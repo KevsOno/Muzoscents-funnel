@@ -1,4 +1,4 @@
-/* Kevs Digital — site interactions */
+/* Kevs Digital, site interactions */
 (function () {
   'use strict';
 
