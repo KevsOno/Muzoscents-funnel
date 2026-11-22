@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Partner with Kevs Digital | Lagos B2B Sales Partner for Kevs bOS</title>
+  <title>Partner with Kevs Digital | Nigeria B2B Sales Partner for Kevs bOS</title>
   <meta name="description" content="Become a Kevs Digital sales partner in Nigeria. Introduce supermarkets, pharmacies, grocery stores and restaurants to Kevs bOS and earn 18% to 30% recurring commission while active." />
   <link rel="canonical" href="https://kevsdigital.netlify.app/partner.html" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://kevsdigital.netlify.app/partner.html" />
-  <meta property="og:title" content="Partner with Kevs Digital | Lagos B2B Sales Partner for Kevs bOS" />
+  <meta property="og:title" content="Partner with Kevs Digital | Nigeria B2B Sales Partner for Kevs bOS" />
   <meta property="og:description" content="Commission-only B2B sales partnership for connectors and agencies introducing Kevs bOS to retail, pharmacy and food service businesses in Nigeria." />
   <meta property="og:image" content="https://kevsdigital.netlify.app/assets/images/pos.png" />
   <meta name="twitter:card" content="summary_large_image" />
@@ -22,7 +22,7 @@
     "@type": "WebPage",
     "name": "Partner with Kevs Digital",
     "url": "https://kevsdigital.netlify.app/partner.html",
-    "description": "Public sales partner overview for introducing Kevs bOS to supermarkets, pharmacies, grocery stores and restaurants in Nigeria.",
+    "description": "Public sales partner overview and application form for introducing Kevs bOS to supermarkets, pharmacies, grocery stores and restaurants in Nigeria.",
     "publisher": {
       "@type": "Organization",
       "name": "Kevs Digital",
@@ -48,7 +48,7 @@
     </nav>
     <div class="nav-actions">
       <a href="contact.html" class="btn btn-secondary">Contact</a>
-      <a href="#apply" class="btn btn-primary" target="_blank" rel="noopener">Apply as Partner</a>
+      <a href="#apply" class="btn btn-primary">Apply as Partner</a>
     </div>
     <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
@@ -63,7 +63,7 @@
       <h1>Partner with Kevs Digital to introduce Kevs bOS in Nigeria.</h1>
       <p>Connect established supermarkets, pharmacies, grocery stores and restaurants with a co-managed business operating system while Kevs Digital handles technical onboarding and support.</p>
       <div class="mt-3" style="display:flex; gap:12px; flex-wrap:wrap;">
-        <a href="#apply" class="btn btn-primary" target="_blank" rel="noopener">Apply to Partner (5-Min Form)</a>
+        <a href="#apply" class="btn btn-primary">Apply Below (5-Min Form)</a>
         <a href="contact.html" class="btn btn-secondary">Ask a Question</a>
       </div>
     </div>
@@ -118,7 +118,7 @@
       <div class="section-header center">
         <span class="eyebrow">Who We Are Looking For</span>
         <h2>Built for connectors with real relationships in Nigeria.</h2>
-        <p>We are starting our partner rollout in Nigeria with a focus on retail, pharmacy and food service businesses.</p>
+        <p>We are rolling out our partner programme in Nigeria with a focus on retail, pharmacy and food service businesses.</p>
       </div>
       <div class="grid grid-2">
         <div class="card">
@@ -136,17 +136,188 @@
     </div>
   </section>
 
-  <section class="section section-alt">
+  <section id="apply" class="section section-alt">
     <div class="container">
-      <div class="cta-band">
-        <h2>Ready to introduce Kevs bOS to your network?</h2>
-        <p>Complete the short partner application form in about five minutes. Please review our <a href="privacy.html" style="color:inherit; text-decoration:underline;">Privacy Notice</a> before submitting.</p>
-        <div class="cta-actions">
-          <a href="#apply" class="btn btn-white" target="_blank" rel="noopener">Start Partner Application</a>
-          <a href="contact.html" class="btn btn-secondary">Contact Kevs Digital</a>
+      <div class="grid grid-2" style="gap:56px;align-items:start">
+
+        <div class="form-card">
+          <span class="eyebrow">Partner Application</span>
+          <h2 style="font-size:1.5rem;margin-bottom:8px;color:var(--navy);letter-spacing:-.02em">Apply to become a sales partner</h2>
+          <p class="muted small mb-3">Takes about five minutes. Fields marked <span style="color:#DC2626">*</span> are required.</p>
+
+          <form name="partner-application" method="POST" data-netlify="true" netlify-honeypot="bot-field" action="/thank-you.html">
+            <input type="hidden" name="form-name" value="partner-application" />
+            <input type="hidden" name="source_channel" value="Website" />
+            <p style="display:none"><label>Don't fill this out: <input name="bot-field" /></label></p>
+
+            <div class="form-group">
+              <label for="commission_comfort">This is an independent partnership paid by commission only. There is no salary and no guaranteed income. Are you comfortable with this? <span class="req">*</span></label>
+              <select id="commission_comfort" name="commission_comfort" required>
+                <option value="">Select an option</option>
+                <option>Yes, I understand and I am comfortable</option>
+                <option>No, I am looking for a salaried role</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="nigeria_presence">Are you based in Nigeria, or able to meet business owners in Nigeria in person? <span class="req">*</span></label>
+              <select id="nigeria_presence" name="nigeria_presence" required>
+                <option value="">Select an option</option>
+                <option>Yes</option>
+                <option>No</option>
+              </select>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="full_name">Full name <span class="req">*</span></label>
+                <input id="full_name" name="full_name" type="text" required placeholder="Your full name" />
+              </div>
+              <div class="form-group">
+                <label for="phone_whatsapp">WhatsApp or phone number <span class="req">*</span></label>
+                <input id="phone_whatsapp" name="phone_whatsapp" type="tel" required pattern="^(\+234|0)[789][01][0-9]{8}$" placeholder="08012345678 or +2348012345678" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="email">Email address <span class="req">*</span></label>
+                <input id="email" name="email" type="email" required placeholder="you@example.com" />
+              </div>
+              <div class="form-group">
+                <label for="location_area">City and area in Nigeria where you are based <span class="req">*</span></label>
+                <input id="location_area" name="location_area" type="text" required placeholder="e.g. Ikeja or Lekki in Lagos, or Abuja" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="profile_url">LinkedIn profile or website (optional)</label>
+              <input id="profile_url" name="profile_url" type="url" placeholder="https://linkedin.com/in/your-profile" />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="b2b_experience">Years of B2B sales, business development or account management experience <span class="req">*</span></label>
+                <select id="b2b_experience" name="b2b_experience" required>
+                  <option value="">Select experience</option>
+                  <option>None</option>
+                  <option>Under 1 year</option>
+                  <option>1 to 2 years</option>
+                  <option>3 to 5 years</option>
+                  <option>More than 5 years</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="profile_type">Which best describes you? <span class="req">*</span></label>
+                <select id="profile_type" name="profile_type" required>
+                  <option value="">Select background</option>
+                  <option>Independent sales or business development consultant</option>
+                  <option>Salaried sales or business development professional</option>
+                  <option>Distributor, FMCG or pharma sales representative</option>
+                  <option>Accountant, bookkeeper or business adviser to retailers</option>
+                  <option>POS, equipment or software vendor</option>
+                  <option>Marketing or media agency</option>
+                  <option>Other</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="relevant_sale">Describe the most relevant sale you have made to a business: what you sold, to whom, and roughly how large the deal was. <span class="req">*</span></label>
+              <textarea id="relevant_sale" name="relevant_sale" required placeholder="Share what you sold, the type of business and approximate deal size."></textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="competing_software">Do you currently sell or represent competing business software (POS, inventory or accounting)? <span class="req">*</span></label>
+                <select id="competing_software" name="competing_software" required>
+                  <option value="">Select</option>
+                  <option>No</option>
+                  <option>Yes</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="owners_known">How many supermarket, pharmacy, grocery or restaurant owners or managers do you know well enough to introduce? <span class="req">*</span></label>
+                <select id="owners_known" name="owners_known" required>
+                  <option value="">Select range</option>
+                  <option>0 to 2</option>
+                  <option>3 to 5</option>
+                  <option>6 to 10</option>
+                  <option>More than 10</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="competing_details">If yes to competing software, which?</label>
+              <input id="competing_details" name="competing_details" type="text" placeholder="Leave blank if No" />
+            </div>
+
+            <div class="form-group">
+              <label for="first_month_leads">Name three businesses you could introduce in your first month, and how you know the owner or manager of each. <span class="req">*</span></label>
+              <textarea id="first_month_leads" name="first_month_leads" required placeholder="Business names and how you know the owner or manager only. Do not include other people's phone numbers or personal details."></textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="weekly_hours">Hours per week for prospecting and follow-up <span class="req">*</span></label>
+                <select id="weekly_hours" name="weekly_hours" required>
+                  <option value="">Select hours</option>
+                  <option>Under 5</option>
+                  <option>5 to 10</option>
+                  <option>11 to 20</option>
+                  <option>More than 20</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="start_timeline">When could you start? <span class="req">*</span></label>
+                <select id="start_timeline" name="start_timeline" required>
+                  <option value="">Select timeline</option>
+                  <option>Immediately</option>
+                  <option>Within two weeks</option>
+                  <option>Within a month</option>
+                  <option>Later</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="checkbox-row">
+                <input type="checkbox" name="consent" required />
+                <span>I confirm that my answers are accurate, and I agree that Kevs Digital may contact me about this application and keep my details for recruitment purposes in line with the <a href="privacy.html">Privacy Notice</a>.</span>
+              </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width:100%">Submit partner application
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+          </form>
         </div>
+
+        <div>
+          <div class="card mb-4" style="background:var(--bg-light); border-color:var(--border);">
+            <h3 style="font-size:1.2rem;color:var(--navy);margin-bottom:12px;">What happens after you apply</h3>
+            <p class="small muted mb-2">We review every application directly, focusing on real relationships with business owners and practical B2B sales experience.</p>
+            <p class="small muted">If your profile matches what we need for the Nigeria rollout, we reach out to schedule a short introductory call and walk through the full partner terms.</p>
+          </div>
+
+          <div class="card">
+            <h3 style="font-size:1.15rem;color:var(--navy);margin-bottom:12px;">Before submitting</h3>
+            <p class="small muted mb-2">1. Please list business names and how you know the decision-maker only. Do not include third-party phone numbers or personal details in your application.</p>
+            <p class="small muted">2. Read our <a href="privacy.html">Privacy Notice</a> to see how application records are handled and retained.</p>
+          </div>
+        </div>
+
       </div>
     </div>
+  </section>
+
+  <section class="section">
+    <div class="container"><div class="cta-band">
+      <h2>Ready to introduce Kevs bOS to your network?</h2>
+      <p>Complete the partner application form above or reach out directly if you have a question before applying.</p>
+      <div class="cta-actions"><a href="#apply" class="btn btn-white">Go to Application Form</a></div>
+    </div></div>
   </section>
 </main>
 
